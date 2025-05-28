@@ -4,10 +4,12 @@
     "effect": "^3.16.0"
   },
   "devDependencies": {
-    "prettier": "^3.5.3"
+    "prettier": "^3.5.3",
+    "vite": "^6.3.5"
   },
   "scripts": {
     "fmt": "prettier --check *.ts *.html",
-    "fmt:fix": "prettier --write *.ts *.html"
+    "fmt:fix": "prettier --write *.ts *.html",
+    "serve": "vite"
   }
 }
