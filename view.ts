@@ -30,8 +30,9 @@ export const view = canvasView<Model, Msg>(
         color: "red",
         font: "sans-serif",
         fontSize: 16,
+        textAlign: "left",
         x: 10,
-        y: 20,
+        y: 25,
         text: `HP: ${model.egg.hp}/${model.egg.maxHp}`,
       }),
     ];

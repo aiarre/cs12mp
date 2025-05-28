@@ -12,12 +12,12 @@ export const Egg = S.Struct({
   height: S.Int,
   hp: S.Int,
   maxHp: S.Int,
+  direction: Direction,
 });
 export const Model = S.Struct({
   // model of the app
   egg: Egg,
   error: S.String,
-  direction: Direction,
   settings: S.Struct({
     movementSpeed: S.Number,
   }),
@@ -32,10 +32,10 @@ export const initModel = Model.make({
     height: 30,
     hp: 20,
     maxHp: 20,
+    direction: "NONE",
   },
   error: "",
-  direction: "NONE",
   settings: {
-    movementSpeed: 10,
+    movementSpeed: 8,
   },
 });
