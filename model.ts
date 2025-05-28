@@ -4,12 +4,12 @@ export type Model = typeof Model.Type;
 export type Egg = typeof Egg.Type;
 
 export const Egg = S.Struct({
-  x: S.Number,
-  y: S.Number,
-  width: S.Number,
-  height: S.Number,
-  hp: S.Number,
-  maxHp: S.Number,
+  x: S.Int,
+  y: S.Int,
+  width: S.Int,
+  height: S.Int,
+  hp: S.Int,
+  maxHp: S.Int,
 });
 export const Model = S.Struct({
   // model of the app
