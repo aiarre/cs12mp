@@ -18,6 +18,9 @@ export const Model = S.Struct({
   egg: Egg,
   error: S.String,
   direction: Direction,
+  settings: S.Struct({
+    movementSpeed: S.Number,
+  }),
 });
 
 export const initModel = Model.make({
@@ -32,4 +35,7 @@ export const initModel = Model.make({
   },
   error: "",
   direction: "NONE",
+  settings: {
+    movementSpeed: 10,
+  },
 });
