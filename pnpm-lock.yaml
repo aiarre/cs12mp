@@ -1,0 +1,72 @@
+lockfileVersion: '9.0'
+
+settings:
+  autoInstallPeers: true
+  excludeLinksFromLockfile: false
+
+importers:
+
+  .:
+    dependencies:
+      cs12242-mvu:
+        specifier: github:UPD-CS12-242/cs12242-mvu
+        version: https://codeload.github.com/UPD-CS12-242/cs12242-mvu/tar.gz/9c54ca595204601fcc6cf8744f38ef9711e75060
+      effect:
+        specifier: ^3.16.0
+        version: 3.16.0
+    devDependencies:
+      prettier:
+        specifier: ^3.5.3
+        version: 3.5.3
+
+packages:
+
+  '@standard-schema/spec@1.0.0':
+    resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
+
+  cs12242-mvu@https://codeload.github.com/UPD-CS12-242/cs12242-mvu/tar.gz/9c54ca595204601fcc6cf8744f38ef9711e75060:
+    resolution: {tarball: https://codeload.github.com/UPD-CS12-242/cs12242-mvu/tar.gz/9c54ca595204601fcc6cf8744f38ef9711e75060}
+    version: 1.6.0
+
+  effect@3.16.0:
+    resolution: {integrity: sha512-97h566lOGsB50e7Iv4R2ZZBg5IXVUgdGgINv7gbrBIM4BOYfTGuIR3xPzhs93A0Jk+ZhfjeWj5wmZJ65a2aQCA==}
+
+  fast-check@3.23.2:
+    resolution: {integrity: sha512-h5+1OzzfCC3Ef7VbtKdcv7zsstUQwUDlYpUTvjeUsJAssPgLn7QzbboPtL5ro04Mq0rPOsMzl7q5hIbRs2wD1A==}
+    engines: {node: '>=8.0.0'}
+
+  prettier@3.5.3:
+    resolution: {integrity: sha512-QQtaxnoDJeAkDvDKWCLiwIXkTgRhwYDEQCghU9Z6q03iyek/rxRh/2lC3HB7P8sWT2xC/y5JDctPLBIGzHKbhw==}
+    engines: {node: '>=14'}
+    hasBin: true
+
+  pure-rand@6.1.0:
+    resolution: {integrity: sha512-bVWawvoZoBYpp6yIoQtQXHZjmz35RSVHnUOTefl8Vcjr8snTPY1wnpSPMWekcFwbxI6gtmT7rSYPFvz71ldiOA==}
+
+  snabbdom@3.6.2:
+    resolution: {integrity: sha512-ig5qOnCDbugFntKi6c7Xlib8bA6xiJVk8O+WdFrV3wxbMqeHO0hXFQC4nAhPVWfZfi8255lcZkNhtIBINCc4+Q==}
+    engines: {node: '>=12.17.0'}
+
+snapshots:
+
+  '@standard-schema/spec@1.0.0': {}
+
+  cs12242-mvu@https://codeload.github.com/UPD-CS12-242/cs12242-mvu/tar.gz/9c54ca595204601fcc6cf8744f38ef9711e75060:
+    dependencies:
+      effect: 3.16.0
+      snabbdom: 3.6.2
+
+  effect@3.16.0:
+    dependencies:
+      '@standard-schema/spec': 1.0.0
+      fast-check: 3.23.2
+
+  fast-check@3.23.2:
+    dependencies:
+      pure-rand: 6.1.0
+
+  prettier@3.5.3: {}
+
+  pure-rand@6.1.0: {}
+
+  snabbdom@3.6.2: {}
