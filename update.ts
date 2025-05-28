@@ -1,71 +1,52 @@
-import { Cmd } from "cs12242-mvu/src";
-import { Array, Match, pipe, Order } from "effect";
-import { Model, type Egg } from "./model";
+import { Array, Match } from "effect";
+import { type Direction, Model } from "./model";
 import { Msg } from "./msg";
 
-export const [MsgKeyUp, MsgKeyDown, MsgKeyTick, MsgError] = Msg.members;
+// export const [MsgKeyUp, MsgKeyDown, MsgKeyTick, MsgError] = Msg.members;
 
+function getDirectionFromKey(key: string): Direction {
+  // Kinda hacky, but it works.
+  return Match.value(key).pipe(
+    Match.when(
+      (key) => key === "w" || key === "ArrowUp",
+      () => "NORTH",
+    ),
+    Match.when(
+      (key) => key === "s" || key === "ArrowDown",
+      () => "SOUTH",
+    ),
+    Match.when(
+      (key) => key === "a" || key === "ArrowLeft",
+      () => "WEST",
+    ),
+    Match.when(
+      (key) => key === "d" || key === "ArrowRight",
+      () => "EAST",
+    ),
+    Match.orElse(() => "NONE"),
+  ) as Direction;
+}
+
+// Currently, this only allows you to change direction by pressing WASD
+// or an arrow key. The egg keeps moving even when no keys are pressed.
+// This is a limitation of the cs12242-mvu library only exposing =
+// MsgKeyDown.
 export const update = (msg: Msg, model: Model) =>
   Match.value(msg).pipe(
-    Match.tag("MsgKeyDown", ({ key }) => {
-      const keyPressed = model.keyPressed.includes(key.toLowerCase())
-        ? model.keyPressed
-        : [...model.keyPressed, key.toLowerCase()];
-      console.log("Key pressed:", keyPressed);
-
+    Match.tag("Canvas.MsgKeyDown", ({ key }) => {
       return {
-        model: Model.make({
-          ...model,
-          keyPressed,
-        }),
+        ...model,
+        egg: {
+          ...model.egg,
+          direction: getDirectionFromKey(key),
+        },
       };
     }),
 
-    Match.tag("MsgKeyUp", ({ key }) => {
-      // const keyPressed = model.keyPressed.filter((k) => k !== key.toLowerCase())
-      const keyPressed = Array.filter(
-        model.keyPressed,
-        (k) => k !== key.toLowerCase(),
-      );
+    Match.tag("Canvas.MsgTick", () => {}),
 
-      return {
-        model: Model.make({
-          ...model,
-          keyPressed,
-        }),
-      };
-    }),
-
-    Match.tag("MsgKeyTick", () => {
-      let { x, y } = model.egg;
-
-      if (model.keyPressed.includes("w")) {
-        y -= 10;
-      }
-      if (model.keyPressed.includes("s")) {
-        y += 10;
-      }
-      if (model.keyPressed.includes("a")) {
-        x -= 10;
-      }
-      if (model.keyPressed.includes("d")) {
-        x += 10;
-      }
-
-      return {
-        model: Model.make({
-          ...model,
-          egg: { ...model.egg, x, y },
-        }),
-      };
-    }),
-    Match.tag("MsgError", ({ error }) => {
-      return {
-        model: Model.make({
-          ...model,
-          error,
-        }),
-      };
+    Match.tag("Canvas.MsgMouseDown", () => {
+      // Do nothing for now.
     }),
     Match.exhaustive,
   );

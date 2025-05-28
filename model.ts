@@ -1,7 +1,8 @@
-import { HashMap, Match, Schema as S } from "effect";
+import { Schema as S } from "effect";
 
 export type Model = typeof Model.Type;
 export type Egg = typeof Egg.Type;
+export type Direction = typeof Direction.Type;
 
 export const Direction = S.Literal("NORTH", "SOUTH", "EAST", "WEST", "NONE");
 export const Egg = S.Struct({
