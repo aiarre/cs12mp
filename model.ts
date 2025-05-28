@@ -3,6 +3,7 @@ import { HashMap, Match, Schema as S } from "effect";
 export type Model = typeof Model.Type;
 export type Egg = typeof Egg.Type;
 
+export const Direction = S.Literal("NORTH", "SOUTH", "EAST", "WEST", "NONE");
 export const Egg = S.Struct({
   x: S.Int,
   y: S.Int,
@@ -15,7 +16,7 @@ export const Model = S.Struct({
   // model of the app
   egg: Egg,
   error: S.String,
-  keyPressed: S.Array(S.String),
+  direction: Direction,
 });
 
 export const initModel = Model.make({
@@ -29,5 +30,5 @@ export const initModel = Model.make({
     maxHp: 20,
   },
   error: "",
-  keyPressed: [],
+  direction: "NONE",
 });
