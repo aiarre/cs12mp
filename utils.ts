@@ -1,4 +1,4 @@
-import { Eggnemy, Egg } from "./model";
+import { Eggnemy, Egg, GameObject } from "./model";
 
 export function spawnEggnemies(count: number): Eggnemy[] {
   return Array.from({ length: count }, () => ({
@@ -10,12 +10,12 @@ export function spawnEggnemies(count: number): Eggnemy[] {
   }));
 }
 
-export function isTouching(egg: Egg, en: Eggnemy): boolean {
-  return !(
-    egg.x + egg.width < en.x ||
-    egg.x > en.x + en.width ||
-    egg.y + egg.height < en.y ||
-    egg.y > en.y + en.height
+export function isTouching(a: GameObject, b: GameObject): boolean {
+  return (
+    a.x <= b.x ||
+    b.x + b.width <= a.x + a.width ||
+    a.y <= b.y ||
+    b.y + b.height <= a.y + a.height
   );
 }
 

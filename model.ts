@@ -1,12 +1,17 @@
 import { Schema as S, Option } from "effect";
 import { spawnEggnemies } from "./utils";
 
-export type Model = typeof Model.Type;
-export type Egg = typeof Egg.Type;
-export type Direction = typeof Direction.Type;
-export type Eggnemy = typeof Eggnemy.Type;
-
 export const Direction = S.Literal("NORTH", "SOUTH", "EAST", "WEST", "NONE");
+export type Direction = typeof Direction.Type;
+
+// Basically HasXYWidthHeight
+export const GameObject = S.Struct({
+  x: S.Int,
+  y: S.Int,
+  width: S.Int,
+  height: S.Int,
+});
+export type GameObject = typeof GameObject.Type;
 
 export const Egg = S.Struct({
   x: S.Int,
@@ -18,6 +23,7 @@ export const Egg = S.Struct({
   direction: Direction,
   attackRange: S.Number,
 });
+export type Egg = typeof Egg.Type;
 
 export const Eggnemy = S.Struct({
   x: S.Int,
@@ -28,6 +34,7 @@ export const Eggnemy = S.Struct({
   // maxHp: S.Int,
   speed: S.Number,
 });
+export type Eggnemy = typeof Eggnemy.Type;
 
 export const Model = S.Struct({
   // model of the app
@@ -39,6 +46,7 @@ export const Model = S.Struct({
     movementSpeed: S.Number,
   }),
 });
+export type Model = typeof Model.Type;
 
 export const initModel = Model.make({
   // initial state
