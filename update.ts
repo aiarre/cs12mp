@@ -76,19 +76,50 @@ export function tickFollowEgg(eggnemy: Eggnemy, egg: Egg): Eggnemy {
   };
 }
 
+export function tickDamageEgg(model: Model): Model {
+  if (model.egg == undefined) return model;
+  const egg = model.egg;
+
+  const now = Date.now();
+  if (now - model.lastDamageTime <= 1000) return model;
+
+  const numEnemiesTouchingEgg = pipe(
+    model.eggnemies,
+    Array.countBy((en) => isTouching(egg, en)),
+  );
+  if (numEnemiesTouchingEgg < 1) return model;
+  const newEggHp = egg.hp - numEnemiesTouchingEgg;
+
+  return Model.make({
+    ...model,
+    lastDamageTime: now,
+    egg:
+      egg.hp > 0
+        ? {
+            ...egg,
+            hp: newEggHp,
+          }
+        : null,
+  });
+}
+
 export const update = (msg: Msg, model: Model) =>
   Match.value(msg).pipe(
     Match.tag("MsgKeyDown", ({ key }): Model => {
       if (model.egg == undefined) return model;
       const egg = model.egg;
-      return Model.make({
-        ...model,
-        egg: {
-          ...egg,
-          // Keep current direction if other keys are pressed
-          direction: getDirectionFromKey(key) ?? egg.direction,
-        },
-      });
+      const newDirection = getDirectionFromKey(key);
+      // Change direction, but keep current direction if other keys are
+      // pressed.
+      if (newDirection) {
+        return Model.make({
+          ...model,
+          egg: {
+            ...egg,
+            direction: newDirection,
+          },
+        });
+      }
     }),
 
     Match.tag("MsgKeyUp", ({ key }): Model => {
@@ -112,7 +143,8 @@ export const update = (msg: Msg, model: Model) =>
 
       return pipe(
         model,
-        (model) => tickMoveEgg(model),
+        tickMoveEgg,
+        // Make the eggnemies follow.
         (model) => ({
           ...model,
           eggnemies: pipe(
@@ -120,41 +152,8 @@ export const update = (msg: Msg, model: Model) =>
             Array.map((en) => tickFollowEgg(en, egg)),
           ),
         }),
+        tickDamageEgg,
       );
-    }),
-
-    Match.tag("MsgUserTouchedEggnemy", () => {
-      if (model.egg == undefined) return model;
-      const egg = model.egg;
-      const now = Date.now();
-      const isTouchingEggnemy = pipe(
-        model.eggnemies,
-        Array.some((en) => isTouching(egg, en)),
-      );
-
-      let newHp = egg.hp;
-      let shouldUpdateHp = false;
-
-      if (isTouchingEggnemy && now - model.lastDamageTime >= 1000) {
-        newHp = egg.hp - 1;
-        shouldUpdateHp = true;
-
-        // TODO: Extract out.
-        if (newHp <= 0) {
-          return {
-            ...model,
-            egg: Option.none(),
-          };
-        }
-      }
-      return {
-        ...model,
-        egg: {
-          ...egg,
-          hp: shouldUpdateHp ? newHp : egg.hp,
-        },
-        lastDamageTime: shouldUpdateHp ? now : model.lastDamageTime,
-      };
     }),
 
     Match.tag("MsgUserAttacks", () => {
