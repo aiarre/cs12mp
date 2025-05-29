@@ -2,10 +2,11 @@ import { Match } from "effect";
 import { type Direction, Egg, Model } from "./model";
 import { Msg } from "./msg";
 
-// export const [MsgKeyUp, MsgKeyDown, MsgKeyTick, MsgError] = Msg.members;
+export const [MsgKeyDown, MsgKeyTick, MsgError] = Msg.members;
 
 function getDirectionFromKey(key: string): Direction {
   // Kinda hacky, but it works.
+  key = key.toLowerCase();
   return Match.value(key).pipe(
     Match.when(
       (key) => key === "w" || key === "ArrowUp",
@@ -50,7 +51,7 @@ function moveEgg(
 
 export const update = (msg: Msg, model: Model) =>
   Match.value(msg).pipe(
-    Match.tag("Canvas.MsgKeyDown", ({ key }) => {
+    Match.tag("MsgKeyDown", ({ key }) => {
       return {
         ...model,
         egg: {
@@ -60,7 +61,7 @@ export const update = (msg: Msg, model: Model) =>
       };
     }),
 
-    Match.tag("Canvas.MsgTick", () => {
+    Match.tag("MsgKeyTick", () => {
       return {
         ...model,
         egg: Match.value(model.egg.direction).pipe(
@@ -82,8 +83,34 @@ export const update = (msg: Msg, model: Model) =>
       };
     }),
 
-    Match.tag("Canvas.MsgMouseDown", () => {
-      // Do nothing for now.
+    // Match.tag("Canvas.MsgMouseDown", () => {
+    //   // Do nothing for now.
+    // }),
+    // Match.tag("MsgKeyUp", () => {
+    //   return {
+    //     ...model,
+    //     egg: {
+    //       ...model.egg,
+    //       direction: "NONE", // Stop moving when key is released
+    //     },
+    //   };
+    // }),
+
+    Match.tag("MsgUserTouchedEggnemy", () => {
+      return {
+        ...model,
+        error: "You touched the eggnemy!",
+      };
+    }),
+    Match.tag("MsgEggnemyFollows", () => {
+      return model
+    }),
+    
+    Match.tag("MsgError", ({ error }) => {
+      return {
+        ...model,
+        error: error,
+      };
     }),
     Match.exhaustive,
   );
