@@ -1,0 +1,18 @@
+{
+  "game": {
+    "fps": 60,
+    "width": 800,
+    "height": 600
+  },
+  "egg": {
+    "initialHp": 20,
+    "width": 15,
+    "height": 20,
+    "attackRange": 20
+  },
+  "eggnemies": {
+    "initialCount": 5,
+    "width": 20,
+    "height": 20
+  }
+}
