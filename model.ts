@@ -1,5 +1,5 @@
-import { Schema as S, Option } from "effect";
-import { spawnEggnemies } from "./utils";
+import { Array, pipe, Option, Schema as S } from "effect";
+import * as settings from "./settings.json";
 
 export const Direction = S.Literal("NORTH", "SOUTH", "EAST", "WEST", "NONE");
 export type Direction = typeof Direction.Type;
@@ -22,6 +22,7 @@ export const Egg = S.Struct({
   maxHp: S.Int,
   direction: Direction,
   attackRange: S.Number,
+  speed: S.Number,
 });
 export type Egg = typeof Egg.Type;
 
@@ -42,28 +43,35 @@ export const Model = S.Struct({
   eggnemies: S.Array(Eggnemy),
   lastDamageTime: S.Number,
   error: S.String,
-  settings: S.Struct({
-    movementSpeed: S.Number,
-  }),
 });
 export type Model = typeof Model.Type;
+
+export const createRandomEggnemy = () =>
+  Eggnemy.make({
+    x: Math.floor(Math.random() * settings.game.width),
+    y: Math.floor(Math.random() * settings.game.height),
+    width: settings.eggnemies.width,
+    height: settings.eggnemies.height,
+    speed: settings.eggnemies.speed,
+  });
 
 export const initModel = Model.make({
   // initial state
   egg: Option.some({
     x: 100,
     y: 100,
-    width: 15,
-    height: 30,
-    hp: 20,
-    maxHp: 20,
+    width: settings.egg.width,
+    height: settings.egg.height,
+    hp: settings.egg.initialHp,
+    maxHp: settings.egg.initialHp,
     direction: "NONE",
-    attackRange: 20,
+    attackRange: settings.egg.attackRange,
+    speed: settings.egg.speed,
   }),
-  eggnemies: spawnEggnemies(5),
+  eggnemies: pipe(
+    Array.range(1, settings.eggnemies.initialCount),
+    Array.map(() => createRandomEggnemy()),
+  ),
   lastDamageTime: Date.now(),
   error: "",
-  settings: {
-    movementSpeed: 8,
-  },
 });

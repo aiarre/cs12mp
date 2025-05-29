@@ -1,15 +1,5 @@
 import { Eggnemy, Egg, GameObject } from "./model";
 
-export function spawnEggnemies(count: number): Eggnemy[] {
-  return Array.from({ length: count }, () => ({
-    x: Math.floor(Math.random() * 700),
-    y: Math.floor(Math.random() * 500),
-    width: 20,
-    height: 20,
-    speed: 10,
-  }));
-}
-
 export function isTouching(a: GameObject, b: GameObject): boolean {
   return (
     a.x <= b.x ||
