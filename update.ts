@@ -5,8 +5,14 @@ import { Msg } from "./msg";
 import { isTouching, isWithinRange } from "./utils";
 import { modelRun } from "effect/FastCheck";
 
-export const [MsgKeyTick, MsgKeyDown, MsgError, MsgUserTouchedEggnemy, MsgEggnemyFollows, MsgUserAttacks] = Msg.members;
-
+export const [
+  MsgKeyTick,
+  MsgKeyDown,
+  MsgError,
+  MsgUserTouchedEggnemy,
+  MsgEggnemyFollows,
+  MsgUserAttacks,
+] = Msg.members;
 
 function getDirectionFromKey(key: string): Direction {
   // Kinda hacky, but it works.
@@ -76,24 +82,16 @@ export const update = (msg: Msg, model: Model) =>
 
     Match.tag("MsgKeyTick", () => {
       if (!model.egg) return model;
-        
+
       return {
         ...model,
         egg: Option.match(model.egg, {
           onSome: (egg: Egg) =>
             Match.value(egg.direction).pipe(
-              Match.when("NORTH", () =>
-                moveEgg(egg, 0, -model.settings.movementSpeed, 800, 600),
-              ),
-              Match.when("SOUTH", () =>
-                moveEgg(egg, 0, model.settings.movementSpeed, 800, 600),
-              ),
-              Match.when("EAST", () =>
-                moveEgg(egg, model.settings.movementSpeed, 0, 800, 600),
-              ),
-              Match.when("WEST", () =>
-                moveEgg(egg, -model.settings.movementSpeed, 0, 800, 600),
-              ),
+              Match.when("NORTH", () => moveEgg(egg, 0, -egg.speed, 800, 600)),
+              Match.when("SOUTH", () => moveEgg(egg, 0, egg.speed, 800, 600)),
+              Match.when("EAST", () => moveEgg(egg, egg.speed, 0, 800, 600)),
+              Match.when("WEST", () => moveEgg(egg, -egg.speed, 0, 800, 600)),
               Match.when("NONE", () => egg),
               Match.exhaustive,
             ),
@@ -101,7 +99,7 @@ export const update = (msg: Msg, model: Model) =>
         }),
       };
     }),
-    
+
     Match.tag("MsgEggnemyFollows", () => {
       return Match.value(model.egg).pipe(
         Match.tag("Some", ({ value: egg }: { value: Egg }) => ({
@@ -109,15 +107,17 @@ export const update = (msg: Msg, model: Model) =>
           eggnemies: model.eggnemies.map((e) => followEgg(e, egg)),
         })),
         Match.tag("None", () => model),
-        Match.exhaustive
+        Match.exhaustive,
       );
     }),
 
     Match.tag("MsgUserTouchedEggnemy", () => {
       return Match.value(model.egg).pipe(
         Match.tag("Some", ({ value: egg }: { value: Egg }) => {
-          const now = Date.now()
-          const touching_eggnemies = model.eggnemies.some(en => isTouching(egg, en));
+          const now = Date.now();
+          const touching_eggnemies = model.eggnemies.some((en) =>
+            isTouching(egg, en),
+          );
 
           let newHp = egg.hp;
           let shouldUpdateHp = false;
@@ -129,7 +129,7 @@ export const update = (msg: Msg, model: Model) =>
             if (newHp <= 0) {
               return {
                 ...model,
-                egg: Option.none()
+                egg: Option.none(),
               };
             }
           }
@@ -137,28 +137,26 @@ export const update = (msg: Msg, model: Model) =>
             ...model,
             egg: {
               ...egg,
-              hp: shouldUpdateHp ? newHp : egg.hp
+              hp: shouldUpdateHp ? newHp : egg.hp,
             },
             lastDamageTime: shouldUpdateHp ? now : model.lastDamageTime,
           };
         }),
         Match.tag("None", () => model),
-        Match.exhaustive
+        Match.exhaustive,
       );
     }),
 
     Match.tag("MsgUserAttacks", () => {
-    
       return Option.match(model.egg, {
         onSome: (egg: Egg) => ({
           ...model,
-          eggnemies: model.eggnemies.filter((en) => !isWithinRange(egg, en))
+          eggnemies: model.eggnemies.filter((en) => !isWithinRange(egg, en)),
         }),
-        onNone: () => model
+        onNone: () => model,
       });
     }),
 
-    
     Match.tag("MsgError", ({ error }) => {
       return {
         ...model,
