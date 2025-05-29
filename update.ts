@@ -2,7 +2,7 @@ import { Match } from "effect";
 import { Option } from "effect";
 import { Direction, Egg, Model, Eggnemy } from "./model";
 import { Msg } from "./msg";
-import { isTouching, isClose } from "./utils";
+import { isTouching, isWithinRange } from "./utils";
 import { modelRun } from "effect/FastCheck";
 
 export const [MsgKeyTick, MsgKeyDown, MsgError, MsgUserTouchedEggnemy, MsgEggnemyFollows, MsgUserAttacks] = Msg.members;
@@ -152,7 +152,7 @@ export const update = (msg: Msg, model: Model) =>
       return Option.match(model.egg, {
         onSome: (egg: Egg) => ({
           ...model,
-          eggnemies: model.eggnemies.filter((en) => !isClose(egg, en))
+          eggnemies: model.eggnemies.filter((en) => !isWithinRange(egg, en))
         }),
         onNone: () => model
       });

@@ -8,7 +8,6 @@ export type Eggnemy = typeof Eggnemy.Type;
 
 export const Direction = S.Literal("NORTH", "SOUTH", "EAST", "WEST", "NONE");
 
-
 export const Egg = S.Struct({
   x: S.Int,
   y: S.Int,
@@ -17,6 +16,7 @@ export const Egg = S.Struct({
   hp: S.Int,
   maxHp: S.Int,
   direction: Direction,
+  attackRange: S.Number,
 });
 
 export const Eggnemy = S.Struct({
@@ -50,6 +50,7 @@ export const initModel = Model.make({
     hp: 20,
     maxHp: 20,
     direction: "NONE",
+    attackRange: 20,
   }),
   eggnemies: spawnEggnemies(5),
   lastDamageTime: Date.now(),
