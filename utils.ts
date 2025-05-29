@@ -1,11 +1,11 @@
 import { Eggnemy, Egg, GameObject } from "./model";
 
 export function isTouching(a: GameObject, b: GameObject): boolean {
-  return (
-    a.x <= b.x ||
-    b.x + b.width <= a.x + a.width ||
-    a.y <= b.y ||
-    b.y + b.height <= a.y + a.height
+  return !(
+    a.x + a.width < b.x ||
+    a.x > b.x + b.width ||
+    a.y + a.height < b.y ||
+    a.y > b.y + b.height
   );
 }
 
