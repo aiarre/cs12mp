@@ -96,18 +96,18 @@ export function tickDamageEgg(model: Model): Model {
   const now = Date.now();
   if (now - model.lastDamageTime <= 1000) return model;
 
-  const numEnemiesTouchingEgg = pipe(
+  const isEggnemyTouchingEgg = pipe(
     model.eggnemies,
-    Array.countBy((en) => isTouching(en, egg)),
+    Array.some((en) => isTouching(en, egg)),
   );
-  if (numEnemiesTouchingEgg < 1) return model;
-  const newEggHp = egg.hp - numEnemiesTouchingEgg;
+  if (!isEggnemyTouchingEgg) return model;
+  const newEggHp = egg.hp - 1;
 
   return Model.make({
     ...model,
     lastDamageTime: now,
     egg:
-      egg.hp > 0
+      newEggHp > 0
         ? {
             ...egg,
             hp: newEggHp,
