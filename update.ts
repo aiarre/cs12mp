@@ -1,4 +1,4 @@
-import { Array, Match, Option, pipe } from "effect";
+import { Array, Match, pipe } from "effect";
 import { Direction, Egg, Eggnemy, Model } from "./model";
 import { Msg } from "./msg";
 import { isTouching, isWithinRange } from "./utils";
