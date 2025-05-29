@@ -61,7 +61,7 @@ export function tickMoveEgg(model: Model): Model {
   });
 }
 
-export function tickFollowEgg(eggnemy: Eggnemy, egg: Egg): Eggnemy {
+function tickMoveTowardsEgg(eggnemy: Eggnemy, egg: Egg): Eggnemy {
   const dx = egg.x - eggnemy.x;
   const dy = egg.y - eggnemy.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
@@ -74,6 +74,19 @@ export function tickFollowEgg(eggnemy: Eggnemy, egg: Egg): Eggnemy {
     x: Math.ceil(eggnemy.x + (dx / dist) * eggnemy.speed),
     y: Math.ceil(eggnemy.y + (dy / dist) * eggnemy.speed),
   };
+}
+
+export function tickMoveEggnemiesTowardsEgg(model: Model): Model {
+  if (model.egg == undefined) return model;
+  const egg = model.egg;
+
+  return Model.make({
+    ...model,
+    eggnemies: pipe(
+      model.eggnemies,
+      Array.map((en) => tickMoveTowardsEgg(en, egg)),
+    ),
+  });
 }
 
 export function tickDamageEgg(model: Model): Model {
@@ -179,18 +192,14 @@ export const update = (msg: Msg, model: Model) =>
     }),
 
     Match.tag("MsgTick", (): Model => {
+      // Note: The order in which we do things is important.
       return pipe(
         model,
         tickMoveEgg,
-        // Make the eggnemies follow.
-        (model) => ({
-          ...model,
-          eggnemies: pipe(
-            model.eggnemies,
-            Array.map((en) => tickFollowEgg(en, egg)),
-          ),
-        }),
+        // Damage enemies in range before anything!
         tickDamageEggnemiesIfAttacking,
+        // Should we move before or after damaging? Not sure!
+        tickMoveEggnemiesTowardsEgg,
         tickDamageEgg,
       );
     }),
