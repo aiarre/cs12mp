@@ -5,7 +5,6 @@ import { isTouching, isWithinRange } from "./utils";
 
 function getDirectionFromKey(key: string): Direction | null {
   // Kinda hacky, but it works.
-  key = key.toLowerCase();
   return Match.value(key).pipe(
     Match.when(
       (key) => key === "w" || key === "ArrowUp",
