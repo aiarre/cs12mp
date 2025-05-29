@@ -1,9 +1,9 @@
-import { Match } from "effect";
-import { Option } from "effect";
+import { Match, pipe, Array, Option } from "effect";
 import { Direction, Egg, Model, Eggnemy } from "./model";
 import { Msg } from "./msg";
 import { isTouching, isWithinRange } from "./utils";
 import { modelRun } from "effect/FastCheck";
+import * as settings from "./settings.json";
 
 export const [
   MsgKeyTick,
@@ -38,20 +38,39 @@ function getDirectionFromKey(key: string): Direction {
   ) as Direction;
 }
 
-function moveEgg(
-  egg: Egg,
-  dx: number,
-  dy: number,
-  width: number,
-  height: number,
-): Egg {
+function getDxDyMultiplierFromDirection(
+  direction: Direction,
+): [-1 | 0 | 1, -1 | 0 | 1] {
+  return Match.value(direction).pipe(
+    Match.when("NORTH", () => [0, -1]),
+    Match.when("SOUTH", () => [0, 1]),
+    Match.when("WEST", () => [-1, 0]),
+    Match.when("EAST", () => [1, 0]),
+    Match.when("NONE", () => [0, 0]),
+    Match.exhaustive,
+  ) as [-1 | 0 | 1, -1 | 0 | 1];
+}
+
+export function tickMoveEgg(model: Model): Model {
+  const egg = model.egg;
+  if (egg == undefined) return model;
+
   const minX = 0;
-  const maxX = width - egg.width;
+  const maxX = model.width - egg.width;
   const minY = 0;
-  const maxY = height - egg.height;
-  const x = Math.max(minX, Math.min(egg.x + dx, maxX));
-  const y = Math.max(minY, Math.min(egg.y + dy, maxY));
-  return { ...egg, x: x, y: y };
+  const maxY = model.height - egg.height;
+  const [dxMultiplier, dyMultiplier] = getDxDyMultiplierFromDirection(
+    egg.direction,
+  );
+
+  return Model.make({
+    ...model,
+    egg: {
+      ...egg,
+      x: Math.max(minX, Math.min(egg.x + egg.speed * dxMultiplier, maxX)),
+      y: Math.max(minY, Math.min(egg.y + egg.speed * dyMultiplier, maxY)),
+    },
+  });
 }
 
 export function followEgg(eggnemy: Eggnemy, egg: Egg): Eggnemy {
@@ -81,79 +100,64 @@ export const update = (msg: Msg, model: Model) =>
     }),
 
     Match.tag("MsgKeyTick", () => {
-      if (!model.egg) return model;
-
-      return {
-        ...model,
-        egg: Option.match(model.egg, {
-          onSome: (egg: Egg) =>
-            Match.value(egg.direction).pipe(
-              Match.when("NORTH", () => moveEgg(egg, 0, -egg.speed, 800, 600)),
-              Match.when("SOUTH", () => moveEgg(egg, 0, egg.speed, 800, 600)),
-              Match.when("EAST", () => moveEgg(egg, egg.speed, 0, 800, 600)),
-              Match.when("WEST", () => moveEgg(egg, -egg.speed, 0, 800, 600)),
-              Match.when("NONE", () => egg),
-              Match.exhaustive,
-            ),
-          onNone: () => model.egg,
-        }),
-      };
+      return tickMoveEgg(model);
     }),
 
     Match.tag("MsgEggnemyFollows", () => {
-      return Match.value(model.egg).pipe(
-        Match.tag("Some", ({ value: egg }: { value: Egg }) => ({
-          ...model,
-          eggnemies: model.eggnemies.map((e) => followEgg(e, egg)),
-        })),
-        Match.tag("None", () => model),
-        Match.exhaustive,
-      );
+      if (model.egg == undefined) return model;
+      const egg = model.egg;
+      return Model.make({
+        ...model,
+        eggnemies: pipe(
+          model.eggnemies,
+          Array.map((en) => followEgg(en, egg)),
+        ),
+      });
     }),
 
     Match.tag("MsgUserTouchedEggnemy", () => {
-      return Match.value(model.egg).pipe(
-        Match.tag("Some", ({ value: egg }: { value: Egg }) => {
-          const now = Date.now();
-          const touching_eggnemies = model.eggnemies.some((en) =>
-            isTouching(egg, en),
-          );
+      if (model.egg == undefined) return model;
+      const egg = model.egg;
+      const now = Date.now();
+      const isTouchingEggnemy = pipe(
+        model.eggnemies,
+        Array.some((en) => isTouching(egg, en)),
+      );
 
-          let newHp = egg.hp;
-          let shouldUpdateHp = false;
+      let newHp = egg.hp;
+      let shouldUpdateHp = false;
 
-          if (touching_eggnemies && now - model.lastDamageTime >= 1000) {
-            newHp = egg.hp - 1;
-            shouldUpdateHp = true;
+      if (isTouchingEggnemy && now - model.lastDamageTime >= 1000) {
+        newHp = egg.hp - 1;
+        shouldUpdateHp = true;
 
-            if (newHp <= 0) {
-              return {
-                ...model,
-                egg: Option.none(),
-              };
-            }
-          }
+        // TODO: Extract out.
+        if (newHp <= 0) {
           return {
             ...model,
-            egg: {
-              ...egg,
-              hp: shouldUpdateHp ? newHp : egg.hp,
-            },
-            lastDamageTime: shouldUpdateHp ? now : model.lastDamageTime,
+            egg: Option.none(),
           };
-        }),
-        Match.tag("None", () => model),
-        Match.exhaustive,
-      );
+        }
+      }
+      return {
+        ...model,
+        egg: {
+          ...egg,
+          hp: shouldUpdateHp ? newHp : egg.hp,
+        },
+        lastDamageTime: shouldUpdateHp ? now : model.lastDamageTime,
+      };
     }),
 
     Match.tag("MsgUserAttacks", () => {
-      return Option.match(model.egg, {
-        onSome: (egg: Egg) => ({
-          ...model,
-          eggnemies: model.eggnemies.filter((en) => !isWithinRange(egg, en)),
-        }),
-        onNone: () => model,
+      if (model.egg == undefined) return model;
+      const egg = model.egg;
+      return Model.make({
+        ...model,
+        eggnemies: pipe(
+          model.eggnemies,
+          Array.filter((en) => !isWithinRange(egg, en)),
+        ),
       });
     }),
 
