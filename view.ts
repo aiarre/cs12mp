@@ -1,8 +1,9 @@
 import { h } from "cs12242-mvu/src";
 import { Model } from "./model";
 import { Msg } from "./msg";
+import * as O from "effect/Option";
 
-export const [MsgKeyTick, MsgKeyDown, MsgEggnemyFollows, MsgUserTouchedEggnemy, MsgError] = Msg.members;
+export const [MsgKeyTick, MsgKeyDown, MsgError, MsgUserTouchedEggnemy, MsgEggnemyFollows, MsgUserAttacks] = Msg.members;
 
 let listenerAdded = false;
 let intervalStarted = false;
@@ -39,6 +40,10 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
         dispatch(MsgKeyTick.make());
         break
 
+      case "l":
+      case "L":
+        dispatch(MsgUserAttacks.make());
+        break
       }
       listenerAdded = true;  
     });
@@ -46,8 +51,7 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
 
   if (!intervalStarted) {
     setInterval(() => {
-      dispatch(MsgUserTouchedEggnemy.make());
-      // dispatch(MsgEggnemyFollows.make())
+      dispatch(MsgEggnemyFollows.make());
     }, 1000);
     intervalStarted = true;
   }
@@ -69,29 +73,74 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
           ctx.fillStyle = "black"
           ctx.fillRect(0,0, canvas.width, canvas.height)
 
-          ctx.fillStyle = "white"
-          ctx.fillRect(model.egg.x, model.egg.y, model.egg.width, model.egg.height)
-          
-          ctx.fillStyle = "red"
-          ctx.font = "16px sans-serif"
-          ctx.fillText(`HP: ${model.egg.hp}/${model.egg.maxHp}`, 10, 20)
+          //EGGNEMIES
+          for (const en of model.eggnemies) {
+            ctx.fillStyle = "pink"; // different from egg
+            ctx.fillRect(en.x, en.y, en.width, en.height);
+          }
+
+
+          //EGG
+          O.match(model.egg, {
+            onNone: () => {},
+            onSome: (egg) => {
+            ctx.fillStyle = "white";
+            ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
+
+            ctx.fillStyle = "red";
+            ctx.font = "16px sans-serif";
+            ctx.fillText(`HP: ${egg.hp}/${egg.maxHp}`, 10, 20);
+          },
+        });
         },
         
         update: (oldVNode, newVNode) => { //how to draw the state on the screen
           const canvas = newVNode.elm as HTMLCanvasElement
-          const ctx = canvas.getContext("2d")!
+        const ctx = canvas.getContext("2d")!
+        
+        ctx.fillStyle = "black"
+        ctx.fillRect(0,0, canvas.width, canvas.height)
+
+          //EGG
+          O.match(model.egg, {
+            onNone: () => {},
+            onSome: (egg) => {
+              ctx.fillStyle = "white";
+              ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
+              
+              ctx.fillStyle = "red";
+              ctx.font = "16px sans-serif";
+              ctx.fillText(`HP: ${egg.hp}/${egg.maxHp}`, 10, 20);
+            },
+          });
           
-          ctx.fillStyle = "black"
-          ctx.fillRect(0,0, canvas.width, canvas.height)
+          //EGGNEMIES
+          for (const en of model.eggnemies) {
+            ctx.fillStyle = "pink"; // different from egg
+            ctx.fillRect(en.x, en.y, en.width, en.height);
+          }
+
+          }
           
-          ctx.fillStyle = "white"
-          ctx.fillRect(model.egg.x, model.egg.y, model.egg.width, model.egg.height)
-          
-          ctx.fillStyle = "red"
-          ctx.font = "16px sans-serif"
-          ctx.fillText(`HP: ${model.egg.hp}/${model.egg.maxHp}`, 10, 20)
         }
       }
-    })
-  ]);
-};
+     )])
+    };
+
+        // ctx.fillStyle = "white"
+          // if (model.egg) {
+          //   const egg = model.egg;
+          //   ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
+          // }
+          
+          // ctx.fillStyle = "red"
+          // ctx.font = "16px sans-serif"
+          // if (model.egg) {
+          //   const egg = model.egg;
+          //   ctx.fillText(`HP: ${model.egg.hp}/${model.egg.maxHp}`, 10, 20);
+          // }
+          
+          // if (model.egg.isSome()) {
+          //   const egg = model.egg.unwrap();
+          //   ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
+          //}

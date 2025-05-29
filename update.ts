@@ -1,8 +1,12 @@
 import { Match } from "effect";
-import { type Direction, Egg, Model } from "./model";
+import { Option } from "effect";
+import { Direction, Egg, Model, Eggnemy } from "./model";
 import { Msg } from "./msg";
+import { isTouching, isClose } from "./utils";
+import { modelRun } from "effect/FastCheck";
 
-export const [MsgKeyDown, MsgKeyTick, MsgError] = Msg.members;
+export const [MsgKeyTick, MsgKeyDown, MsgError, MsgUserTouchedEggnemy, MsgEggnemyFollows, MsgUserAttacks] = Msg.members;
+
 
 function getDirectionFromKey(key: string): Direction {
   // Kinda hacky, but it works.
@@ -28,11 +32,6 @@ function getDirectionFromKey(key: string): Direction {
   ) as Direction;
 }
 
-// Currently, this only allows you to change direction by pressing WASD
-// or an arrow key. The egg keeps moving even when no keys are pressed.
-// This is a limitation of the cs12242-mvu library only exposing =
-// MsgKeyDown.
-
 function moveEgg(
   egg: Egg,
   dx: number,
@@ -49,6 +48,20 @@ function moveEgg(
   return { ...egg, x: x, y: y };
 }
 
+export function followEgg(eggnemy: Eggnemy, egg: Egg): Eggnemy {
+  const dx = egg.x - eggnemy.x;
+  const dy = egg.y - eggnemy.y;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+
+  if (dist === 0) return eggnemy;
+
+  return {
+    ...eggnemy,
+    x: eggnemy.x + (dx / dist) * eggnemy.speed,
+    y: eggnemy.y + (dy / dist) * eggnemy.speed,
+  };
+}
+
 export const update = (msg: Msg, model: Model) =>
   Match.value(msg).pipe(
     Match.tag("MsgKeyDown", ({ key }) => {
@@ -62,49 +75,89 @@ export const update = (msg: Msg, model: Model) =>
     }),
 
     Match.tag("MsgKeyTick", () => {
+      if (!model.egg) return model;
+        
       return {
         ...model,
-        egg: Match.value(model.egg.direction).pipe(
-          Match.when("NORTH", () =>
-            moveEgg(model.egg, 0, -model.settings.movementSpeed, 800, 600),
-          ),
-          Match.when("SOUTH", () =>
-            moveEgg(model.egg, 0, model.settings.movementSpeed, 800, 600),
-          ),
-          Match.when("EAST", () =>
-            moveEgg(model.egg, model.settings.movementSpeed, 0, 800, 600),
-          ),
-          Match.when("WEST", () =>
-            moveEgg(model.egg, -model.settings.movementSpeed, 0, 800, 600),
-          ),
-          Match.when("NONE", () => model.egg),
-          Match.exhaustive,
-        ),
+        egg: Option.match(model.egg, {
+          onSome: (egg: Egg) =>
+            Match.value(egg.direction).pipe(
+              Match.when("NORTH", () =>
+                moveEgg(egg, 0, -model.settings.movementSpeed, 800, 600),
+              ),
+              Match.when("SOUTH", () =>
+                moveEgg(egg, 0, model.settings.movementSpeed, 800, 600),
+              ),
+              Match.when("EAST", () =>
+                moveEgg(egg, model.settings.movementSpeed, 0, 800, 600),
+              ),
+              Match.when("WEST", () =>
+                moveEgg(egg, -model.settings.movementSpeed, 0, 800, 600),
+              ),
+              Match.when("NONE", () => egg),
+              Match.exhaustive,
+            ),
+          onNone: () => model.egg,
+        }),
       };
     }),
-
-    // Match.tag("Canvas.MsgMouseDown", () => {
-    //   // Do nothing for now.
-    // }),
-    // Match.tag("MsgKeyUp", () => {
-    //   return {
-    //     ...model,
-    //     egg: {
-    //       ...model.egg,
-    //       direction: "NONE", // Stop moving when key is released
-    //     },
-    //   };
-    // }),
+    
+    Match.tag("MsgEggnemyFollows", () => {
+      return Match.value(model.egg).pipe(
+        Match.tag("Some", ({ value: egg }: { value: Egg }) => ({
+          ...model,
+          eggnemies: model.eggnemies.map((e) => followEgg(e, egg)),
+        })),
+        Match.tag("None", () => model),
+        Match.exhaustive
+      );
+    }),
 
     Match.tag("MsgUserTouchedEggnemy", () => {
-      return {
-        ...model,
-        error: "You touched the eggnemy!",
-      };
+      return Match.value(model.egg).pipe(
+        Match.tag("Some", ({ value: egg }: { value: Egg }) => {
+          const now = Date.now()
+          const touching_eggnemies = model.eggnemies.some(en => isTouching(egg, en));
+
+          let newHp = egg.hp;
+          let shouldUpdateHp = false;
+
+          if (touching_eggnemies && now - model.lastDamageTime >= 1000) {
+            newHp = egg.hp - 1;
+            shouldUpdateHp = true;
+
+            if (newHp <= 0) {
+              return {
+                ...model,
+                egg: Option.none()
+              };
+            }
+          }
+          return {
+            ...model,
+            egg: {
+              ...egg,
+              hp: shouldUpdateHp ? newHp : egg.hp
+            },
+            lastDamageTime: shouldUpdateHp ? now : model.lastDamageTime,
+          };
+        }),
+        Match.tag("None", () => model),
+        Match.exhaustive
+      );
     }),
-    Match.tag("MsgEggnemyFollows", () => {
-      return model
+
+    Match.tag("MsgUserAttacks", () => {
+    
+      return Option.match(model.egg, {
+        onSome: (egg: Egg) => ({
+          ...model,
+          eggnemies: model.eggnemies.filter((en) => !isClose(egg, en))
+        }),
+        onNone: () => model
+      });
     }),
+
     
     Match.tag("MsgError", ({ error }) => {
       return {
