@@ -6,8 +6,8 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
   return h("div", [
     h("canvas", {
       props: {
-        width: 800,
-        height: 600,
+        width: model.width,
+        height: model.height,
       },
       style: {
         background: "black",
@@ -34,8 +34,8 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
             1000.0 / model.fps,
           );
         },
-        insert: (vnode) => {
-          const canvas = vnode.elm as HTMLCanvasElement;
+        insert: (vNode) => {
+          const canvas = vNode.elm as HTMLCanvasElement;
           const ctx = canvas.getContext("2d")!;
 
           ctx.fillStyle = "black";
