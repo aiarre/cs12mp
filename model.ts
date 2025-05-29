@@ -13,6 +13,7 @@ export const GameObject = S.Struct({
 });
 export type GameObject = typeof GameObject.Type;
 
+// I feel like this is getting to be too much...
 export const Egg = S.Struct({
   x: S.Int,
   y: S.Int,
@@ -21,6 +22,7 @@ export const Egg = S.Struct({
   hp: S.Int,
   maxHp: S.Int,
   direction: Direction,
+  isAttacking: S.Boolean,
   attackRange: S.Number,
   speed: S.Number,
 });
@@ -71,6 +73,7 @@ export const initModel = Model.make({
     hp: settings.egg.initialHp,
     maxHp: settings.egg.initialHp,
     direction: "NONE",
+    isAttacking: false,
     attackRange: settings.egg.attackRange,
     speed: settings.egg.speed,
   },

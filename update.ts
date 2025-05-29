@@ -85,7 +85,7 @@ export function tickDamageEgg(model: Model): Model {
 
   const numEnemiesTouchingEgg = pipe(
     model.eggnemies,
-    Array.countBy((en) => isTouching(egg, en)),
+    Array.countBy((en) => isTouching(en, egg)),
   );
   if (numEnemiesTouchingEgg < 1) return model;
   const newEggHp = egg.hp - numEnemiesTouchingEgg;
@@ -103,6 +103,21 @@ export function tickDamageEgg(model: Model): Model {
   });
 }
 
+export function tickDamageEggnemiesIfAttacking(model: Model): Model {
+  if (model.egg == undefined) return model;
+  const egg = model.egg;
+
+  if (!egg.isAttacking) return model;
+
+  return Model.make({
+    ...model,
+    eggnemies: pipe(
+      model.eggnemies,
+      Array.filter((en) => !isWithinRange(egg, en)),
+    ),
+  });
+}
+
 export const update = (msg: Msg, model: Model) =>
   Match.value(msg).pipe(
     Match.tag("MsgKeyDown", ({ key }): Model => {
@@ -111,7 +126,7 @@ export const update = (msg: Msg, model: Model) =>
       const newDirection = getDirectionFromKey(key);
       // Change direction, but keep current direction if other keys are
       // pressed.
-      if (newDirection) {
+      if (newDirection !== null) {
         return Model.make({
           ...model,
           egg: {
@@ -120,27 +135,50 @@ export const update = (msg: Msg, model: Model) =>
           },
         });
       }
+      // Set attacking.
+      else if (key.toLowerCase() === "l") {
+        return Model.make({
+          ...model,
+          egg: {
+            ...egg,
+            isAttacking: true,
+          },
+        });
+      }
+
+      return model;
     }),
 
     Match.tag("MsgKeyUp", ({ key }): Model => {
       if (model.egg == undefined) return model;
       const egg = model.egg;
-      return Model.make({
-        ...model,
-        egg: {
-          ...egg,
-          // Only stop if lifted key is specifically current direction
-          direction:
-            getDirectionFromKey(key) === egg.direction ? "NONE" : egg.direction,
-        },
-      });
+      const pressedDirection = getDirectionFromKey(key);
+      if (pressedDirection !== null) {
+        return Model.make({
+          ...model,
+          egg: {
+            ...egg,
+            // Only stop if lifted key is specifically current direction
+            direction:
+              pressedDirection === egg.direction ? "NONE" : egg.direction,
+          },
+        });
+      }
+      // Set attacking.
+      else if (key.toLowerCase() === "l") {
+        return Model.make({
+          ...model,
+          egg: {
+            ...egg,
+            isAttacking: false,
+          },
+        });
+      }
+
+      return model;
     }),
 
     Match.tag("MsgTick", (): Model => {
-      // Probably shouldn't put this at the start, but for now, it's OK.
-      if (model.egg == undefined) return model;
-      const egg = model.egg;
-
       return pipe(
         model,
         tickMoveEgg,
@@ -152,28 +190,17 @@ export const update = (msg: Msg, model: Model) =>
             Array.map((en) => tickFollowEgg(en, egg)),
           ),
         }),
+        tickDamageEggnemiesIfAttacking,
         tickDamageEgg,
       );
     }),
 
-    Match.tag("MsgUserAttacks", () => {
-      if (model.egg == undefined) return model;
-      const egg = model.egg;
-      return Model.make({
-        ...model,
-        eggnemies: pipe(
-          model.eggnemies,
-          Array.filter((en) => !isWithinRange(egg, en)),
-        ),
-      });
-    }),
-
     // Currently unused.
-    // Match.tag("MsgError", ({ error }) => {
-    //   return {
-    //     ...model,
-    //     error: error,
-    //   };
-    // }),
+    Match.tag("MsgError", ({ error }) => {
+      return {
+        ...model,
+        error: error,
+      };
+    }),
     Match.exhaustive,
   );
