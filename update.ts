@@ -3,7 +3,7 @@ import { Direction, Egg, Eggnemy, Model } from "./model";
 import { Msg } from "./msg";
 import { isTouching, isWithinRange } from "./utils";
 
-function getDirectionFromKey(key: string): Direction {
+function getDirectionFromKey(key: string): Direction | null {
   // Kinda hacky, but it works.
   key = key.toLowerCase();
   return Match.value(key).pipe(
@@ -23,8 +23,8 @@ function getDirectionFromKey(key: string): Direction {
       (key) => key === "d" || key === "ArrowRight",
       () => "EAST",
     ),
-    Match.orElse(() => "NONE"),
-  ) as Direction;
+    Match.orElse(() => null),
+  ) as Direction | null;
 }
 
 function getDxDyMultiplierFromDirection(
@@ -86,7 +86,8 @@ export const update = (msg: Msg, model: Model) =>
         ...model,
         egg: {
           ...egg,
-          direction: getDirectionFromKey(key),
+          // Keep current direction if other keys are pressed
+          direction: getDirectionFromKey(key) ?? egg.direction,
         },
       };
     }),
