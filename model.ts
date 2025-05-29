@@ -15,10 +15,7 @@ export type GameObject = typeof GameObject.Type;
 
 // I feel like this is getting to be too much...
 export const Egg = S.Struct({
-  x: S.Int,
-  y: S.Int,
-  width: S.Int,
-  height: S.Int,
+  ...GameObject.fields,
   hp: S.Int,
   maxHp: S.Int,
   direction: Direction,
@@ -29,10 +26,7 @@ export const Egg = S.Struct({
 export type Egg = typeof Egg.Type;
 
 export const Eggnemy = S.Struct({
-  x: S.Int,
-  y: S.Int,
-  width: S.Int,
-  height: S.Int,
+  ...GameObject.fields,
   // hp: S.Int,
   // maxHp: S.Int,
   speed: S.Number,
