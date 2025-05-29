@@ -82,14 +82,28 @@ export const update = (msg: Msg, model: Model) =>
     Match.tag("MsgKeyDown", ({ key }): Model => {
       if (model.egg == undefined) return model;
       const egg = model.egg;
-      return {
+      return Model.make({
         ...model,
         egg: {
           ...egg,
           // Keep current direction if other keys are pressed
           direction: getDirectionFromKey(key) ?? egg.direction,
         },
-      };
+      });
+    }),
+
+    Match.tag("MsgKeyUp", ({ key }): Model => {
+      if (model.egg == undefined) return model;
+      const egg = model.egg;
+      return Model.make({
+        ...model,
+        egg: {
+          ...egg,
+          // Only stop if lifted key is specifically current direction
+          direction:
+            getDirectionFromKey(key) === egg.direction ? "NONE" : egg.direction,
+        },
+      });
     }),
 
     Match.tag("MsgTick", (): Model => {
