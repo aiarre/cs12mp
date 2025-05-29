@@ -1,9 +1,9 @@
-import { Match, pipe, Array, Option } from "effect";
-import { Direction, Egg, Model, Eggnemy } from "./model";
-import { Msg } from "./msg";
-import { isTouching, isWithinRange } from "./utils";
+import { Array, Effect, Match, Option, pipe } from "effect";
 import { modelRun } from "effect/FastCheck";
+import { Direction, Egg, Eggnemy, Model } from "./model";
+import { Msg } from "./msg";
 import * as settings from "./settings.json";
+import { isTouching, isWithinRange } from "./utils";
 
 export const [
   MsgKeyTick,
@@ -73,7 +73,7 @@ export function tickMoveEgg(model: Model): Model {
   });
 }
 
-export function followEgg(eggnemy: Eggnemy, egg: Egg): Eggnemy {
+export function tickFollowEgg(eggnemy: Eggnemy, egg: Egg): Eggnemy {
   const dx = egg.x - eggnemy.x;
   const dy = egg.y - eggnemy.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
@@ -82,37 +82,41 @@ export function followEgg(eggnemy: Eggnemy, egg: Egg): Eggnemy {
 
   return {
     ...eggnemy,
-    x: eggnemy.x + (dx / dist) * eggnemy.speed,
-    y: eggnemy.y + (dy / dist) * eggnemy.speed,
+    // Round up so that eggnemies will always move
+    x: Math.ceil(eggnemy.x + (dx / dist) * eggnemy.speed),
+    y: Math.ceil(eggnemy.y + (dy / dist) * eggnemy.speed),
   };
 }
 
 export const update = (msg: Msg, model: Model) =>
   Match.value(msg).pipe(
-    Match.tag("MsgKeyDown", ({ key }) => {
+    Match.tag("MsgKeyDown", ({ key }): Model => {
+      if (model.egg == undefined) return model;
+      const egg = model.egg;
       return {
         ...model,
         egg: {
-          ...model.egg,
+          ...egg,
           direction: getDirectionFromKey(key),
         },
       };
     }),
 
-    Match.tag("MsgKeyTick", () => {
-      return tickMoveEgg(model);
-    }),
-
-    Match.tag("MsgEggnemyFollows", () => {
+    Match.tag("MsgKeyTick", (): Model => {
+      // Probably shouldn't put this at the start, but for now, it's OK.
       if (model.egg == undefined) return model;
       const egg = model.egg;
-      return Model.make({
-        ...model,
-        eggnemies: pipe(
-          model.eggnemies,
-          Array.map((en) => followEgg(en, egg)),
-        ),
-      });
+      return pipe(
+        model,
+        (model) => tickMoveEgg(model),
+        (model) => ({
+          ...model,
+          eggnemies: pipe(
+            model.eggnemies,
+            Array.map((en) => tickFollowEgg(en, egg)),
+          ),
+        }),
+      );
     }),
 
     Match.tag("MsgUserTouchedEggnemy", () => {

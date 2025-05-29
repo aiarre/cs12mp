@@ -1,59 +1,55 @@
 import { h } from "cs12242-mvu/src";
-import { Model } from "./model";
-import { Msg } from "./msg";
 import * as O from "effect/Option";
-
-export const [MsgKeyTick, MsgKeyDown, MsgError, MsgUserTouchedEggnemy, MsgEggnemyFollows, MsgUserAttacks] = Msg.members;
+import { Model } from "./model";
+import {
+  Msg,
+  MsgKeyDown,
+  MsgKeyTick,
+  MsgUserAttacks,
+  MsgUserTouchedEggnemy,
+} from "./msg";
 
 let listenerAdded = false;
-let intervalStarted = false;
 
 export const view = (model: Model, dispatch: (msg: Msg) => void) => {
   if (!listenerAdded) {
     window.addEventListener("keydown", (e: KeyboardEvent) => {
       switch (e.key) {
-      case "ArrowUp":
-      case "w":
-      case "W":
-        dispatch(MsgKeyDown.make({ key:"w" }));
-        dispatch(MsgKeyTick.make());
-        break
+        case "ArrowUp":
+        case "w":
+        case "W":
+          dispatch(MsgKeyDown.make({ key: "w" }));
+          dispatch(MsgKeyTick.make());
+          break;
 
-      case "ArrowDown":
-      case "s":
-      case "S":
-        dispatch(MsgKeyDown.make({ key: "s" }));
-        dispatch(MsgKeyTick.make());
-        break
+        case "ArrowDown":
+        case "s":
+        case "S":
+          dispatch(MsgKeyDown.make({ key: "s" }));
+          dispatch(MsgKeyTick.make());
+          break;
 
-      case "ArrowLeft":
-      case "a":
-      case "A":
-        dispatch(MsgKeyDown.make({ key: "a" }));
-        dispatch(MsgKeyTick.make());
-        break
+        case "ArrowLeft":
+        case "a":
+        case "A":
+          dispatch(MsgKeyDown.make({ key: "a" }));
+          dispatch(MsgKeyTick.make());
+          break;
 
-      case "ArrowRight":
-      case "d":
-      case "D":
-        dispatch(MsgKeyDown.make({ key: "d"}));
-        dispatch(MsgKeyTick.make());
-        break
+        case "ArrowRight":
+        case "d":
+        case "D":
+          dispatch(MsgKeyDown.make({ key: "d" }));
+          dispatch(MsgKeyTick.make());
+          break;
 
-      case "l":
-      case "L":
-        dispatch(MsgUserAttacks.make());
-        break
+        case "l":
+        case "L":
+          dispatch(MsgUserAttacks.make());
+          break;
       }
-      listenerAdded = true;  
+      listenerAdded = true;
     });
-  }
-
-  if (!intervalStarted) {
-    setInterval(() => {
-      dispatch(MsgEggnemyFollows.make());
-    }, 1000);
-    intervalStarted = true;
   }
 
   return h("div", [
@@ -67,39 +63,17 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
       },
       hook: {
         insert: (vnode) => {
-          const canvas = vnode.elm as HTMLCanvasElement
-          const ctx = canvas.getContext("2d")!
-          
-          ctx.fillStyle = "black"
-          ctx.fillRect(0,0, canvas.width, canvas.height)
+          const canvas = vnode.elm as HTMLCanvasElement;
+          const ctx = canvas.getContext("2d")!;
+
+          ctx.fillStyle = "black";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
 
           //EGGNEMIES
           for (const en of model.eggnemies) {
             ctx.fillStyle = "pink"; // different from egg
             ctx.fillRect(en.x, en.y, en.width, en.height);
           }
-
-
-          //EGG
-          O.match(model.egg, {
-            onNone: () => {},
-            onSome: (egg) => {
-            ctx.fillStyle = "white";
-            ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
-
-            ctx.fillStyle = "red";
-            ctx.font = "16px sans-serif";
-            ctx.fillText(`HP: ${egg.hp}/${egg.maxHp}`, 10, 20);
-          },
-        });
-        },
-        
-        update: (oldVNode, newVNode) => { //how to draw the state on the screen
-          const canvas = newVNode.elm as HTMLCanvasElement
-        const ctx = canvas.getContext("2d")!
-        
-        ctx.fillStyle = "black"
-        ctx.fillRect(0,0, canvas.width, canvas.height)
 
           //EGG
           O.match(model.egg, {
@@ -107,40 +81,60 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
             onSome: (egg) => {
               ctx.fillStyle = "white";
               ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
-              
+
               ctx.fillStyle = "red";
               ctx.font = "16px sans-serif";
               ctx.fillText(`HP: ${egg.hp}/${egg.maxHp}`, 10, 20);
             },
           });
-          
+        },
+
+        update: (oldVNode, newVNode) => {
+          //how to draw the state on the screen
+          const canvas = newVNode.elm as HTMLCanvasElement;
+          const ctx = canvas.getContext("2d")!;
+
+          ctx.fillStyle = "black";
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          //EGG
+          O.match(model.egg, {
+            onNone: () => {},
+            onSome: (egg) => {
+              ctx.fillStyle = "white";
+              ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
+
+              ctx.fillStyle = "red";
+              ctx.font = "16px sans-serif";
+              ctx.fillText(`HP: ${egg.hp}/${egg.maxHp}`, 10, 20);
+            },
+          });
+
           //EGGNEMIES
           for (const en of model.eggnemies) {
             ctx.fillStyle = "pink"; // different from egg
             ctx.fillRect(en.x, en.y, en.width, en.height);
           }
+        },
+      },
+    }),
+  ]);
+};
 
-          }
-          
-        }
-      }
-     )])
-    };
+// ctx.fillStyle = "white"
+// if (model.egg) {
+//   const egg = model.egg;
+//   ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
+// }
 
-        // ctx.fillStyle = "white"
-          // if (model.egg) {
-          //   const egg = model.egg;
-          //   ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
-          // }
-          
-          // ctx.fillStyle = "red"
-          // ctx.font = "16px sans-serif"
-          // if (model.egg) {
-          //   const egg = model.egg;
-          //   ctx.fillText(`HP: ${model.egg.hp}/${model.egg.maxHp}`, 10, 20);
-          // }
-          
-          // if (model.egg.isSome()) {
-          //   const egg = model.egg.unwrap();
-          //   ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
-          //}
+// ctx.fillStyle = "red"
+// ctx.font = "16px sans-serif"
+// if (model.egg) {
+//   const egg = model.egg;
+//   ctx.fillText(`HP: ${model.egg.hp}/${model.egg.maxHp}`, 10, 20);
+// }
+
+// if (model.egg.isSome()) {
+//   const egg = model.egg.unwrap();
+//   ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
+//}

@@ -1,4 +1,4 @@
-import { Array, pipe, Option, Schema as S } from "effect";
+import { Array, Option, pipe, Schema as S } from "effect";
 import * as settings from "./settings.json";
 
 export const Direction = S.Literal("NORTH", "SOUTH", "EAST", "WEST", "NONE");
