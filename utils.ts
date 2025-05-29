@@ -1,5 +1,5 @@
-import { Eggnemy, Direction, Egg } from './model';
-import { Match } from 'effect';
+import { Eggnemy, Direction, Egg } from "./model";
+import { Match } from "effect";
 
 export function spawnEggnemies(count: number): Eggnemy[] {
   return Array.from({ length: count }, () => ({
@@ -10,7 +10,6 @@ export function spawnEggnemies(count: number): Eggnemy[] {
     speed: 10,
   }));
 }
-
 
 export function isTouching(egg: Egg, en: Eggnemy): boolean {
   return !(
@@ -25,5 +24,5 @@ export function isClose(egg: Egg, en: Eggnemy): boolean {
   const attackRange = 20; // px
   const dx = egg.x - en.x;
   const dy = egg.y - en.y;
-  return Math.sqrt(dx * dx + dy * dy) <= attackRange;
+  return dx * dx + dy * dy <= attackRange * attackRange;
 }
