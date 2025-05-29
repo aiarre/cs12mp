@@ -12,16 +12,8 @@ export const Msg = S.Union(
   S.TaggedStruct("MsgTick", {}),
   S.TaggedStruct("MsgKeyDown", { key: S.String }),
   S.TaggedStruct("MsgKeyUp", { key: S.String }),
+  // Currently unused.
   S.TaggedStruct("MsgError", { error: S.String }),
-  S.TaggedStruct("MsgUserTouchedEggnemy", {}),
-  S.TaggedStruct("MsgUserAttacks", {}),
 );
 
-export const [
-  MsgTick,
-  MsgKeyDown,
-  MsgKeyUp,
-  MsgError,
-  MsgUserTouchedEggnemy,
-  MsgUserAttacks,
-] = Msg.members;
+export const [MsgTick, MsgKeyDown, MsgKeyUp] = Msg.members;

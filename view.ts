@@ -1,47 +1,8 @@
 import { h } from "cs12242-mvu/src";
-import * as O from "effect/Option";
 import { Model } from "./model";
-import { Msg, MsgKeyDown, MsgKeyUp, MsgTick, MsgUserAttacks } from "./msg";
-
-let listenerAdded = false;
+import { Msg, MsgKeyDown, MsgKeyUp, MsgTick } from "./msg";
 
 export const view = (model: Model, dispatch: (msg: Msg) => void) => {
-  if (!listenerAdded) {
-    window.addEventListener("keydown", (e: KeyboardEvent) => {
-      switch (e.key) {
-        case "ArrowUp":
-        case "w":
-        case "W":
-          dispatch(MsgKeyDown.make({ key: "w" }));
-          break;
-
-        case "ArrowDown":
-        case "s":
-        case "S":
-          dispatch(MsgKeyDown.make({ key: "s" }));
-          break;
-
-        case "ArrowLeft":
-        case "a":
-        case "A":
-          dispatch(MsgKeyDown.make({ key: "a" }));
-          break;
-
-        case "ArrowRight":
-        case "d":
-        case "D":
-          dispatch(MsgKeyDown.make({ key: "d" }));
-          break;
-
-        case "l":
-        case "L":
-          dispatch(MsgUserAttacks.make());
-          break;
-      }
-      listenerAdded = true;
-    });
-  }
-
   return h("div", [
     h("canvas", {
       props: {

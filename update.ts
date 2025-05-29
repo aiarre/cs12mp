@@ -95,6 +95,7 @@ export const update = (msg: Msg, model: Model) =>
       // Probably shouldn't put this at the start, but for now, it's OK.
       if (model.egg == undefined) return model;
       const egg = model.egg;
+
       return pipe(
         model,
         (model) => tickMoveEgg(model),
@@ -154,11 +155,12 @@ export const update = (msg: Msg, model: Model) =>
       });
     }),
 
-    Match.tag("MsgError", ({ error }) => {
-      return {
-        ...model,
-        error: error,
-      };
-    }),
+    // Currently unused.
+    // Match.tag("MsgError", ({ error }) => {
+    //   return {
+    //     ...model,
+    //     error: error,
+    //   };
+    // }),
     Match.exhaustive,
   );
