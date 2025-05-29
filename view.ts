@@ -1,13 +1,7 @@
 import { h } from "cs12242-mvu/src";
 import * as O from "effect/Option";
 import { Model } from "./model";
-import {
-  Msg,
-  MsgKeyDown,
-  MsgKeyTick,
-  MsgUserAttacks,
-  MsgUserTouchedEggnemy,
-} from "./msg";
+import { Msg, MsgKeyDown, MsgKeyUp, MsgTick, MsgUserAttacks } from "./msg";
 
 let listenerAdded = false;
 
@@ -19,28 +13,24 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
         case "w":
         case "W":
           dispatch(MsgKeyDown.make({ key: "w" }));
-          dispatch(MsgKeyTick.make());
           break;
 
         case "ArrowDown":
         case "s":
         case "S":
           dispatch(MsgKeyDown.make({ key: "s" }));
-          dispatch(MsgKeyTick.make());
           break;
 
         case "ArrowLeft":
         case "a":
         case "A":
           dispatch(MsgKeyDown.make({ key: "a" }));
-          dispatch(MsgKeyTick.make());
           break;
 
         case "ArrowRight":
         case "d":
         case "D":
           dispatch(MsgKeyDown.make({ key: "d" }));
-          dispatch(MsgKeyTick.make());
           break;
 
         case "l":
@@ -62,6 +52,27 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
         background: "black",
       },
       hook: {
+        // Inspired from: https://github.com/UPD-CS12-242/cs12242-mvu/blob/main/src/canvas.ts
+        create: () => {
+          window.addEventListener("keydown", (e) =>
+            dispatch(
+              MsgKeyDown.make({
+                key: e.key,
+              }),
+            ),
+          );
+          window.addEventListener("keyup", (e) =>
+            dispatch(
+              MsgKeyUp.make({
+                key: e.key,
+              }),
+            ),
+          );
+          setInterval(
+            () => requestAnimationFrame(() => dispatch(MsgTick.make())),
+            1000.0 / model.fps,
+          );
+        },
         insert: (vnode) => {
           const canvas = vnode.elm as HTMLCanvasElement;
           const ctx = canvas.getContext("2d")!;
@@ -76,17 +87,15 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
           }
 
           //EGG
-          O.match(model.egg, {
-            onNone: () => {},
-            onSome: (egg) => {
-              ctx.fillStyle = "white";
-              ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
+          if (model.egg != undefined) {
+            const egg = model.egg;
+            ctx.fillStyle = "white";
+            ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
 
-              ctx.fillStyle = "red";
-              ctx.font = "16px sans-serif";
-              ctx.fillText(`HP: ${egg.hp}/${egg.maxHp}`, 10, 20);
-            },
-          });
+            ctx.fillStyle = "red";
+            ctx.font = "16px sans-serif";
+            ctx.fillText(`HP: ${egg.hp}/${egg.maxHp}`, 10, 20);
+          }
         },
 
         update: (oldVNode, newVNode) => {
@@ -98,17 +107,15 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
           ctx.fillRect(0, 0, canvas.width, canvas.height);
 
           //EGG
-          O.match(model.egg, {
-            onNone: () => {},
-            onSome: (egg) => {
-              ctx.fillStyle = "white";
-              ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
+          if (model.egg != undefined) {
+            const egg = model.egg;
+            ctx.fillStyle = "white";
+            ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
 
-              ctx.fillStyle = "red";
-              ctx.font = "16px sans-serif";
-              ctx.fillText(`HP: ${egg.hp}/${egg.maxHp}`, 10, 20);
-            },
-          });
+            ctx.fillStyle = "red";
+            ctx.font = "16px sans-serif";
+            ctx.fillText(`HP: ${egg.hp}/${egg.maxHp}`, 10, 20);
+          }
 
           //EGGNEMIES
           for (const en of model.eggnemies) {

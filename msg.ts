@@ -9,16 +9,18 @@ import { Schema as S } from "effect";
 export type Msg = typeof Msg.Type;
 export const Msg = S.Union(
   //asynch events/interactions with the site
-  S.TaggedStruct("MsgKeyTick", {}),
+  S.TaggedStruct("MsgTick", {}),
   S.TaggedStruct("MsgKeyDown", { key: S.String }),
+  S.TaggedStruct("MsgKeyUp", { key: S.String }),
   S.TaggedStruct("MsgError", { error: S.String }),
   S.TaggedStruct("MsgUserTouchedEggnemy", {}),
   S.TaggedStruct("MsgUserAttacks", {}),
 );
 
 export const [
-  MsgKeyTick,
+  MsgTick,
   MsgKeyDown,
+  MsgKeyUp,
   MsgError,
   MsgUserTouchedEggnemy,
   MsgUserAttacks,

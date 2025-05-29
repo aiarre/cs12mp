@@ -1,18 +1,7 @@
-import { Array, Effect, Match, Option, pipe } from "effect";
-import { modelRun } from "effect/FastCheck";
+import { Array, Match, Option, pipe } from "effect";
 import { Direction, Egg, Eggnemy, Model } from "./model";
 import { Msg } from "./msg";
-import * as settings from "./settings.json";
 import { isTouching, isWithinRange } from "./utils";
-
-export const [
-  MsgKeyTick,
-  MsgKeyDown,
-  MsgError,
-  MsgUserTouchedEggnemy,
-  MsgEggnemyFollows,
-  MsgUserAttacks,
-] = Msg.members;
 
 function getDirectionFromKey(key: string): Direction {
   // Kinda hacky, but it works.
@@ -102,7 +91,7 @@ export const update = (msg: Msg, model: Model) =>
       };
     }),
 
-    Match.tag("MsgKeyTick", (): Model => {
+    Match.tag("MsgTick", (): Model => {
       // Probably shouldn't put this at the start, but for now, it's OK.
       if (model.egg == undefined) return model;
       const egg = model.egg;
