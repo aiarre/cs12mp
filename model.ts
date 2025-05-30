@@ -54,7 +54,6 @@ export const World = S.Struct({
 
 export const Model = S.Struct({
   // model of the app ( think of this as the "world" )
-  fps: S.Int,
   world: World,
   egg: S.NullishOr(Egg),
   eggnemies: S.Array(Eggnemy),
@@ -106,7 +105,6 @@ const initWorld = World.make({
 
 export const initModel = Model.make({
   // initial state
-  fps: settings.game.fps,
   world: initWorld,
   egg: {
     x: 100,
