@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       cs12242-mvu:
-        specifier: github:UPD-CS12-242/cs12242-mvu
-        version: https://codeload.github.com/UPD-CS12-242/cs12242-mvu/tar.gz/9c54ca595204601fcc6cf8744f38ef9711e75060
+        specifier: github:louie-github/cs12242-mvu
+        version: https://codeload.github.com/louie-github/cs12242-mvu/tar.gz/bf63563b9c35bb8c8eaf06fdd55b305d1f7702e7
       effect:
         specifier: ^3.16.0
         version: 3.16.0
@@ -477,8 +477,8 @@ packages:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
 
-  cs12242-mvu@https://codeload.github.com/UPD-CS12-242/cs12242-mvu/tar.gz/9c54ca595204601fcc6cf8744f38ef9711e75060:
-    resolution: {tarball: https://codeload.github.com/UPD-CS12-242/cs12242-mvu/tar.gz/9c54ca595204601fcc6cf8744f38ef9711e75060}
+  cs12242-mvu@https://codeload.github.com/louie-github/cs12242-mvu/tar.gz/bf63563b9c35bb8c8eaf06fdd55b305d1f7702e7:
+    resolution: {tarball: https://codeload.github.com/louie-github/cs12242-mvu/tar.gz/bf63563b9c35bb8c8eaf06fdd55b305d1f7702e7}
     version: 1.6.0
 
   debug@4.4.1:
@@ -1254,7 +1254,7 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  cs12242-mvu@https://codeload.github.com/UPD-CS12-242/cs12242-mvu/tar.gz/9c54ca595204601fcc6cf8744f38ef9711e75060:
+  cs12242-mvu@https://codeload.github.com/louie-github/cs12242-mvu/tar.gz/bf63563b9c35bb8c8eaf06fdd55b305d1f7702e7:
     dependencies:
       effect: 3.16.0
       snabbdom: 3.6.2
