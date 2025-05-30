@@ -47,7 +47,7 @@ function getDxDyMultiplierFromDirection(
   ) as [-1 | 0 | 1, -1 | 0 | 1];
 }
 
-export function tickMoveEgg(model: Model): Model {
+function tickMoveEgg(model: Model): Model {
   const egg = model.egg;
   if (egg == undefined) {
     return Model.make({
@@ -65,21 +65,36 @@ export function tickMoveEgg(model: Model): Model {
   const [dxMultiplier, dyMultiplier] = getDxDyMultiplierFromDirection(
     egg.direction,
   );
+  const newEggX = Math.round(egg.x + egg.speed * dxMultiplier);
+  const newEggY = Math.round(egg.y + egg.speed * dyMultiplier);
 
   return Model.make({
     ...model,
     egg: {
       ...egg,
-      x: Math.max(
-        minX,
-        Math.min(Math.round(egg.x + egg.speed * dxMultiplier), maxX),
-      ),
-      y: Math.max(
-        minY,
-        Math.min(Math.round(egg.y + egg.speed * dyMultiplier), maxY),
-      ),
+      x: Math.max(minX, Math.min(newEggX, maxX)),
+      y: Math.max(minY, Math.min(newEggY, maxY)),
     },
   });
+}
+
+function tickAdjustWorldCenter(model: Model): Model {
+  return {
+    ...model,
+    world: {
+      ...model.world,
+      center: {
+        x:
+          model.egg != undefined
+            ? Math.round(model.egg.x + model.egg.width / 2)
+            : model.world.center.x,
+        y:
+          model.egg != undefined
+            ? Math.round(model.egg.y + model.egg.height / 2)
+            : model.world.center.y,
+      },
+    },
+  };
 }
 
 function tickMoveTowardsEgg(enemy: Eggnemy | Boss, egg: Egg): Eggnemy | Boss {
@@ -97,7 +112,7 @@ function tickMoveTowardsEgg(enemy: Eggnemy | Boss, egg: Egg): Eggnemy | Boss {
   };
 }
 
-export function tickMoveEnemiesTowardsEgg(model: Model): Model {
+function tickMoveEnemiesTowardsEgg(model: Model): Model {
   if (model.egg == undefined) return model;
   const egg = model.egg;
 
@@ -112,7 +127,7 @@ export function tickMoveEnemiesTowardsEgg(model: Model): Model {
   });
 }
 
-export function tickEnemyDamagesEgg(model: Model): Model {
+function tickEnemyDamagesEgg(model: Model): Model {
   if (model.egg == undefined) return model;
   const egg = model.egg;
 
@@ -145,7 +160,7 @@ export function tickEnemyDamagesEgg(model: Model): Model {
   });
 }
 
-export function tickDamageEnemyIfAttacking(model: Model): Model {
+function tickDamageEnemyIfAttacking(model: Model): Model {
   if (model.egg == undefined) return model;
   const egg = model.egg;
 
@@ -322,6 +337,8 @@ export const update = (msg: Msg, model: Model) =>
         tickOccassionalSpawnEggnemy,
         tickBossSpawn,
         tickMoveEgg,
+        // Adjust center to match egg,
+        tickAdjustWorldCenter,
         // Damage enemies in range before anything!
         tickDamageEnemyIfAttacking,
         // Should we move before or after damaging? Not sure!
