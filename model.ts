@@ -48,6 +48,7 @@ export const Model = S.Struct({
   egg: S.NullishOr(Egg),
   eggnemies: S.Array(Eggnemy),
   lastDamageTime: S.Number,
+  defeatedCount: S.Number,
   error: S.String,
 });
 export type Model = typeof Model.Type;
@@ -89,5 +90,6 @@ export const initModel = Model.make({
     Array.map(() => createRandomEggnemy()),
   ),
   lastDamageTime: Date.now(),
+  defeatedCount: 0,
   error: "",
 });

@@ -50,7 +50,16 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
 
           
           //EGGNEMIES
+          ctx.fillStyle = "white";
+          ctx.font = "16px sans-serif";
+          ctx.fillText(`${model.defeatedCount}`, 10, 20);
           for (const en of model.eggnemies) {
+
+            ctx.fillStyle = "pink";
+            ctx.font = "10px sans-serif";
+            ctx.fillText(`${en.hp}/${en.maxHp}`, en.x, en.y - 5);
+
+
             ctx.fillStyle = "pink"; // different from egg
             ctx.fillRect(en.x, en.y, en.width, en.height);
           }
@@ -63,7 +72,7 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
 
             ctx.fillStyle = "red";
             ctx.font = "16px sans-serif";
-            ctx.fillText(`HP: ${egg.hp}/${egg.maxHp}`, 10, 20);
+            ctx.fillText(`${egg.hp}/${egg.maxHp}`, egg.x, egg.y - 5);
           }
         },
 
@@ -90,11 +99,21 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
 
             ctx.fillStyle = "red";
             ctx.font = "16px sans-serif";
-            ctx.fillText(`HP: ${egg.hp}/${egg.maxHp}`, 10, 20);
+            ctx.fillText(`${egg.hp}/${egg.maxHp}`, egg.x, egg.y-5);
+            
           }
 
           //EGGNEMIES
+          ctx.fillStyle = "white";
+          ctx.font = "16px sans-serif";
+          ctx.fillText(`${model.defeatedCount}`, 10, 20);
           for (const en of model.eggnemies) {
+
+            ctx.fillStyle = "pink";
+            ctx.font = "10px sans-serif";
+            ctx.fillText(`${en.hp}/${en.maxHp}`, en.x, en.y - 5);
+
+
             ctx.fillStyle = "pink"; // different from egg
             ctx.fillRect(en.x, en.y, en.width, en.height);
           }

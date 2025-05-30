@@ -122,12 +122,24 @@ export function tickDamageEggnemiesIfAttacking(model: Model): Model {
 
   if (!egg.isAttacking) return model;
 
+
+  const [alive, defeated] = pipe(
+    model.eggnemies,
+    Array.map((en) => {
+      if (isWithinRange(egg, en)) {
+        return {
+          ...en,
+          hp: en.hp - 1,
+        };
+      }
+      return en;
+    }),
+    Array.partition((en) => en.hp <= 0),
+  );
   return Model.make({
     ...model,
-    eggnemies: pipe(
-      model.eggnemies,
-      Array.filter((en) => !isWithinRange(egg, en)),
-    ),
+    eggnemies: alive,
+    defeatedCount: model.defeatedCount + defeated.length,
   });
 }
 
