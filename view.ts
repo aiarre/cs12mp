@@ -38,9 +38,17 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
           const canvas = vNode.elm as HTMLCanvasElement;
           const ctx = canvas.getContext("2d")!;
 
+          //BACKGROUND
           ctx.fillStyle = "black";
+          ctx.lineWidth = 5;
           ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+          //BORDER
+          ctx.strokeStyle = "white";
+          ctx.lineWidth = 5;
+          ctx.strokeRect(25, 25, canvas.width - 50, canvas.height - 50);
+
+          
           //EGGNEMIES
           for (const en of model.eggnemies) {
             ctx.fillStyle = "pink"; // different from egg
@@ -64,8 +72,15 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
           const canvas = newVNode.elm as HTMLCanvasElement;
           const ctx = canvas.getContext("2d")!;
 
+          
+          //BACKGROUND
           ctx.fillStyle = "black";
           ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+          //BORDER
+          ctx.strokeStyle = "white";
+          ctx.lineWidth = 5;
+          ctx.strokeRect(25, 25, canvas.width - 50, canvas.height - 50);
 
           //EGG
           if (model.egg != undefined) {
