@@ -31,7 +31,7 @@ const model = Model.make({
       gameOver: false,
       victoryText: "",
       error: ""
-    }); // your initial model
+    }); 
     
 describe('#update', () => {
   it('moves the egg north on key press W', () => {
