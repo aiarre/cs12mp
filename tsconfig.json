@@ -3,6 +3,7 @@
 
   "compilerOptions": {
     // Environment setup & latest features (+ DOM features)
+    "types": ["vitest"],
     "lib": ["ESNext", "DOM"],
     "target": "ESNext",
     "module": "ESNext",

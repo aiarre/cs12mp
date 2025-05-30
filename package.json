@@ -9,12 +9,14 @@
     "globals": "^16.2.0",
     "prettier": "^3.5.3",
     "typescript-eslint": "^8.33.0",
-    "vite": "^6.3.5"
+    "vite": "^6.3.5",
+    "vitest": "^3.1.4"
   },
   "scripts": {
     "fmt": "prettier --check *.ts *.html",
     "fmt:fix": "prettier --write *.ts *.html",
     "lint": "eslint *.ts",
-    "serve": "vite"
+    "serve": "vite",
+    "test": "vitest"
   }
 }
