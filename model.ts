@@ -71,10 +71,10 @@ export const Model = S.Struct({
   error: S.String,
 });
 
-export const createRandomEggnemy = () =>
+export const createRandomEggnemy = (world: World) =>
   Eggnemy.make({
-    x: Math.floor(Math.random() * settings.game.screen.width + 50),
-    y: Math.floor(Math.random() * settings.game.screen.height + 50),
+    x: Math.floor(Math.random() * world.width + 50),
+    y: Math.floor(Math.random() * world.height + 50),
     width: settings.eggnemies.width,
     height: settings.eggnemies.height,
     hp: settings.eggnemies.initialHp,
@@ -82,10 +82,10 @@ export const createRandomEggnemy = () =>
     speed: settings.eggnemies.speed,
   });
 
-export const createBoss = () =>
+export const createBoss = (world: World) =>
   Boss.make({
-    x: Math.floor(Math.random() * settings.game.screen.width + 50),
-    y: Math.floor(Math.random() * settings.game.screen.height + 50),
+    x: Math.floor(Math.random() * world.width + 50),
+    y: Math.floor(Math.random() * world.height + 50),
     width: settings.boss.width,
     height: settings.boss.height,
     hp: settings.boss.initialHp,
@@ -93,18 +93,20 @@ export const createBoss = () =>
     speed: settings.boss.speed,
   });
 
+const initWorld = World.make({
+  width: settings.game.world.width,
+  height: settings.game.world.height,
+  center: {
+    // By default, sync this to the egg.
+    x: Math.floor(100 + settings.egg.width / 2),
+    y: Math.floor(100 + settings.egg.height / 2),
+  },
+});
+
 export const initModel = Model.make({
   // initial state
   fps: settings.game.fps,
-  world: {
-    width: settings.game.world.width,
-    height: settings.game.world.height,
-    center: {
-      // By default, sync this to the egg.
-      x: Math.floor(100 + settings.egg.width / 2),
-      y: Math.floor(100 + settings.egg.height / 2),
-    },
-  },
+  world: initWorld,
   egg: {
     x: 100,
     y: 100,
@@ -119,7 +121,7 @@ export const initModel = Model.make({
   },
   eggnemies: pipe(
     Array.range(1, settings.eggnemies.initialCount),
-    Array.map(() => createRandomEggnemy()),
+    Array.map(() => createRandomEggnemy(initWorld)),
   ),
   boss: null,
   bossSpawnThreshold: settings.game.spawnThreshold,

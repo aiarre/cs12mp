@@ -204,13 +204,13 @@ function tickDamageEnemyIfAttacking(model: Model): Model {
   });
 }
 
-export function tickOccassionalSpawnEggnemy(model: Model): Model {
+function tickOccasionallySpawnEggnemy(model: Model): Model {
   if (model.egg == undefined) return model;
   let newEggnemies: Eggnemy[] = [];
   if (Math.random() < 0.01) {
     newEggnemies = Array.map(
       Array.range(1, Math.floor(Math.random() * 3) + 1),
-      createRandomEggnemy,
+      () => createRandomEggnemy(model.world),
     );
   }
 
@@ -220,7 +220,7 @@ export function tickOccassionalSpawnEggnemy(model: Model): Model {
   });
 }
 
-export function tickBossSpawn(model: Model): Model {
+function tickBossSpawn(model: Model): Model {
   if (model.egg == undefined) return model;
 
   if (model.boss) return model;
@@ -232,7 +232,7 @@ export function tickBossSpawn(model: Model): Model {
   ) {
     return Model.make({
       ...model,
-      boss: createBoss(),
+      boss: createBoss(model.world),
       bossSpawned: true,
     });
   }
@@ -334,7 +334,7 @@ export const update = (msg: Msg, model: Model) =>
           elapsedTime: elapsed,
         },
         // checkEndGame, //check if game ended first before moving
-        tickOccassionalSpawnEggnemy,
+        tickOccasionallySpawnEggnemy,
         tickBossSpawn,
         tickMoveEgg,
         // Adjust center to match egg,
