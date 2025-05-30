@@ -21,7 +21,7 @@
     "initialCount": 5,
     "width": 20,
     "height": 20,
-    "initialHp": 100,
+    "initialHp": 2,
     "speed": 6
   }
 }

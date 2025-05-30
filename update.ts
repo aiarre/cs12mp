@@ -43,10 +43,10 @@ export function tickMoveEgg(model: Model): Model {
   const egg = model.egg;
   if (egg == undefined) return model;
 
-  const minX = 25;
-  const maxX = model.width - 25 - egg.width;
-  const minY = 25;
-  const maxY = model.height - 25 - egg.height;
+  const minX = model.screen.width / 2 - model.world.width/2;
+  const maxX = minX + model.world.width - egg.width;
+  const minY = model.screen.height / 2 - model.world.height/2;
+  const maxY = minY + model.world.height - egg.height;
   const [dxMultiplier, dyMultiplier] = getDxDyMultiplierFromDirection(
     egg.direction,
   );

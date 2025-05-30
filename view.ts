@@ -6,8 +6,8 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
   return h("div", [
     h("canvas", {
       props: {
-        width: model.width,
-        height: model.height,
+        width: model.screen.width,
+        height: model.screen.height,
       },
       style: {
         background: "black",
@@ -37,17 +37,22 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
         insert: (vNode) => {
           const canvas = vNode.elm as HTMLCanvasElement;
           const ctx = canvas.getContext("2d")!;
+          const screenWidth = model.screen.width;
+          const screenHeight = model.screen.height;
+          const worldWidth = model.world.width;
+          const worldHeight = model.world.height;
+          const offsetX = ((screenWidth - worldWidth) / 2);
+          const offsetY = ((screenHeight - worldHeight) / 2);
 
-          //BACKGROUND
+          //SCREEN
           ctx.fillStyle = "black";
           ctx.lineWidth = 5;
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.fillRect(0, 0, screenWidth, screenHeight);
 
           //BORDER
           ctx.strokeStyle = "white";
           ctx.lineWidth = 5;
-          ctx.strokeRect(25, 25, canvas.width - 50, canvas.height - 50);
-
+          ctx.strokeRect(offsetX, offsetY, worldWidth, worldHeight);
           
           //EGGNEMIES
           ctx.fillStyle = "white";
@@ -80,16 +85,22 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
           //how to draw the state on the screen
           const canvas = newVNode.elm as HTMLCanvasElement;
           const ctx = canvas.getContext("2d")!;
+          const screenWidth = model.screen.width;
+          const screenHeight = model.screen.height;
+          const worldWidth = model.world.width;
+          const worldHeight = model.world.height;
+          const offsetX = ((screenWidth - worldWidth) / 2);
+          const offsetY = ((screenHeight - worldHeight) / 2);
 
-          
-          //BACKGROUND
+          //SCREEN
           ctx.fillStyle = "black";
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          ctx.lineWidth = 5;
+          ctx.fillRect(0, 0, screenWidth, screenHeight);
 
           //BORDER
           ctx.strokeStyle = "white";
           ctx.lineWidth = 5;
-          ctx.strokeRect(25, 25, canvas.width - 50, canvas.height - 50);
+          ctx.strokeRect(offsetX, offsetY, worldWidth, worldHeight);
 
           //EGG
           if (model.egg != undefined) {
