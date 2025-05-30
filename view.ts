@@ -3,6 +3,7 @@ import {
   type CanvasElement,
   OutlinedRectangle,
   SolidRectangle,
+  Text,
 } from "cs12242-mvu/src/canvas";
 import { Array, pipe, Struct } from "effect";
 import { Model } from "./model";
@@ -12,6 +13,7 @@ import { formatTime } from "./utils";
 function renderEgg(model: Model): CanvasElement[] {
   return model.egg != undefined
     ? [
+        // Actual Egg
         SolidRectangle.make({
           x: model.egg.x,
           y: model.egg.y,
@@ -20,6 +22,16 @@ function renderEgg(model: Model): CanvasElement[] {
           // TODO: Extract out to setting.
           color: "white",
         }),
+        // HP text
+        Text.make({
+          x: model.egg.x,
+          y: model.egg.y - 5,
+          text: `${model.egg.hp}/${model.egg.maxHp}`,
+          fontSize: 16,
+          font: "sans-serif",
+          color: "white",
+          textAlign: "left",
+        }),
       ]
     : [];
 }
@@ -27,7 +39,8 @@ function renderEgg(model: Model): CanvasElement[] {
 function renderEggnemies(model: Model): CanvasElement[] {
   return pipe(
     model.eggnemies,
-    Array.map((en) =>
+    Array.map((en) => [
+      // Actual eggnemy
       SolidRectangle.make({
         x: en.x,
         y: en.y,
@@ -36,8 +49,42 @@ function renderEggnemies(model: Model): CanvasElement[] {
         // TODO: Extract out to setting.
         color: "pink", // different from egg
       }),
-    ),
+      // HP text
+      Text.make({
+        x: en.x,
+        y: en.y - 5,
+        text: `${en.hp}/${en.maxHp}`,
+        fontSize: 10,
+        font: "sans-serif",
+        color: "pink",
+        textAlign: "left",
+      }),
+    ]),
+    Array.flatten,
   );
+}
+
+function renderBoss(model: Model): CanvasElement[] {
+  return model.boss != undefined
+    ? [
+        SolidRectangle.make({
+          x: model.boss.x,
+          y: model.boss.y,
+          width: model.boss.width,
+          height: model.boss.height,
+          color: "red",
+        }),
+        Text.make({
+          x: model.boss.x,
+          y: model.boss.y - 5,
+          text: `${model.boss.hp}/${model.boss.maxHp}`,
+          fontSize: 16,
+          font: "sans-serif",
+          color: "red",
+          textAlign: "left",
+        }),
+      ]
+    : [];
 }
 
 function offsetElementBy(element: CanvasElement, dx: number, dy: number) {
@@ -72,6 +119,58 @@ function renderWorld(model: Model): CanvasElement[] {
     Array.appendAll(renderEggnemies(model)),
     // I love functional programming.
     Array.map((element) => offsetElementBy(element, offsetX, offsetY)),
+  );
+}
+
+function renderUIElements(model: Model): CanvasElement[] {
+  return pipe(
+    [
+      // Eggnemies defeated count
+      Text.make({
+        x: 10,
+        y: 20,
+        text: `${model.defeatedCount}`,
+        fontSize: 16,
+        font: "sans-serif",
+        color: "white",
+        textAlign: "left",
+      }),
+
+      // Timer
+      Text.make({
+        x: model.screen.width - 100,
+        y: 20,
+        text: `${formatTime(model.elapsedTime)}`,
+        fontSize: 16,
+        font: "sans-serif",
+        color: "white",
+        textAlign: "left",
+      }),
+    ],
+    Array.appendAll(
+      model.victoryText
+        ? [
+            // Victory text
+            Text.make({
+              x: model.screen.width / 2,
+              y: model.screen.height / 2,
+              text: model.victoryText,
+              fontSize: 20,
+              font: "sans-serif",
+              color: "white",
+              textAlign: "center",
+            }),
+          ]
+        : [],
+    ),
+  );
+}
+
+function renderScreen(model: Model): CanvasElement[] {
+  return pipe(
+    [],
+    Array.appendAll(renderWorld(model)),
+    Array.appendAll(renderUIElements(model)),
   );
 }
 
