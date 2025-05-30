@@ -29,7 +29,7 @@
   "boss": {
     "width": 50,
     "height": 50,
-    "initialHp": 100,
+    "initialHp": 10,
     "speed": 8
   }
 }

@@ -1,6 +1,7 @@
 import { h } from "cs12242-mvu/src";
 import { Model } from "./model";
 import { Msg, MsgKeyDown, MsgKeyUp, MsgTick } from "./msg";
+import { formatTime } from "./utils";
 
 export const view = (model: Model, dispatch: (msg: Msg) => void) => {
   return h("div", [
@@ -91,6 +92,16 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
             ctx.fillText(`${boss.hp}/${boss.maxHp}`, boss.x, boss.y - 5);
           }
 
+          //TIMER
+          ctx.fillStyle = "white";
+          ctx.font = "16px sans-serif";
+          ctx.fillText(`${formatTime(model.elapsedTime)}`, model.screen.width-100, 20);
+
+          //VICTORY TEXT
+          ctx.fillStyle = "white";
+          ctx.font = "20px sans-serif";
+          ctx.fillText(`${model.victoryText}`, model.world.width/2, model.world.height/2)
+
         },
 
         update: (oldVNode, newVNode) => {
@@ -151,26 +162,18 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
             ctx.font = "16px sans-serif";
             ctx.fillText(`${boss.hp}/${boss.maxHp}`, boss.x, boss.y - 5);
           }
+
+          //TIMER
+          ctx.fillStyle = "white";
+          ctx.font = "16px sans-serif";
+          ctx.fillText(`${formatTime(model.elapsedTime)}`, model.screen.width-100, 20);
+
+          //VICTORY TEXT
+          ctx.fillStyle = "white";
+          ctx.font = "20px sans-serif";
+          ctx.fillText(`${model.victoryText}`, model.world.width/2, model.world.height/2)
         },
       },
     }),
   ]);
 };
-
-// ctx.fillStyle = "white"
-// if (model.egg) {
-//   const egg = model.egg;
-//   ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
-// }
-
-// ctx.fillStyle = "red"
-// ctx.font = "16px sans-serif"
-// if (model.egg) {
-//   const egg = model.egg;
-//   ctx.fillText(`HP: ${model.egg.hp}/${model.egg.maxHp}`, 10, 20);
-// }
-
-// if (model.egg.isSome()) {
-//   const egg = model.egg.unwrap();
-//   ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
-//}

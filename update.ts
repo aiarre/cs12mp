@@ -3,6 +3,8 @@ import { Direction, Egg, Eggnemy, Boss, Model, createRandomEggnemy, createBoss }
 import { Msg } from "./msg";
 import { isTouching, isWithinRange } from "./utils";
 import { MicroSchedulerDefault } from "effect/Micro";
+import { failureSchema, Null } from "effect/Schema";
+import { failCauseSync } from "effect/Deferred";
 
 function getDirectionFromKey(key: string): Direction | null {
   // Kinda hacky, but it works.
@@ -190,6 +192,29 @@ export function tickBossSpawn(model: Model): Model {
   // Spawn a boss eggnemy if eggnemies count killed is reached.
 }
 
+export function checkEndGame(model: Model): Model {
+  if (model.egg && model.boss && model.boss.hp <= 0) {
+    return Model.make({
+      ...model,
+      gameOver: true,
+      boss: null,
+      victoryText: "You Win!",
+      stopTime: false,
+      egg: {
+        ...model.egg,
+        direction: "NONE",
+        isAttacking: false,
+        speed: 0,
+      },
+      eggnemies: Array.map(model.eggnemies, (en) => ({
+        ...en,
+        speed: 0,
+      }))
+    })
+  } 
+  return model;
+}
+
 export const update = (msg: Msg, model: Model) =>
   Match.value(msg).pipe(
     Match.tag("MsgKeyDown", ({ key }): Model => {
@@ -251,14 +276,21 @@ export const update = (msg: Msg, model: Model) =>
     }),
 
     Match.tag("MsgTick", (): Model => {
+      if (model.gameOver) return model;
+      const now = Date.now()
+      const elapsed = now - model.startTime
       // Note: The order in which we do things is important.
       return pipe(
-        model,
+        {
+          ...model,
+          elapsedTime: elapsed,
+        },
         tickOccassionalSpawnEggnemy,
         tickBossSpawn,
         tickMoveEgg,
         // Damage enemies in range before anything!
         tickDamageEnemyIfAttacking,
+        checkEndGame, //check if game ended first before moving
         // Should we move before or after damaging? Not sure!
         tickMoveEnemiesTowardsEgg,
         tickEnemyDamagesEgg,

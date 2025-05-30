@@ -1,5 +1,6 @@
 import { Array, pipe, Schema as S } from "effect";
 import * as settings from "./settings.json";
+import { failureSchema } from "effect/Schema";
 
 export const Direction = S.Literal("NORTH", "SOUTH", "EAST", "WEST", "NONE");
 export type Direction = typeof Direction.Type;
@@ -54,6 +55,7 @@ export const World = S.Struct({
   height: S.Int,
 });
 
+
 export const Model = S.Struct({
   // model of the app ( think of this as the "world" )
   fps: S.Int,
@@ -66,6 +68,11 @@ export const Model = S.Struct({
   bossSpawned: S.Boolean,
   lastDamageTime: S.Number,
   defeatedCount: S.Number,
+  startTime: S.Number,
+  elapsedTime: S.Number,
+  stopTime: S.Boolean,
+  gameOver: S.Boolean,
+  victoryText: S.String,
   error: S.String,
 });
 
@@ -123,5 +130,10 @@ export const initModel = Model.make({
   bossSpawned: settings.game.bossSpawned,
   lastDamageTime: Date.now(),
   defeatedCount: 0,
+  startTime: Date.now(),
+  elapsedTime: 0,
+  stopTime: false,
+  gameOver: false,
+  victoryText: "",
   error: "",
 });
