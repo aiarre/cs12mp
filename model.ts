@@ -33,11 +33,18 @@ export const Eggnemy = S.Struct({
 });
 export type Eggnemy = typeof Eggnemy.Type;
 
+export const Screen = S.Struct({
+  width: S.Int,
+  height: S.Int,
+});
+export type Screen = typeof Screen.Type;
+
 export const Model = S.Struct({
-  // model of the app
+  // model of the app ( think of this as the "world" )
   fps: S.Int,
   width: S.Int,
   height: S.Int,
+  screen: Screen,
   egg: S.NullishOr(Egg),
   eggnemies: S.Array(Eggnemy),
   lastDamageTime: S.Number,
@@ -47,8 +54,8 @@ export type Model = typeof Model.Type;
 
 export const createRandomEggnemy = () =>
   Eggnemy.make({
-    x: Math.floor(Math.random() * settings.game.width),
-    y: Math.floor(Math.random() * settings.game.height),
+    x: Math.floor(Math.random() * settings.game.screen.width),
+    y: Math.floor(Math.random() * settings.game.screen.height),
     width: settings.eggnemies.width,
     height: settings.eggnemies.height,
     speed: settings.eggnemies.speed,
@@ -57,8 +64,12 @@ export const createRandomEggnemy = () =>
 export const initModel = Model.make({
   // initial state
   fps: settings.game.fps,
-  width: settings.game.width,
-  height: settings.game.height,
+  width: settings.game.world.width,
+  height: settings.game.world.height,
+  screen: {
+    width: settings.game.screen.width,
+    height: settings.game.screen.height,
+  },
   egg: {
     x: 100,
     y: 100,
