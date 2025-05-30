@@ -1,5 +1,12 @@
 import { Eggnemy, Egg, GameObject } from "./model";
 
+export function getCenterXY(obj: GameObject): [number, number] {
+  return [
+    Math.round(obj.x + obj.width / 2), // x
+    Math.round(obj.y + obj.height / 2), // y
+  ];
+}
+
 export function isTouching(a: GameObject, b: GameObject): boolean {
   return !(
     a.x + a.width < b.x ||

@@ -9,7 +9,7 @@ import {
   createRandomEggnemy,
 } from "./model";
 import { Msg } from "./msg";
-import { isTouching, isWithinRange } from "./utils";
+import { getCenterXY, isTouching, isWithinRange } from "./utils";
 
 function getDirectionFromKey(key: string): Direction | null {
   // Kinda hacky, but it works.
@@ -47,6 +47,10 @@ function getDxDyMultiplierFromDirection(
   ) as [-1 | 0 | 1, -1 | 0 | 1];
 }
 
+/*
+  Convention: tick*(model: Model): Model functions are run on MsgTick
+*/
+
 function tickMoveEgg(model: Model): Model {
   const egg = model.egg;
   if (egg == undefined) {
@@ -79,36 +83,37 @@ function tickMoveEgg(model: Model): Model {
 }
 
 function tickAdjustWorldCenter(model: Model): Model {
+  if (model.egg == undefined) return model;
+  const egg = model.egg;
+
+  const [centerX, centerY] = getCenterXY(egg);
   return {
     ...model,
     world: {
       ...model.world,
       center: {
-        x:
-          model.egg != undefined
-            ? Math.round(model.egg.x + model.egg.width / 2)
-            : model.world.center.x,
-        y:
-          model.egg != undefined
-            ? Math.round(model.egg.y + model.egg.height / 2)
-            : model.world.center.y,
+        x: centerX,
+        y: centerY,
       },
     },
   };
 }
 
-function tickMoveTowardsEgg(enemy: Eggnemy | Boss, egg: Egg): Eggnemy | Boss {
-  const dx = egg.x - enemy.x;
-  const dy = egg.y - enemy.y;
+function moveEnemyTowardsEgg(
+  eggnemy: Eggnemy | Boss,
+  egg: Egg,
+): Eggnemy | Boss {
+  const dx = egg.x - eggnemy.x;
+  const dy = egg.y - eggnemy.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
 
-  if (dist === 0) return enemy;
+  if (dist === 0) return eggnemy;
 
   return {
-    ...enemy,
+    ...eggnemy,
     // Round up so that eggnemies will always move
-    x: Math.ceil(enemy.x + (dx / dist) * enemy.speed),
-    y: Math.ceil(enemy.y + (dy / dist) * enemy.speed),
+    x: Math.ceil(eggnemy.x + (dx / dist) * eggnemy.speed),
+    y: Math.ceil(eggnemy.y + (dy / dist) * eggnemy.speed),
   };
 }
 
@@ -120,10 +125,12 @@ function tickMoveEnemiesTowardsEgg(model: Model): Model {
     ...model,
     eggnemies: pipe(
       model.eggnemies,
-      Array.map((en) => tickMoveTowardsEgg(en, egg)),
+      Array.map((en) => moveEnemyTowardsEgg(en, egg)),
     ),
     boss:
-      model.boss != undefined ? tickMoveTowardsEgg(model.boss, egg) : undefined,
+      model.boss != undefined
+        ? moveEnemyTowardsEgg(model.boss, egg)
+        : undefined,
   });
 }
 
@@ -139,14 +146,10 @@ function tickEnemyDamagesEgg(model: Model): Model {
     Array.some((en) => isTouching(en, egg)),
   );
   const isBossTouchingEgg = model.boss && isTouching(model.boss, egg);
-
   if (!isEggnemyTouchingEgg && !isBossTouchingEgg) return model;
 
-  let damage = isEggnemyTouchingEgg ? 1 : 0;
-  if (isBossTouchingEgg) damage += 3;
-
+  const damage = (isEggnemyTouchingEgg ? 1 : 0) + (isBossTouchingEgg ? 3 : 0);
   const newEggHp = egg.hp - damage;
-
   return Model.make({
     ...model,
     lastDamageTime: now,
@@ -160,7 +163,7 @@ function tickEnemyDamagesEgg(model: Model): Model {
   });
 }
 
-function tickDamageEnemyIfAttacking(model: Model): Model {
+function tickEggAttacksEnemies(model: Model): Model {
   if (model.egg == undefined) return model;
   const egg = model.egg;
 
@@ -206,34 +209,34 @@ function tickDamageEnemyIfAttacking(model: Model): Model {
 
 function tickOccasionallySpawnEggnemy(model: Model): Model {
   if (model.egg == undefined) return model;
-  let newEggnemies: Eggnemy[] = [];
-  if (Math.random() < 0.01) {
-    newEggnemies = Array.map(
-      Array.range(1, Math.floor(Math.random() * 3) + 1),
-      () => createRandomEggnemy(model.world),
-    );
-  }
-
+  // 10% chance of spawning 1-3 eggnemies per tick
   return Model.make({
     ...model,
-    eggnemies: [...model.eggnemies, ...newEggnemies],
+    eggnemies: pipe(
+      model.eggnemies,
+      Array.appendAll(
+        Math.random() < 0.01
+          ? pipe(
+              Array.range(1, Math.floor(Math.random() * 3) + 1),
+              Array.map(() => createRandomEggnemy(model.world)),
+            )
+          : [],
+      ),
+    ),
   });
 }
 
-function tickBossSpawn(model: Model): Model {
-  if (model.egg == undefined) return model;
-
-  if (model.boss) return model;
-
+function tickSpawnBossIfNeeded(model: Model): Model {
   if (
-    !model.bossSpawned &&
-    model.boss === undefined &&
+    model.egg != undefined &&
+    !model.hasBossAlreadySpawned &&
+    model.boss == undefined &&
     model.defeatedCount >= model.bossSpawnThreshold
   ) {
     return Model.make({
       ...model,
       boss: createBoss(model.world),
-      bossSpawned: true,
+      hasBossAlreadySpawned: true,
     });
   }
   return model;
@@ -333,15 +336,15 @@ export const update = (msg: Msg, model: Model) =>
           ...model,
           elapsedTime: elapsed,
         },
-        // checkEndGame, //check if game ended first before moving
+        // Enemy spawning
         tickOccasionallySpawnEggnemy,
-        tickBossSpawn,
+        tickSpawnBossIfNeeded,
+        // Egg (player) movement
         tickMoveEgg,
-        // Adjust center to match egg,
         tickAdjustWorldCenter,
-        // Damage enemies in range before anything!
-        tickDamageEnemyIfAttacking,
-        // Should we move before or after damaging? Not sure!
+        // Attack enemies before calculating damage (!)
+        tickEggAttacksEnemies,
+        // Enemy movement and attack behavior
         tickMoveEnemiesTowardsEgg,
         tickEnemyDamagesEgg,
       );
