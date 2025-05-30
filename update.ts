@@ -1,10 +1,15 @@
 import { Array, Match, pipe } from "effect";
-import { Direction, Egg, Eggnemy, Boss, Model, createRandomEggnemy, createBoss } from "./model";
+import {
+  Boss,
+  Direction,
+  Egg,
+  Eggnemy,
+  Model,
+  createBoss,
+  createRandomEggnemy,
+} from "./model";
 import { Msg } from "./msg";
 import { isTouching, isWithinRange } from "./utils";
-import { MicroSchedulerDefault } from "effect/Micro";
-import { failureSchema, Null } from "effect/Schema";
-import { failCauseSync } from "effect/Deferred";
 
 function getDirectionFromKey(key: string): Direction | null {
   // Kinda hacky, but it works.
@@ -50,11 +55,12 @@ export function tickMoveEgg(model: Model): Model {
       gameOver: true,
       victoryText: "You Lose!",
       stopTime: true,
-  })}
+    });
+  }
 
-  const minX = model.screen.width / 2 - model.world.width/2;
+  const minX = model.screen.width / 2 - model.world.width / 2;
   const maxX = minX + model.world.width - egg.width;
-  const minY = model.screen.height / 2 - model.world.height/2;
+  const minY = model.screen.height / 2 - model.world.height / 2;
   const maxY = minY + model.world.height - egg.height;
   const [dxMultiplier, dyMultiplier] = getDxDyMultiplierFromDirection(
     egg.direction,
@@ -95,7 +101,8 @@ export function tickMoveEnemiesTowardsEgg(model: Model): Model {
       model.eggnemies,
       Array.map((en) => tickMoveTowardsEgg(en, egg)),
     ),
-    boss: model.boss != undefined ? tickMoveTowardsEgg(model.boss, egg) : undefined
+    boss:
+      model.boss != undefined ? tickMoveTowardsEgg(model.boss, egg) : undefined,
   });
 }
 
@@ -138,7 +145,6 @@ export function tickDamageEnemyIfAttacking(model: Model): Model {
 
   if (!egg.isAttacking) return model;
 
-
   const [alive, defeated] = pipe(
     model.eggnemies,
     Array.map((en) => {
@@ -164,8 +170,9 @@ export function tickDamageEnemyIfAttacking(model: Model): Model {
           gameOver: true,
           victoryText: "You Win!",
           stopTime: true,
-          boss: undefined
-      })}
+          boss: undefined,
+        });
+      }
     }
   }
   return Model.make({
@@ -179,10 +186,13 @@ export function tickDamageEnemyIfAttacking(model: Model): Model {
 export function tickOccassionalSpawnEggnemy(model: Model): Model {
   if (model.egg == undefined) return model;
   let newEggnemies: Eggnemy[] = [];
-  if (Math.random() < 0.01)  {
-    newEggnemies = Array.map(Array.range(1, Math.floor(Math.random() * 3) + 1), createRandomEggnemy);
+  if (Math.random() < 0.01) {
+    newEggnemies = Array.map(
+      Array.range(1, Math.floor(Math.random() * 3) + 1),
+      createRandomEggnemy,
+    );
   }
-  
+
   return Model.make({
     ...model,
     eggnemies: [...model.eggnemies, ...newEggnemies],
@@ -191,16 +201,19 @@ export function tickOccassionalSpawnEggnemy(model: Model): Model {
 
 export function tickBossSpawn(model: Model): Model {
   if (model.egg == undefined) return model;
-  
+
   if (model.boss) return model;
 
-  if (!model.bossSpawned && model.boss === undefined && model.defeatedCount >= model.bossSpawnThreshold) {
-    
+  if (
+    !model.bossSpawned &&
+    model.boss === undefined &&
+    model.defeatedCount >= model.bossSpawnThreshold
+  ) {
     return Model.make({
       ...model,
       boss: createBoss(),
       bossSpawned: true,
-    })
+    });
   }
   return model;
   // Spawn a boss eggnemy if eggnemies count killed is reached.
@@ -225,13 +238,13 @@ export function tickBossSpawn(model: Model): Model {
 //         speed: 0,
 //       }))
 //     })
-//   } 
+//   }
 //   return model;
 // }
 
 export const update = (msg: Msg, model: Model) =>
   Match.value(msg).pipe(
-    Match.tag("MsgKeyDown", ({ key }): Model => {
+    Match.tag("Canvas.MsgKeyDown", ({ key }): Model => {
       if (model.egg == undefined) return model;
       const egg = model.egg;
       const newDirection = getDirectionFromKey(key);
@@ -260,7 +273,7 @@ export const update = (msg: Msg, model: Model) =>
       return model;
     }),
 
-    Match.tag("MsgKeyUp", ({ key }): Model => {
+    Match.tag("Canvas.MsgKeyUp", ({ key }): Model => {
       if (model.egg == undefined) return model;
       const egg = model.egg;
       const pressedDirection = getDirectionFromKey(key);
@@ -289,10 +302,10 @@ export const update = (msg: Msg, model: Model) =>
       return model;
     }),
 
-    Match.tag("MsgTick", (): Model => {
+    Match.tag("Canvas.MsgTick", (): Model => {
       if (model.gameOver) return model;
-      const now = Date.now()
-      const elapsed = now - model.startTime
+      const now = Date.now();
+      const elapsed = now - model.startTime;
       // Note: The order in which we do things is important.
       return pipe(
         {
@@ -311,12 +324,8 @@ export const update = (msg: Msg, model: Model) =>
       );
     }),
 
-    // Currently unused.
-    Match.tag("MsgError", ({ error }) => {
-      return {
-        ...model,
-        error: error,
-      };
-    }),
+    // Do nothing otherwise
+    Match.tag("Canvas.MsgMouseDown", () => model),
+    Match.tag("Canvas.MsgMouseUp", () => model),
     Match.exhaustive,
   );
