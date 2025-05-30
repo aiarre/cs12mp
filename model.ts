@@ -53,8 +53,11 @@ export const Screen = S.Struct({
 export const World = S.Struct({
   width: S.Int,
   height: S.Int,
+  center: S.Struct({
+    x: S.Int,
+    y: S.Int,
+  }),
 });
-
 
 export const Model = S.Struct({
   // model of the app ( think of this as the "world" )
@@ -108,6 +111,11 @@ export const initModel = Model.make({
   world: {
     width: settings.game.world.width,
     height: settings.game.world.height,
+    center: {
+      // By default, sync this to the egg.
+      x: 100 + settings.egg.width / 2,
+      y: 100 + settings.egg.height / 2,
+    },
   },
   egg: {
     x: 100,

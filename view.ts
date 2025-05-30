@@ -1,7 +1,79 @@
 import { h } from "cs12242-mvu/src";
+import {
+  type CanvasElement,
+  OutlinedRectangle,
+  SolidRectangle,
+} from "cs12242-mvu/src/canvas";
+import { Array, pipe, Struct } from "effect";
 import { Model } from "./model";
 import { Msg, MsgKeyDown, MsgKeyUp, MsgTick } from "./msg";
 import { formatTime } from "./utils";
+
+function renderEgg(model: Model): CanvasElement[] {
+  return model.egg != undefined
+    ? [
+        SolidRectangle.make({
+          x: model.egg.x,
+          y: model.egg.y,
+          width: model.egg.width,
+          height: model.egg.height,
+          // TODO: Extract out to setting.
+          color: "white",
+        }),
+      ]
+    : [];
+}
+
+function renderEggnemies(model: Model): CanvasElement[] {
+  return pipe(
+    model.eggnemies,
+    Array.map((en) =>
+      SolidRectangle.make({
+        x: en.x,
+        y: en.y,
+        width: en.width,
+        height: en.height,
+        // TODO: Extract out to setting.
+        color: "pink", // different from egg
+      }),
+    ),
+  );
+}
+
+function offsetElementBy(element: CanvasElement, dx: number, dy: number) {
+  return Struct.evolve(element, {
+    x: (x) => x + dx,
+    y: (y) => y + dy,
+  });
+}
+
+function renderWorld(model: Model): CanvasElement[] {
+  const offsetX = model.screen.width - model.world.center.x;
+  const offsetY = model.screen.height - model.world.center.y;
+  return pipe(
+    [
+      SolidRectangle.make({
+        x: 0,
+        y: 0,
+        width: model.world.width,
+        height: model.world.height,
+        color: "black",
+      }),
+      OutlinedRectangle.make({
+        x: 0,
+        y: 0,
+        width: model.world.width,
+        height: model.world.height,
+        color: "white",
+        lineWidth: 5,
+      }),
+    ],
+    Array.appendAll(renderEgg(model)),
+    Array.appendAll(renderEggnemies(model)),
+    // I love functional programming.
+    Array.map((element) => offsetElementBy(element, offsetX, offsetY)),
+  );
+}
 
 export const view = (model: Model, dispatch: (msg: Msg) => void) => {
   let intervalID: number | null;
@@ -37,11 +109,9 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
               if (!model.gameOver) {
                 dispatch(MsgTick.make());
               }
-            })
-              
+            });
           }, 1000.0 / model.fps);
 
-          
           // setInterval(
           //   () => requestAnimationFrame(() => dispatch(MsgTick.make())),
           //   1000.0 / model.fps,
@@ -54,8 +124,8 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
           const screenHeight = model.screen.height;
           const worldWidth = model.world.width;
           const worldHeight = model.world.height;
-          const offsetX = ((screenWidth - worldWidth) / 2);
-          const offsetY = ((screenHeight - worldHeight) / 2);
+          const offsetX = (screenWidth - worldWidth) / 2;
+          const offsetY = (screenHeight - worldHeight) / 2;
 
           //SCREEN
           ctx.fillStyle = "black";
@@ -66,17 +136,15 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
           ctx.strokeStyle = "white";
           ctx.lineWidth = 5;
           ctx.strokeRect(offsetX, offsetY, worldWidth, worldHeight);
-          
+
           //EGGNEMIES
           ctx.fillStyle = "white";
           ctx.font = "16px sans-serif";
           ctx.fillText(`${model.defeatedCount}`, 10, 20);
           for (const en of model.eggnemies) {
-
             ctx.fillStyle = "pink";
             ctx.font = "10px sans-serif";
             ctx.fillText(`${en.hp}/${en.maxHp}`, en.x, en.y - 5);
-
 
             ctx.fillStyle = "pink"; // different from egg
             ctx.fillRect(en.x, en.y, en.width, en.height);
@@ -107,23 +175,29 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
           //TIMER
           ctx.fillStyle = "white";
           ctx.font = "16px sans-serif";
-          ctx.fillText(`${formatTime(model.elapsedTime)}`, model.screen.width-100, 20);
+          ctx.fillText(
+            `${formatTime(model.elapsedTime)}`,
+            model.screen.width - 100,
+            20,
+          );
 
           //VICTORY TEXT
           ctx.fillStyle = "white";
           ctx.font = "20px sans-serif";
           ctx.textBaseline = "middle";
           ctx.textAlign = "center";
-          ctx.fillText(`${model.victoryText}`, model.world.width/2, model.world.height/2)
-
+          ctx.fillText(
+            `${model.victoryText}`,
+            model.world.width / 2,
+            model.world.height / 2,
+          );
         },
 
         update: (oldVNode, newVNode) => {
-
-            if (model.gameOver && intervalID) {
+          if (model.gameOver && intervalID) {
             clearInterval(intervalID);
             intervalID = null;
-            }
+          }
           //how to draw the state on the screen
           const canvas = newVNode.elm as HTMLCanvasElement;
           const ctx = canvas.getContext("2d")!;
@@ -131,8 +205,8 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
           const screenHeight = model.screen.height;
           const worldWidth = model.world.width;
           const worldHeight = model.world.height;
-          const offsetX = ((screenWidth - worldWidth) / 2);
-          const offsetY = ((screenHeight - worldHeight) / 2);
+          const offsetX = (screenWidth - worldWidth) / 2;
+          const offsetY = (screenHeight - worldHeight) / 2;
 
           //SCREEN
           ctx.fillStyle = "black";
@@ -152,8 +226,7 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
 
             ctx.fillStyle = "white";
             ctx.font = "16px sans-serif";
-            ctx.fillText(`${egg.hp}/${egg.maxHp}`, egg.x, egg.y-5);
-            
+            ctx.fillText(`${egg.hp}/${egg.maxHp}`, egg.x, egg.y - 5);
           }
 
           //EGGNEMIES
@@ -161,11 +234,9 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
           ctx.font = "16px sans-serif";
           ctx.fillText(`${model.defeatedCount}`, 10, 20);
           for (const en of model.eggnemies) {
-
             ctx.fillStyle = "pink";
             ctx.font = "10px sans-serif";
             ctx.fillText(`${en.hp}/${en.maxHp}`, en.x, en.y - 5);
-
 
             ctx.fillStyle = "pink"; // different from egg
             ctx.fillRect(en.x, en.y, en.width, en.height);
@@ -185,14 +256,22 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
           //TIMER
           ctx.fillStyle = "white";
           ctx.font = "16px sans-serif";
-          ctx.fillText(`${formatTime(model.elapsedTime)}`, model.screen.width-100, 20);
+          ctx.fillText(
+            `${formatTime(model.elapsedTime)}`,
+            model.screen.width - 100,
+            20,
+          );
 
           //VICTORY TEXT
           ctx.fillStyle = "white";
           ctx.font = "20px sans-serif";
           ctx.textBaseline = "middle";
           ctx.textAlign = "center";
-          ctx.fillText(`${model.victoryText}`, model.world.width/2, model.world.height/2)
+          ctx.fillText(
+            `${model.victoryText}`,
+            model.world.width / 2,
+            model.world.height / 2,
+          );
         },
       },
     }),
