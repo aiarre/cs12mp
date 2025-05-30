@@ -27,8 +27,8 @@ export type Egg = typeof Egg.Type;
 
 export const Eggnemy = S.Struct({
   ...GameObject.fields,
-  // hp: S.Int,
-  // maxHp: S.Int,
+  hp: S.Int,
+  maxHp: S.Int,
   speed: S.Number,
 });
 export type Eggnemy = typeof Eggnemy.Type;
@@ -51,6 +51,8 @@ export const createRandomEggnemy = () =>
     y: Math.floor(Math.random() * settings.game.height),
     width: settings.eggnemies.width,
     height: settings.eggnemies.height,
+    hp: settings.eggnemies.initialHp,
+    maxHp: settings.eggnemies.initialHp,
     speed: settings.eggnemies.speed,
   });
 
