@@ -70,8 +70,14 @@ export function tickMoveEgg(model: Model): Model {
     ...model,
     egg: {
       ...egg,
-      x: Math.max(minX, Math.min(egg.x + egg.speed * dxMultiplier, maxX)),
-      y: Math.max(minY, Math.min(egg.y + egg.speed * dyMultiplier, maxY)),
+      x: Math.max(
+        minX,
+        Math.min(Math.round(egg.x + egg.speed * dxMultiplier), maxX),
+      ),
+      y: Math.max(
+        minY,
+        Math.min(Math.round(egg.y + egg.speed * dyMultiplier), maxY),
+      ),
     },
   });
 }

@@ -90,8 +90,8 @@ function renderBoss(model: Model): CanvasElement[] {
 
 function offsetElementBy(element: CanvasElement, dx: number, dy: number) {
   return Struct.evolve(element, {
-    x: (x) => x + dx,
-    y: (y) => y + dy,
+    x: (x) => Math.round(x + dx),
+    y: (y) => Math.round(y + dy),
   });
 }
 
@@ -173,13 +173,24 @@ function renderScreen(
   screenWidth: number,
   screenHeight: number,
 ): CanvasElement[] {
-  const offsetX = screenWidth - model.world.center.x;
-  const offsetY = screenHeight - model.world.center.y;
+  const offsetX = screenWidth / 2 - model.world.center.x;
+  const offsetY = screenHeight / 2 - model.world.center.y;
   return pipe(
-    [],
-    Array.appendAll(renderWorld(model)),
-    // I love functional programming.
-    Array.map((element) => offsetElementBy(element, offsetX, offsetY)),
+    [
+      SolidRectangle.make({
+        x: 0,
+        y: 0,
+        width: screenWidth,
+        height: screenHeight,
+        color: "black",
+      }),
+    ],
+    Array.appendAll(
+      pipe(
+        renderWorld(model),
+        Array.map((element) => offsetElementBy(element, offsetX, offsetY)),
+      ),
+    ),
     Array.appendAll(renderUIElements(model, screenWidth, screenHeight)),
   );
 }

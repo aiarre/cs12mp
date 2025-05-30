@@ -101,8 +101,8 @@ export const initModel = Model.make({
     height: settings.game.world.height,
     center: {
       // By default, sync this to the egg.
-      x: 100 + settings.egg.width / 2,
-      y: 100 + settings.egg.height / 2,
+      x: Math.floor(100 + settings.egg.width / 2),
+      y: Math.floor(100 + settings.egg.height / 2),
     },
   },
   egg: {
