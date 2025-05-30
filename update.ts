@@ -44,7 +44,13 @@ function getDxDyMultiplierFromDirection(
 
 export function tickMoveEgg(model: Model): Model {
   const egg = model.egg;
-  if (egg == undefined) return model;
+  if (egg == undefined) {
+    return Model.make({
+      ...model,
+      gameOver: true,
+      victoryText: "You Lose!",
+      stopTime: true,
+  })}
 
   const minX = model.screen.width / 2 - model.world.width/2;
   const maxX = minX + model.world.width - egg.width;
@@ -152,6 +158,14 @@ export function tickDamageEnemyIfAttacking(model: Model): Model {
     boss = { ...boss, hp: boss.hp - 1 };
     if (boss.hp <= 0) {
       boss = undefined; // Boss defeated, remove it
+      if (boss == undefined) {
+        return Model.make({
+          ...model,
+          gameOver: true,
+          victoryText: "You Win!",
+          stopTime: true,
+          boss: undefined
+      })}
     }
   }
   return Model.make({
@@ -192,28 +206,28 @@ export function tickBossSpawn(model: Model): Model {
   // Spawn a boss eggnemy if eggnemies count killed is reached.
 }
 
-export function checkEndGame(model: Model): Model {
-  if (model.egg && model.boss && model.boss.hp <= 0) {
-    return Model.make({
-      ...model,
-      gameOver: true,
-      boss: null,
-      victoryText: "You Win!",
-      stopTime: false,
-      egg: {
-        ...model.egg,
-        direction: "NONE",
-        isAttacking: false,
-        speed: 0,
-      },
-      eggnemies: Array.map(model.eggnemies, (en) => ({
-        ...en,
-        speed: 0,
-      }))
-    })
-  } 
-  return model;
-}
+// export function checkEndGame(model: Model): Model {
+//   if (model.egg && model.boss && model.boss.hp <= 0) {
+//     return Model.make({
+//       ...model,
+//       gameOver: true,
+//       boss: undefined,
+//       victoryText: "You Win!",
+//       stopTime: true,
+//       egg: {
+//         ...model.egg,
+//         direction: "NONE",
+//         isAttacking: false,
+//         speed: 0,
+//       },
+//       eggnemies: Array.map(model.eggnemies, (en) => ({
+//         ...en,
+//         speed: 0,
+//       }))
+//     })
+//   } 
+//   return model;
+// }
 
 export const update = (msg: Msg, model: Model) =>
   Match.value(msg).pipe(
@@ -285,12 +299,12 @@ export const update = (msg: Msg, model: Model) =>
           ...model,
           elapsedTime: elapsed,
         },
+        // checkEndGame, //check if game ended first before moving
         tickOccassionalSpawnEggnemy,
         tickBossSpawn,
         tickMoveEgg,
         // Damage enemies in range before anything!
         tickDamageEnemyIfAttacking,
-        checkEndGame, //check if game ended first before moving
         // Should we move before or after damaging? Not sure!
         tickMoveEnemiesTowardsEgg,
         tickEnemyDamagesEgg,

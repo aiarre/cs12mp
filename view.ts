@@ -4,6 +4,7 @@ import { Msg, MsgKeyDown, MsgKeyUp, MsgTick } from "./msg";
 import { formatTime } from "./utils";
 
 export const view = (model: Model, dispatch: (msg: Msg) => void) => {
+  let intervalID: number | null;
   return h("div", [
     h("canvas", {
       props: {
@@ -30,10 +31,21 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
               }),
             ),
           );
-          setInterval(
-            () => requestAnimationFrame(() => dispatch(MsgTick.make())),
-            1000.0 / model.fps,
-          );
+
+          intervalID = setInterval(() => {
+            requestAnimationFrame(() => {
+              if (!model.gameOver) {
+                dispatch(MsgTick.make());
+              }
+            })
+              
+          }, 1000.0 / model.fps);
+
+          
+          // setInterval(
+          //   () => requestAnimationFrame(() => dispatch(MsgTick.make())),
+          //   1000.0 / model.fps,
+          // );
         },
         insert: (vNode) => {
           const canvas = vNode.elm as HTMLCanvasElement;
@@ -76,7 +88,7 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
             ctx.fillStyle = "white";
             ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
 
-            ctx.fillStyle = "red";
+            ctx.fillStyle = "white";
             ctx.font = "16px sans-serif";
             ctx.fillText(`${egg.hp}/${egg.maxHp}`, egg.x, egg.y - 5);
           }
@@ -100,11 +112,18 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
           //VICTORY TEXT
           ctx.fillStyle = "white";
           ctx.font = "20px sans-serif";
+          ctx.textBaseline = "middle";
+          ctx.textAlign = "center";
           ctx.fillText(`${model.victoryText}`, model.world.width/2, model.world.height/2)
 
         },
 
         update: (oldVNode, newVNode) => {
+
+            if (model.gameOver && intervalID) {
+            clearInterval(intervalID);
+            intervalID = null;
+            }
           //how to draw the state on the screen
           const canvas = newVNode.elm as HTMLCanvasElement;
           const ctx = canvas.getContext("2d")!;
@@ -131,7 +150,7 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
             ctx.fillStyle = "white";
             ctx.fillRect(egg.x, egg.y, egg.width, egg.height);
 
-            ctx.fillStyle = "red";
+            ctx.fillStyle = "white";
             ctx.font = "16px sans-serif";
             ctx.fillText(`${egg.hp}/${egg.maxHp}`, egg.x, egg.y-5);
             
@@ -171,6 +190,8 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
           //VICTORY TEXT
           ctx.fillStyle = "white";
           ctx.font = "20px sans-serif";
+          ctx.textBaseline = "middle";
+          ctx.textAlign = "center";
           ctx.fillText(`${model.victoryText}`, model.world.width/2, model.world.height/2)
         },
       },

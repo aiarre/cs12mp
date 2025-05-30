@@ -10,7 +10,7 @@
       "height": 800
     },
     "bossSpawned": false,
-    "spawnThreshold": 10
+    "spawnThreshold": 5
   },
   "egg": {
     "initialHp": 20,
