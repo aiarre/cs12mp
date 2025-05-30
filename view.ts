@@ -79,6 +79,18 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
             ctx.font = "16px sans-serif";
             ctx.fillText(`${egg.hp}/${egg.maxHp}`, egg.x, egg.y - 5);
           }
+
+          //BOSS
+          if (model.boss != undefined) {
+            const boss = model.boss;
+            ctx.fillStyle = "red";
+            ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+
+            ctx.fillStyle = "red";
+            ctx.font = "16px sans-serif";
+            ctx.fillText(`${boss.hp}/${boss.maxHp}`, boss.x, boss.y - 5);
+          }
+
         },
 
         update: (oldVNode, newVNode) => {
@@ -127,6 +139,17 @@ export const view = (model: Model, dispatch: (msg: Msg) => void) => {
 
             ctx.fillStyle = "pink"; // different from egg
             ctx.fillRect(en.x, en.y, en.width, en.height);
+          }
+
+          //BOSS
+          if (model.boss != undefined) {
+            const boss = model.boss;
+            ctx.fillStyle = "red";
+            ctx.fillRect(boss.x, boss.y, boss.width, boss.height);
+
+            ctx.fillStyle = "red";
+            ctx.font = "16px sans-serif";
+            ctx.fillText(`${boss.hp}/${boss.maxHp}`, boss.x, boss.y - 5);
           }
         },
       },

@@ -3,6 +3,13 @@ import * as settings from "./settings.json";
 
 export const Direction = S.Literal("NORTH", "SOUTH", "EAST", "WEST", "NONE");
 export type Direction = typeof Direction.Type;
+export type GameObject = typeof GameObject.Type;
+export type Egg = typeof Egg.Type;
+export type Eggnemy = typeof Eggnemy.Type;
+export type Boss = typeof Boss.Type;
+export type Screen = typeof Screen.Type;
+export type World = typeof World.Type;
+export type Model = typeof Model.Type;
 
 // Basically HasXYWidthHeight
 export const GameObject = S.Struct({
@@ -11,7 +18,6 @@ export const GameObject = S.Struct({
   width: S.Int,
   height: S.Int,
 });
-export type GameObject = typeof GameObject.Type;
 
 // I feel like this is getting to be too much...
 export const Egg = S.Struct({
@@ -23,7 +29,6 @@ export const Egg = S.Struct({
   attackRange: S.Number,
   speed: S.Number,
 });
-export type Egg = typeof Egg.Type;
 
 export const Eggnemy = S.Struct({
   ...GameObject.fields,
@@ -31,7 +36,13 @@ export const Eggnemy = S.Struct({
   maxHp: S.Int,
   speed: S.Number,
 });
-export type Eggnemy = typeof Eggnemy.Type;
+
+export const Boss = S.Struct({
+  ...GameObject.fields,
+  hp: S.Int,
+  maxHp: S.Int,
+  speed: S.Number,
+});
 
 export const Screen = S.Struct({
   width: S.Int,
@@ -42,7 +53,6 @@ export const World = S.Struct({
   width: S.Int,
   height: S.Int,
 });
-export type Screen = typeof Screen.Type;
 
 export const Model = S.Struct({
   // model of the app ( think of this as the "world" )
@@ -51,11 +61,13 @@ export const Model = S.Struct({
   world: World,
   egg: S.NullishOr(Egg),
   eggnemies: S.Array(Eggnemy),
+  boss: S.NullishOr(Boss),
+  bossSpawnThreshold: S.Number,
+  bossSpawned: S.Boolean,
   lastDamageTime: S.Number,
   defeatedCount: S.Number,
   error: S.String,
 });
-export type Model = typeof Model.Type;
 
 export const createRandomEggnemy = () =>
   Eggnemy.make({
@@ -66,6 +78,17 @@ export const createRandomEggnemy = () =>
     hp: settings.eggnemies.initialHp,
     maxHp: settings.eggnemies.initialHp,
     speed: settings.eggnemies.speed,
+  });
+
+export const createBoss = () =>
+  Boss.make({
+    x: Math.floor(Math.random() * settings.game.screen.width + 50),
+    y: Math.floor(Math.random() * settings.game.screen.height + 50),
+    width: settings.boss.width,
+    height: settings.boss.height,
+    hp: settings.boss.initialHp,
+    maxHp: settings.boss.initialHp,
+    speed: settings.boss.speed,
   });
 
 export const initModel = Model.make({
@@ -95,6 +118,9 @@ export const initModel = Model.make({
     Array.range(1, settings.eggnemies.initialCount),
     Array.map(() => createRandomEggnemy()),
   ),
+  boss: null,
+  bossSpawnThreshold: settings.game.spawnThreshold,
+  bossSpawned: settings.game.bossSpawned,
   lastDamageTime: Date.now(),
   defeatedCount: 0,
   error: "",

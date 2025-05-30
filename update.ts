@@ -1,7 +1,8 @@
 import { Array, Match, pipe } from "effect";
-import { Direction, Egg, Eggnemy, Model, createRandomEggnemy } from "./model";
+import { Direction, Egg, Eggnemy, Boss, Model, createRandomEggnemy, createBoss } from "./model";
 import { Msg } from "./msg";
 import { isTouching, isWithinRange } from "./utils";
+import { MicroSchedulerDefault } from "effect/Micro";
 
 function getDirectionFromKey(key: string): Direction | null {
   // Kinda hacky, but it works.
@@ -61,22 +62,22 @@ export function tickMoveEgg(model: Model): Model {
   });
 }
 
-function tickMoveTowardsEgg(eggnemy: Eggnemy, egg: Egg): Eggnemy {
-  const dx = egg.x - eggnemy.x;
-  const dy = egg.y - eggnemy.y;
+function tickMoveTowardsEgg(enemy: Eggnemy | Boss, egg: Egg): Eggnemy | Boss {
+  const dx = egg.x - enemy.x;
+  const dy = egg.y - enemy.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
 
-  if (dist === 0) return eggnemy;
+  if (dist === 0) return enemy;
 
   return {
-    ...eggnemy,
+    ...enemy,
     // Round up so that eggnemies will always move
-    x: Math.ceil(eggnemy.x + (dx / dist) * eggnemy.speed),
-    y: Math.ceil(eggnemy.y + (dy / dist) * eggnemy.speed),
+    x: Math.ceil(enemy.x + (dx / dist) * enemy.speed),
+    y: Math.ceil(enemy.y + (dy / dist) * enemy.speed),
   };
 }
 
-export function tickMoveEggnemiesTowardsEgg(model: Model): Model {
+export function tickMoveEnemiesTowardsEgg(model: Model): Model {
   if (model.egg == undefined) return model;
   const egg = model.egg;
 
@@ -86,10 +87,11 @@ export function tickMoveEggnemiesTowardsEgg(model: Model): Model {
       model.eggnemies,
       Array.map((en) => tickMoveTowardsEgg(en, egg)),
     ),
+    boss: model.boss != undefined ? tickMoveTowardsEgg(model.boss, egg) : undefined
   });
 }
 
-export function tickDamageEgg(model: Model): Model {
+export function tickEnemyDamagesEgg(model: Model): Model {
   if (model.egg == undefined) return model;
   const egg = model.egg;
 
@@ -100,8 +102,14 @@ export function tickDamageEgg(model: Model): Model {
     model.eggnemies,
     Array.some((en) => isTouching(en, egg)),
   );
-  if (!isEggnemyTouchingEgg) return model;
-  const newEggHp = egg.hp - 1;
+  const isBossTouchingEgg = model.boss && isTouching(model.boss, egg);
+
+  if (!isEggnemyTouchingEgg && !isBossTouchingEgg) return model;
+
+  let damage = isEggnemyTouchingEgg ? 1 : 0;
+  if (isBossTouchingEgg) damage += 3;
+
+  const newEggHp = egg.hp - damage;
 
   return Model.make({
     ...model,
@@ -116,7 +124,7 @@ export function tickDamageEgg(model: Model): Model {
   });
 }
 
-export function tickDamageEggnemiesIfAttacking(model: Model): Model {
+export function tickDamageEnemyIfAttacking(model: Model): Model {
   if (model.egg == undefined) return model;
   const egg = model.egg;
 
@@ -136,9 +144,18 @@ export function tickDamageEggnemiesIfAttacking(model: Model): Model {
     }),
     Array.partition((en) => en.hp <= 0),
   );
+
+  let boss = model.boss;
+  if (boss && isWithinRange(egg, boss)) {
+    boss = { ...boss, hp: boss.hp - 1 };
+    if (boss.hp <= 0) {
+      boss = undefined; // Boss defeated, remove it
+    }
+  }
   return Model.make({
     ...model,
     eggnemies: alive,
+    boss: boss,
     defeatedCount: model.defeatedCount + defeated.length,
   });
 }
@@ -154,6 +171,23 @@ export function tickOccassionalSpawnEggnemy(model: Model): Model {
     ...model,
     eggnemies: [...model.eggnemies, ...newEggnemies],
   });
+}
+
+export function tickBossSpawn(model: Model): Model {
+  if (model.egg == undefined) return model;
+  
+  if (model.boss) return model;
+
+  if (!model.bossSpawned && model.boss === undefined && model.defeatedCount >= model.bossSpawnThreshold) {
+    
+    return Model.make({
+      ...model,
+      boss: createBoss(),
+      bossSpawned: true,
+    })
+  }
+  return model;
+  // Spawn a boss eggnemy if eggnemies count killed is reached.
 }
 
 export const update = (msg: Msg, model: Model) =>
@@ -221,12 +255,13 @@ export const update = (msg: Msg, model: Model) =>
       return pipe(
         model,
         tickOccassionalSpawnEggnemy,
+        tickBossSpawn,
         tickMoveEgg,
         // Damage enemies in range before anything!
-        tickDamageEggnemiesIfAttacking,
+        tickDamageEnemyIfAttacking,
         // Should we move before or after damaging? Not sure!
-        tickMoveEggnemiesTowardsEgg,
-        tickDamageEgg,
+        tickMoveEnemiesTowardsEgg,
+        tickEnemyDamagesEgg,
       );
     }),
 

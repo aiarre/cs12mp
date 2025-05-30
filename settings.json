@@ -8,7 +8,9 @@
     "screen": {
       "width": 1000,
       "height": 800
-    }
+    },
+    "bossSpawned": false,
+    "spawnThreshold": 10
   },
   "egg": {
     "initialHp": 20,
@@ -28,8 +30,6 @@
     "width": 50,
     "height": 50,
     "initialHp": 100,
-    "speed": 8,
-    "attackDamage": 3,
-    "eggnemyCountBeforeSpawn": 10
+    "speed": 8
   }
 }
