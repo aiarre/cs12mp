@@ -1,5 +1,5 @@
 import { Array, Match, pipe } from "effect";
-import { Direction, Egg, Eggnemy, Model } from "./model";
+import { Direction, Egg, Eggnemy, Model, createRandomEggnemy } from "./model";
 import { Msg } from "./msg";
 import { isTouching, isWithinRange } from "./utils";
 
@@ -143,6 +143,19 @@ export function tickDamageEggnemiesIfAttacking(model: Model): Model {
   });
 }
 
+export function tickOccassionalSpawnEggnemy(model: Model): Model {
+  if (model.egg == undefined) return model;
+  let newEggnemies: Eggnemy[] = [];
+  if (Math.random() < 0.01)  {
+    newEggnemies = Array.map(Array.range(1, Math.floor(Math.random() * 3) + 1), createRandomEggnemy);
+  }
+  
+  return Model.make({
+    ...model,
+    eggnemies: [...model.eggnemies, ...newEggnemies],
+  });
+}
+
 export const update = (msg: Msg, model: Model) =>
   Match.value(msg).pipe(
     Match.tag("MsgKeyDown", ({ key }): Model => {
@@ -207,6 +220,7 @@ export const update = (msg: Msg, model: Model) =>
       // Note: The order in which we do things is important.
       return pipe(
         model,
+        tickOccassionalSpawnEggnemy,
         tickMoveEgg,
         // Damage enemies in range before anything!
         tickDamageEggnemiesIfAttacking,

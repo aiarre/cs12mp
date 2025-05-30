@@ -22,6 +22,14 @@
     "width": 20,
     "height": 20,
     "initialHp": 2,
-    "speed": 6
+    "speed": 4
+  },
+  "boss": {
+    "width": 50,
+    "height": 50,
+    "initialHp": 100,
+    "speed": 8,
+    "attackDamage": 3,
+    "eggnemyCountBeforeSpawn": 10
   }
 }

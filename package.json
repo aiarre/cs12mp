@@ -1,6 +1,6 @@
 {
   "dependencies": {
-    "cs12242-mvu": "github:UPD-CS12-242/cs12242-mvu",
+    "cs12242-mvu": "github:louie-github/cs12242-mvu",
     "effect": "^3.16.0"
   },
   "devDependencies": {
