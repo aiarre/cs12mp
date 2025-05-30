@@ -15,19 +15,19 @@ function getDirectionFromKey(key: string): Direction | null {
   // Kinda hacky, but it works.
   return Match.value(key).pipe(
     Match.when(
-      (key) => key === "w" || key === "ArrowUp",
+      (key) => key.toLowerCase() === "w" || key === "ArrowUp",
       () => "NORTH",
     ),
     Match.when(
-      (key) => key === "s" || key === "ArrowDown",
+      (key) => key.toLowerCase() === "s" || key === "ArrowDown",
       () => "SOUTH",
     ),
     Match.when(
-      (key) => key === "a" || key === "ArrowLeft",
+      (key) => key.toLowerCase() === "a" || key === "ArrowLeft",
       () => "WEST",
     ),
     Match.when(
-      (key) => key === "d" || key === "ArrowRight",
+      (key) => key.toLowerCase() === "d" || key === "ArrowRight",
       () => "EAST",
     ),
     Match.orElse(() => null),
