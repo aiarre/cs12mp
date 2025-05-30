@@ -93,6 +93,7 @@ export const createBoss = (world: World) =>
     speed: settings.boss.speed,
   });
 
+// Need to separate this to pass into createRandomEggnemy
 const initWorld = World.make({
   width: settings.game.world.width,
   height: settings.game.world.height,
