@@ -1,6 +1,5 @@
 import { Array, pipe, Schema as S } from "effect";
 import * as settings from "./settings.json";
-import { failureSchema } from "effect/Schema";
 
 export const Direction = S.Literal("NORTH", "SOUTH", "EAST", "WEST", "NONE");
 export type Direction = typeof Direction.Type;
@@ -8,7 +7,6 @@ export type GameObject = typeof GameObject.Type;
 export type Egg = typeof Egg.Type;
 export type Eggnemy = typeof Eggnemy.Type;
 export type Boss = typeof Boss.Type;
-export type Screen = typeof Screen.Type;
 export type World = typeof World.Type;
 export type Model = typeof Model.Type;
 
@@ -45,11 +43,6 @@ export const Boss = S.Struct({
   speed: S.Number,
 });
 
-export const Screen = S.Struct({
-  width: S.Int,
-  height: S.Int,
-});
-
 export const World = S.Struct({
   width: S.Int,
   height: S.Int,
@@ -62,7 +55,6 @@ export const World = S.Struct({
 export const Model = S.Struct({
   // model of the app ( think of this as the "world" )
   fps: S.Int,
-  screen: Screen,
   world: World,
   egg: S.NullishOr(Egg),
   eggnemies: S.Array(Eggnemy),
@@ -104,10 +96,6 @@ export const createBoss = () =>
 export const initModel = Model.make({
   // initial state
   fps: settings.game.fps,
-  screen: {
-    width: settings.game.screen.width,
-    height: settings.game.screen.height,
-  },
   world: {
     width: settings.game.world.width,
     height: settings.game.world.height,

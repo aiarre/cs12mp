@@ -120,7 +120,11 @@ function renderWorld(model: Model): CanvasElement[] {
   );
 }
 
-function renderUIElements(model: Model): CanvasElement[] {
+function renderUIElements(
+  model: Model,
+  screenWidth: number,
+  screenHeight: number,
+): CanvasElement[] {
   return pipe(
     [
       // Eggnemies defeated count
@@ -136,7 +140,7 @@ function renderUIElements(model: Model): CanvasElement[] {
 
       // Timer
       Text.make({
-        x: model.screen.width - 100,
+        x: screenWidth - 100,
         y: 20,
         text: `${formatTime(model.elapsedTime)}`,
         fontSize: 16,
@@ -150,8 +154,8 @@ function renderUIElements(model: Model): CanvasElement[] {
         ? [
             // Victory text
             Text.make({
-              x: model.screen.width / 2,
-              y: model.screen.height / 2,
+              x: screenWidth / 2,
+              y: screenHeight / 2,
               text: model.victoryText,
               fontSize: 20,
               font: "sans-serif",
@@ -176,7 +180,7 @@ function renderScreen(
     Array.appendAll(renderWorld(model)),
     // I love functional programming.
     Array.map((element) => offsetElementBy(element, offsetX, offsetY)),
-    Array.appendAll(renderUIElements(model)),
+    Array.appendAll(renderUIElements(model, screenWidth, screenHeight)),
   );
 }
 

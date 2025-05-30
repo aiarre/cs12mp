@@ -58,10 +58,10 @@ export function tickMoveEgg(model: Model): Model {
     });
   }
 
-  const minX = model.screen.width / 2 - model.world.width / 2;
-  const maxX = minX + model.world.width - egg.width;
-  const minY = model.screen.height / 2 - model.world.height / 2;
-  const maxY = minY + model.world.height - egg.height;
+  const minX = 0;
+  const maxX = model.world.width - egg.width;
+  const minY = 0;
+  const maxY = model.world.height - egg.height;
   const [dxMultiplier, dyMultiplier] = getDxDyMultiplierFromDirection(
     egg.direction,
   );
