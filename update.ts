@@ -56,9 +56,10 @@ function tickMoveEgg(model: Model): Model {
   if (egg == undefined) {
     return Model.make({
       ...model,
-      gameOver: true,
-      victoryText: "You Lose!",
-      stopTime: true,
+      state: {
+        ...model.state,
+        isGameOver: true,
+      },
     });
   }
 
@@ -139,7 +140,7 @@ function tickEnemyDamagesEgg(model: Model): Model {
   const egg = model.egg;
 
   const now = Date.now();
-  if (now - model.lastDamageTime <= 1000) return model;
+  if (now - model.state.lastDamageTime <= 1000) return model;
 
   const isEggnemyTouchingEgg = pipe(
     model.eggnemies,
@@ -152,7 +153,6 @@ function tickEnemyDamagesEgg(model: Model): Model {
   const newEggHp = egg.hp - damage;
   return Model.make({
     ...model,
-    lastDamageTime: now,
     egg:
       newEggHp > 0
         ? {
@@ -160,6 +160,10 @@ function tickEnemyDamagesEgg(model: Model): Model {
             hp: newEggHp,
           }
         : null,
+    state: {
+      ...model.state,
+      lastDamageTime: now,
+    },
   });
 }
 
@@ -191,10 +195,11 @@ function tickEggAttacksEnemies(model: Model): Model {
       if (boss == undefined) {
         return Model.make({
           ...model,
-          gameOver: true,
-          victoryText: "You Win!",
-          stopTime: true,
-          boss: undefined,
+          boss: null,
+          state: {
+            ...model.state,
+            isGameOver: true,
+          },
         });
       }
     }
@@ -203,7 +208,11 @@ function tickEggAttacksEnemies(model: Model): Model {
     ...model,
     eggnemies: alive,
     boss: boss,
-    defeatedCount: model.defeatedCount + defeated.length,
+    state: {
+      ...model.state,
+      defeatedEggnemiesCount:
+        model.state.defeatedEggnemiesCount + defeated.length,
+    },
   });
 }
 
@@ -229,14 +238,17 @@ function tickOccasionallySpawnEggnemy(model: Model): Model {
 function tickSpawnBossIfNeeded(model: Model): Model {
   if (
     model.egg != undefined &&
-    !model.hasBossAlreadySpawned &&
+    !model.state.hasBossAlreadySpawned &&
     model.boss == undefined &&
-    model.defeatedCount >= model.bossSpawnThreshold
+    model.state.defeatedEggnemiesCount >= model.settings.bossSpawnThreshold
   ) {
     return Model.make({
       ...model,
       boss: createBoss(model.world),
-      hasBossAlreadySpawned: true,
+      state: {
+        ...model.state,
+        hasBossAlreadySpawned: true,
+      },
     });
   }
   return model;
@@ -327,15 +339,10 @@ export const update = (msg: Msg, model: Model) =>
     }),
 
     Match.tag("Canvas.MsgTick", (): Model => {
-      if (model.gameOver) return model;
-      const now = Date.now();
-      const elapsed = now - model.startTime;
+      if (model.state.isGameOver) return model;
       // Note: The order in which we do things is important.
       return pipe(
-        {
-          ...model,
-          elapsedTime: elapsed,
-        },
+        model,
         // Enemy spawning
         tickOccasionallySpawnEggnemy,
         tickSpawnBossIfNeeded,

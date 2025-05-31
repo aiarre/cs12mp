@@ -9,7 +9,7 @@ import { Array, pipe, Schema as S, Struct } from "effect";
 import { Model } from "./model";
 import type { Msg } from "./msg";
 import * as settings from "./settings.json";
-import { formatTime } from "./utils";
+import { formatTime, getCenterX } from "./utils";
 
 const TextStyle = S.Struct({
   font: S.optional(S.String),
@@ -32,7 +32,7 @@ function renderEgg(model: Model): CanvasElement[] {
         }),
         // HP text
         Text.make({
-          x: Math.round(model.egg.x + model.egg.width / 2),
+          x: getCenterX(model.egg),
           y: model.egg.y - 8,
           text: `${model.egg.hp}/${model.egg.maxHp}`,
           fontSize: 16,
@@ -59,7 +59,7 @@ function renderEggnemies(model: Model): CanvasElement[] {
       }),
       // HP text
       Text.make({
-        x: Math.round(en.x + en.width / 2),
+        x: getCenterX(en),
         y: en.y - 6,
         text: `${en.hp}/${en.maxHp}`,
         fontSize: 12,
@@ -83,7 +83,7 @@ function renderBoss(model: Model): CanvasElement[] {
           color: "red",
         }),
         Text.make({
-          x: Math.round(model.boss.x + model.boss.width / 2),
+          x: getCenterX(model.boss),
           y: model.boss.y - 6,
           text: `${model.boss.hp}/${model.boss.maxHp}`,
           fontSize: 16,
@@ -138,7 +138,7 @@ function renderUIElements(
       Text.make({
         x: 12,
         y: 25,
-        text: `Defeated eggnemies: ${model.defeatedCount}`,
+        text: `Defeated eggnemies: ${model.state.defeatedEggnemiesCount}`,
         fontSize: 16,
         font: "sans-serif",
         color: "white",
@@ -149,7 +149,8 @@ function renderUIElements(
       Text.make({
         x: screenWidth - 100,
         y: 20,
-        text: `${formatTime(model.elapsedTime)}`,
+        // TODO: Properly extract back into model.
+        text: `${formatTime(Date.now() - model.state.startTime)}`,
         fontSize: 16,
         font: "sans-serif",
         color: "white",
@@ -157,13 +158,16 @@ function renderUIElements(
       }),
     ],
     Array.appendAll(
-      model.victoryText
+      model.state.isGameOver
         ? [
             // Victory text
             Text.make({
               x: screenWidth / 2,
               y: screenHeight / 2,
-              text: model.victoryText,
+              text:
+                model.egg == undefined
+                  ? model.settings.defeatText
+                  : model.settings.victoryText,
               fontSize: 20,
               font: "sans-serif",
               color: "white",

@@ -3,12 +3,18 @@ import * as settings from "./settings.json";
 
 export const Direction = S.Literal("NORTH", "SOUTH", "EAST", "WEST", "NONE");
 export type Direction = typeof Direction.Type;
-export type GameObject = typeof GameObject.Type;
-export type Egg = typeof Egg.Type;
-export type Eggnemy = typeof Eggnemy.Type;
-export type Boss = typeof Boss.Type;
-export type World = typeof World.Type;
-export type Model = typeof Model.Type;
+
+// Alternative to `export type Struct = typeof Struct.Type` as per
+// Effect.ts documentation:
+// https://effect.website/docs/schema/getting-started/
+export interface GameObject extends S.Schema.Type<typeof GameObject> {}
+export interface Egg extends S.Schema.Type<typeof Egg> {}
+export interface Eggnemy extends S.Schema.Type<typeof Eggnemy> {}
+export interface Boss extends S.Schema.Type<typeof Boss> {}
+export interface World extends S.Schema.Type<typeof World> {}
+export interface GameSettings extends S.Schema.Type<typeof GameSettings> {}
+export interface GameState extends S.Schema.Type<typeof GameState> {}
+export interface Model extends S.Schema.Type<typeof Model> {}
 
 // Basically HasXYWidthHeight
 export const GameObject = S.Struct({
@@ -35,41 +41,6 @@ export const Eggnemy = S.Struct({
   maxHp: S.Int,
   speed: S.Number,
 });
-
-export const Boss = S.Struct({
-  ...GameObject.fields,
-  hp: S.Int,
-  maxHp: S.Int,
-  speed: S.Number,
-});
-
-export const World = S.Struct({
-  width: S.Int,
-  height: S.Int,
-  center: S.Struct({
-    x: S.Int,
-    y: S.Int,
-  }),
-});
-
-export const Model = S.Struct({
-  // model of the app ( think of this as the "world" )
-  world: World,
-  egg: S.NullishOr(Egg),
-  eggnemies: S.Array(Eggnemy),
-  boss: S.NullishOr(Boss),
-  bossSpawnThreshold: S.Number,
-  hasBossAlreadySpawned: S.Boolean,
-  lastDamageTime: S.Number,
-  defeatedCount: S.Number,
-  startTime: S.Number,
-  elapsedTime: S.Number,
-  stopTime: S.Boolean,
-  gameOver: S.Boolean,
-  victoryText: S.String,
-  error: S.String,
-});
-
 export const createRandomEggnemy = (world: World) =>
   Eggnemy.make({
     x: Math.floor(Math.random() * world.width + 50),
@@ -81,6 +52,12 @@ export const createRandomEggnemy = (world: World) =>
     speed: settings.eggnemies.speed,
   });
 
+export const Boss = S.Struct({
+  ...GameObject.fields,
+  hp: S.Int,
+  maxHp: S.Int,
+  speed: S.Number,
+});
 export const createBoss = (world: World) =>
   Boss.make({
     x: Math.floor(Math.random() * world.width + 50),
@@ -92,8 +69,56 @@ export const createBoss = (world: World) =>
     speed: settings.boss.speed,
   });
 
-// Need to separate this to pass into createRandomEggnemy
-const initWorld = World.make({
+export const World = S.Struct({
+  width: S.Int,
+  height: S.Int,
+  // Used to determine how to render the world on-screen.
+  // center x, y will be rendered at the center of the screen
+  center: S.Struct({
+    x: S.Int,
+    y: S.Int,
+  }),
+});
+
+// Configurable parameters for the game, should be adjustable via
+// settings.json
+export const GameSettings = S.Struct({
+  // How many enemies should be defeated before the boss spawns
+  bossSpawnThreshold: S.Int,
+  // Text to show once game is over
+  victoryText: S.String,
+  defeatText: S.String,
+  // Error handling
+  errorText: S.String,
+});
+
+// Encapsulates most "flags" or time-based events limits in the game,
+// such as boss spawning or egg damage.
+export const GameState = S.Struct({
+  // Time-based events or limits (default format is Unix timestamp)
+  startTime: S.Number,
+  lastDamageTime: S.Number,
+  // "Flag" variables
+  isGameOver: S.Boolean,
+  // One-time event flags
+  hasBossAlreadySpawned: S.Boolean,
+  // Game statistics
+  defeatedEggnemiesCount: S.NonNegativeInt,
+});
+
+export const Model = S.Struct({
+  // Model of the "game world"
+  world: World,
+  egg: S.NullishOr(Egg),
+  eggnemies: S.Array(Eggnemy),
+  boss: S.NullishOr(Boss),
+
+  // Other game events / statistics to keep track of
+  settings: GameSettings,
+  state: GameState,
+});
+
+const initWorld: World = World.make({
   width: settings.game.world.width,
   height: settings.game.world.height,
   center: {
@@ -103,34 +128,43 @@ const initWorld = World.make({
   },
 });
 
+const initEgg: Egg = Egg.make({
+  x: 100,
+  y: 100,
+  width: settings.egg.width,
+  height: settings.egg.height,
+  hp: settings.egg.initialHp,
+  maxHp: settings.egg.initialHp,
+  direction: "NONE",
+  isAttacking: false,
+  attackRange: settings.egg.attackRange,
+  speed: settings.egg.speed,
+});
+
+const initGameSettings: GameSettings = GameSettings.make({
+  bossSpawnThreshold: settings.game.bossSpawnThreshold,
+  victoryText: settings.game.victoryText,
+  defeatText: settings.game.defeatText,
+  errorText: settings.game.errorText,
+});
+
+const initGameState: GameState = GameState.make({
+  startTime: Date.now(),
+  lastDamageTime: Date.now(),
+  isGameOver: false,
+  hasBossAlreadySpawned: false,
+  defeatedEggnemiesCount: 0,
+});
+
 export const initModel = Model.make({
   // initial state
   world: initWorld,
-  egg: {
-    x: 100,
-    y: 100,
-    width: settings.egg.width,
-    height: settings.egg.height,
-    hp: settings.egg.initialHp,
-    maxHp: settings.egg.initialHp,
-    direction: "NONE",
-    isAttacking: false,
-    attackRange: settings.egg.attackRange,
-    speed: settings.egg.speed,
-  },
+  egg: initEgg,
   eggnemies: pipe(
     Array.range(1, settings.eggnemies.initialCount),
     Array.map(() => createRandomEggnemy(initWorld)),
   ),
   boss: null,
-  bossSpawnThreshold: settings.game.spawnThreshold,
-  hasBossAlreadySpawned: settings.game.bossSpawned,
-  lastDamageTime: Date.now(),
-  defeatedCount: 0,
-  startTime: Date.now(),
-  elapsedTime: 0,
-  stopTime: false,
-  gameOver: false,
-  victoryText: "",
-  error: "",
+  settings: initGameSettings,
+  state: initGameState,
 });

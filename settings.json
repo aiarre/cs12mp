@@ -9,8 +9,10 @@
       "width": 1000,
       "height": 800
     },
-    "bossSpawned": false,
-    "spawnThreshold": 5
+    "bossSpawnThreshold": 5,
+    "victoryText": "You Win!",
+    "defeatText": "You Lose!",
+    "errorText": "An error occurred."
   },
   "egg": {
     "width": 15,
