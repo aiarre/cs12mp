@@ -5,11 +5,18 @@ import {
   SolidRectangle,
   Text,
 } from "cs12242-mvu/src/canvas";
-import { Array, pipe, Struct } from "effect";
+import { Array, pipe, Schema as S, Struct } from "effect";
 import { Model } from "./model";
 import type { Msg } from "./msg";
 import * as settings from "./settings.json";
 import { formatTime } from "./utils";
+
+const TextStyle = S.Struct({
+  font: S.optional(S.String),
+  fontSize: S.Int,
+  color: S.optionalWith(S.String, { default: () => "white" }),
+  textAlign: S.optional(S.Literal("left", "center", "right")),
+});
 
 function renderEgg(model: Model): CanvasElement[] {
   return model.egg != undefined
@@ -25,13 +32,13 @@ function renderEgg(model: Model): CanvasElement[] {
         }),
         // HP text
         Text.make({
-          x: model.egg.x,
-          y: model.egg.y - 5,
+          x: Math.round(model.egg.x + model.egg.width / 2),
+          y: model.egg.y - 8,
           text: `${model.egg.hp}/${model.egg.maxHp}`,
           fontSize: 16,
-          font: "sans-serif",
+          font: "monospace",
           color: "white",
-          textAlign: "left",
+          textAlign: "center",
         }),
       ]
     : [];
@@ -52,13 +59,13 @@ function renderEggnemies(model: Model): CanvasElement[] {
       }),
       // HP text
       Text.make({
-        x: en.x,
-        y: en.y - 5,
+        x: Math.round(en.x + en.width / 2),
+        y: en.y - 6,
         text: `${en.hp}/${en.maxHp}`,
-        fontSize: 10,
-        font: "sans-serif",
+        fontSize: 12,
+        font: "monospace",
         color: "pink",
-        textAlign: "left",
+        textAlign: "center",
       }),
     ]),
     Array.flatten,
@@ -76,13 +83,13 @@ function renderBoss(model: Model): CanvasElement[] {
           color: "red",
         }),
         Text.make({
-          x: model.boss.x,
-          y: model.boss.y - 5,
+          x: Math.round(model.boss.x + model.boss.width / 2),
+          y: model.boss.y - 6,
           text: `${model.boss.hp}/${model.boss.maxHp}`,
           fontSize: 16,
-          font: "sans-serif",
+          font: "monospace",
           color: "red",
-          textAlign: "left",
+          textAlign: "center",
         }),
       ]
     : [];
@@ -129,9 +136,9 @@ function renderUIElements(
     [
       // Eggnemies defeated count
       Text.make({
-        x: 10,
-        y: 20,
-        text: `${model.defeatedCount}`,
+        x: 12,
+        y: 25,
+        text: `Defeated eggnemies: ${model.defeatedCount}`,
         fontSize: 16,
         font: "sans-serif",
         color: "white",
