@@ -155,24 +155,24 @@ function renderUIElements(
         ? [
             // Text background to ensure readability
             SolidRectangle.make({
-              x: screenWidth / 2 - 100,
-              y: screenHeight / 2 - 25,
+              x: screenWidth / 2 - 75,
+              y: screenHeight / 2 - 25 - 75,
               color: "black",
               height: 50,
-              width: 200,
+              width: 150,
             }),
             OutlinedRectangle.make({
-              x: screenWidth / 2 - 100,
-              y: screenHeight / 2 - 25,
+              x: screenWidth / 2 - 75,
+              y: screenHeight / 2 - 25 - 75,
               color: "white",
               height: 50,
-              width: 200,
-              lineWidth: 5,
+              width: 150,
+              lineWidth: 2.5,
             }),
             // Victory text
             Text.make({
               x: screenWidth / 2,
-              y: screenHeight / 2 + 7,
+              y: screenHeight / 2 + 7 - 75,
               text:
                 model.egg == undefined
                   ? model.settings.defeatText
