@@ -153,10 +153,26 @@ function renderUIElements(
     Array.appendAll(
       model.state.isGameOver
         ? [
+            // Text background to ensure readability
+            SolidRectangle.make({
+              x: screenWidth / 2 - 100,
+              y: screenHeight / 2 - 25,
+              color: "black",
+              height: 50,
+              width: 200,
+            }),
+            OutlinedRectangle.make({
+              x: screenWidth / 2 - 100,
+              y: screenHeight / 2 - 25,
+              color: "white",
+              height: 50,
+              width: 200,
+              lineWidth: 5,
+            }),
             // Victory text
             Text.make({
               x: screenWidth / 2,
-              y: screenHeight / 2,
+              y: screenHeight / 2 + 7,
               text:
                 model.egg == undefined
                   ? model.settings.defeatText
