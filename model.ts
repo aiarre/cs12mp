@@ -15,14 +15,7 @@ export interface Boss extends S.Schema.Type<typeof Boss> {}
 export interface World extends S.Schema.Type<typeof World> {}
 export interface GameSettings extends S.Schema.Type<typeof GameSettings> {}
 export interface GameState extends S.Schema.Type<typeof GameState> {}
-export interface Model extends S.Schema.Type<typeof Model> {
-  world: World;
-  egg: Egg;
-  eggnemies: Eggnemy[];
-  boss: Boss;
-  state: GameState;
-  settings: GameSettings;
-}
+export interface Model extends S.Schema.Type<typeof Model> {}
 /* eslint-enable @typescript-eslint/no-empty-object-type */
 
 // Basically HasXYWidthHeight
