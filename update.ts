@@ -51,6 +51,17 @@ function getDxDyMultiplierFromDirection(
   Convention: tick*(model: Model): Model functions are run on MsgTick
 */
 
+function tickUpdateElapsedTime(model: Model): Model {
+  if (model.state.isGameOver && model.egg != undefined) return model;
+  return {
+    ...model,
+    state: {
+      ...model.state,
+      elapsedTime: Date.now() - model.state.startTime,
+    },
+  };
+}
+
 function tickMoveEgg(model: Model): Model {
   const egg = model.egg;
   if (egg == undefined) {
@@ -255,29 +266,6 @@ function tickSpawnBossIfNeeded(model: Model): Model {
   // Spawn a boss eggnemy if eggnemies count killed is reached.
 }
 
-// export function checkEndGame(model: Model): Model {
-//   if (model.egg && model.boss && model.boss.hp <= 0) {
-//     return Model.make({
-//       ...model,
-//       gameOver: true,
-//       boss: undefined,
-//       victoryText: "You Win!",
-//       stopTime: true,
-//       egg: {
-//         ...model.egg,
-//         direction: "NONE",
-//         isAttacking: false,
-//         speed: 0,
-//       },
-//       eggnemies: Array.map(model.eggnemies, (en) => ({
-//         ...en,
-//         speed: 0,
-//       }))
-//     })
-//   }
-//   return model;
-// }
-
 export const update = (msg: Msg, model: Model) =>
   Match.value(msg).pipe(
     Match.tag("Canvas.MsgKeyDown", ({ key }): Model => {
@@ -339,7 +327,8 @@ export const update = (msg: Msg, model: Model) =>
     }),
 
     Match.tag("Canvas.MsgTick", (): Model => {
-      if (model.state.isGameOver) return model;
+      // Only stop everything when boss is defeated
+      if (model.state.isGameOver && model.egg != undefined) return model;
       // Note: The order in which we do things is important.
       return pipe(
         model,
@@ -354,6 +343,8 @@ export const update = (msg: Msg, model: Model) =>
         // Enemy movement and attack behavior
         tickMoveEnemiesTowardsEgg,
         tickEnemyDamagesEgg,
+        // Do this after everything else
+        tickUpdateElapsedTime,
       );
     }),
 

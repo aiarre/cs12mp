@@ -143,7 +143,7 @@ function renderUIElements(
         x: screenWidth - 20,
         y: 30,
         // TODO: Properly extract back into model.
-        text: `${formatTime(Date.now() - model.state.startTime)}`,
+        text: `${formatTime(model.state.elapsedTime)}`,
         fontSize: 16,
         font: "monospace",
         color: "white",

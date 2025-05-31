@@ -99,6 +99,7 @@ export const GameSettings = S.Struct({
 export const GameState = S.Struct({
   // Time-based events or limits (default format is Unix timestamp)
   startTime: S.Number,
+  elapsedTime: S.Number,
   lastDamageTime: S.Number,
   // "Flag" variables
   isGameOver: S.Boolean,
@@ -152,6 +153,7 @@ const initGameSettings: GameSettings = GameSettings.make({
 
 const initGameState: GameState = GameState.make({
   startTime: Date.now(),
+  elapsedTime: 0,
   lastDamageTime: Date.now(),
   isGameOver: false,
   hasBossAlreadySpawned: false,
