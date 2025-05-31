@@ -1,4 +1,4 @@
-import { Array, Match, pipe } from "effect";
+import { Array, Match, Order, pipe } from "effect";
 import {
   Boss,
   Direction,
@@ -10,7 +10,7 @@ import {
   createRandomEggnemy,
 } from "./model";
 import { Msg } from "./msg";
-import { getCenterXY, isTouching, isWithinRange } from "./utils";
+import { formatTime, getCenterXY, isTouching, isWithinRange } from "./utils";
 
 function getDirectionFromKey(key: string): Direction | null {
   // Kinda hacky, but it works.
@@ -267,8 +267,35 @@ function tickSpawnBossIfNeeded(model: Model): Model {
   // Spawn a boss eggnemy if eggnemies count killed is reached.
 }
 
-function restartGame(): Model {
-  return createNewModel();
+function updateLeaderboard(model: Model): Model {
+  return {
+    ...model,
+    state: {
+      ...model.state,
+      leaderboard: pipe(
+        model.state.leaderboard,
+        // Kind of inefficient, but it should work.
+        Array.append(formatTime(model.state.elapsedTime)),
+        // Take advantage that lexicographical sorting works too
+        Array.sort(Order.string),
+        Array.take(3),
+      ),
+    },
+  };
+}
+
+function restartGame(model: Model): Model {
+  const newModel = createNewModel();
+  return {
+    ...newModel,
+    state: {
+      ...newModel.state,
+      leaderboard:
+        model.egg != undefined
+          ? updateLeaderboard(model).state.leaderboard
+          : model.state.leaderboard,
+    },
+  };
 }
 
 export const update = (msg: Msg, model: Model) =>
