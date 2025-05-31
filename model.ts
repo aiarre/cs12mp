@@ -189,7 +189,11 @@ export const createNewModel = () => {
     ),
     boss: null,
     settings: initGameSettings,
-    state: initGameState,
+    state: {
+      ...initGameState,
+      startTime: Date.now(),
+      lastDamageTime: Date.now(),
+    },
   });
 };
 
