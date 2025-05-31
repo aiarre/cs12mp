@@ -11,7 +11,7 @@ import type { Msg } from "./msg";
 import * as settings from "./settings.json";
 import { formatTime, getCenterX } from "./utils";
 
-function renderEgg(model: Model): CanvasElement[] {
+export function renderEgg(model: Model): CanvasElement[] {
   return model.egg != undefined
     ? [
         // Actual Egg
@@ -37,7 +37,7 @@ function renderEgg(model: Model): CanvasElement[] {
     : [];
 }
 
-function renderEggnemies(model: Model): CanvasElement[] {
+export function renderEggnemies(model: Model): CanvasElement[] {
   return pipe(
     model.eggnemies,
     Array.map((en) => [
@@ -65,7 +65,7 @@ function renderEggnemies(model: Model): CanvasElement[] {
   );
 }
 
-function renderBoss(model: Model): CanvasElement[] {
+export function renderBoss(model: Model): CanvasElement[] {
   return model.boss != undefined
     ? [
         SolidRectangle.make({
@@ -88,14 +88,14 @@ function renderBoss(model: Model): CanvasElement[] {
     : [];
 }
 
-function offsetElementBy(element: CanvasElement, dx: number, dy: number) {
+export function offsetElementBy(element: CanvasElement, dx: number, dy: number) {
   return Struct.evolve(element, {
     x: (x) => Math.round(x + dx),
     y: (y) => Math.round(y + dy),
   });
 }
 
-function renderWorld(model: Model): CanvasElement[] {
+export function renderWorld(model: Model): CanvasElement[] {
   return pipe(
     [
       SolidRectangle.make({
@@ -120,7 +120,7 @@ function renderWorld(model: Model): CanvasElement[] {
   );
 }
 
-function renderLeaderboard(
+export function renderLeaderboard(
   model: Model,
   x: number,
   y: number,
@@ -144,7 +144,7 @@ function renderLeaderboard(
   );
 }
 
-function renderUIElements(
+export function renderUIElements(
   model: Model,
   screenWidth: number,
   screenHeight: number,
@@ -213,7 +213,7 @@ function renderUIElements(
   );
 }
 
-function renderScreen(
+export function renderScreen(
   model: Model,
   screenWidth: number,
   screenHeight: number,

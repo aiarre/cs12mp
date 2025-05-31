@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { update } from "../update"; 
 import { Msg } from "../msg";
+import { update } from "../update";
 import { initModel, Model } from "../model";
 
 
