@@ -36,6 +36,18 @@ export const Egg = S.Struct({
   attackRange: S.Number,
   speed: S.Number,
 });
+const initEgg: Egg = Egg.make({
+  x: 100,
+  y: 100,
+  width: settings.egg.width,
+  height: settings.egg.height,
+  hp: settings.egg.initialHp,
+  maxHp: settings.egg.initialHp,
+  direction: "NONE",
+  isAttacking: false,
+  attackRange: settings.egg.attackRange,
+  speed: settings.egg.speed,
+});
 
 export const Eggnemy = S.Struct({
   ...GameObject.fields,
@@ -81,6 +93,15 @@ export const World = S.Struct({
     y: S.Int,
   }),
 });
+const initWorld: World = World.make({
+  width: settings.game.world.width,
+  height: settings.game.world.height,
+  center: {
+    // By default, sync this to the egg.
+    x: Math.floor(100 + settings.egg.width / 2),
+    y: Math.floor(100 + settings.egg.height / 2),
+  },
+});
 
 // Configurable parameters for the game, should be adjustable via
 // settings.json
@@ -92,6 +113,12 @@ export const GameSettings = S.Struct({
   defeatText: S.String,
   // Error handling
   errorText: S.String,
+});
+const initGameSettings: GameSettings = GameSettings.make({
+  bossSpawnThreshold: settings.game.bossSpawnThreshold,
+  victoryText: settings.game.victoryText,
+  defeatText: settings.game.defeatText,
+  errorText: settings.game.errorText,
 });
 
 // Encapsulates most "flags" or time-based events limits in the game,
@@ -108,6 +135,14 @@ export const GameState = S.Struct({
   // Game statistics
   defeatedEggnemiesCount: S.NonNegativeInt,
 });
+const initGameState: GameState = GameState.make({
+  startTime: Date.now(),
+  elapsedTime: 0,
+  lastDamageTime: Date.now(),
+  isGameOver: false,
+  hasBossAlreadySpawned: false,
+  defeatedEggnemiesCount: 0,
+});
 
 export const Model = S.Struct({
   // Model of the "game world"
@@ -119,45 +154,6 @@ export const Model = S.Struct({
   // Other game events / statistics to keep track of
   settings: GameSettings,
   state: GameState,
-});
-
-const initWorld: World = World.make({
-  width: settings.game.world.width,
-  height: settings.game.world.height,
-  center: {
-    // By default, sync this to the egg.
-    x: Math.floor(100 + settings.egg.width / 2),
-    y: Math.floor(100 + settings.egg.height / 2),
-  },
-});
-
-const initEgg: Egg = Egg.make({
-  x: 100,
-  y: 100,
-  width: settings.egg.width,
-  height: settings.egg.height,
-  hp: settings.egg.initialHp,
-  maxHp: settings.egg.initialHp,
-  direction: "NONE",
-  isAttacking: false,
-  attackRange: settings.egg.attackRange,
-  speed: settings.egg.speed,
-});
-
-const initGameSettings: GameSettings = GameSettings.make({
-  bossSpawnThreshold: settings.game.bossSpawnThreshold,
-  victoryText: settings.game.victoryText,
-  defeatText: settings.game.defeatText,
-  errorText: settings.game.errorText,
-});
-
-const initGameState: GameState = GameState.make({
-  startTime: Date.now(),
-  elapsedTime: 0,
-  lastDamageTime: Date.now(),
-  isGameOver: false,
-  hasBossAlreadySpawned: false,
-  defeatedEggnemiesCount: 0,
 });
 
 export const createNewModel = () => {
