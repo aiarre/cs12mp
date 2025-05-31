@@ -45,8 +45,8 @@ export const Eggnemy = S.Struct({
 });
 export const createRandomEggnemy = (world: World) =>
   Eggnemy.make({
-    x: Math.floor(Math.random() * world.width + 50),
-    y: Math.floor(Math.random() * world.height + 50),
+    x: Math.floor(Math.random() * (world.width - settings.eggnemies.width)),
+    y: Math.floor(Math.random() * (world.height - settings.eggnemies.height)),
     width: settings.eggnemies.width,
     height: settings.eggnemies.height,
     hp: settings.eggnemies.initialHp,
