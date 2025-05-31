@@ -110,6 +110,8 @@ export const Leaderboard = S.Array(S.String).pipe(S.maxItems(3));
 export const GameSettings = S.Struct({
   // How many enemies should be defeated before the boss spawns
   bossSpawnThreshold: S.Int,
+  // Probabiliy of spawning eggnemies per tick (frame)
+  eggnemySpawningRatePerTick: S.Number,
   // Text to show once game is over
   victoryText: S.String,
   defeatText: S.String,
@@ -118,6 +120,7 @@ export const GameSettings = S.Struct({
 });
 const initGameSettings: GameSettings = GameSettings.make({
   bossSpawnThreshold: settings.game.bossSpawnThreshold,
+  eggnemySpawningRatePerTick: settings.game.eggnemySpawningRatePerTick,
   victoryText: settings.game.victoryText,
   defeatText: settings.game.defeatText,
   errorText: settings.game.errorText,

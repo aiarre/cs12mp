@@ -230,13 +230,12 @@ function tickEggAttacksEnemies(model: Model): Model {
 
 function tickOccasionallySpawnEggnemy(model: Model): Model {
   if (model.egg == undefined) return model;
-  // 10% chance of spawning 1-3 eggnemies per tick
   return Model.make({
     ...model,
     eggnemies: pipe(
       model.eggnemies,
       Array.appendAll(
-        Math.random() < 0.01
+        Math.random() < model.settings.eggnemySpawningRatePerTick
           ? pipe(
               Array.range(1, Math.floor(Math.random() * 3) + 1),
               Array.map(() => createRandomEggnemy(model.world)),
