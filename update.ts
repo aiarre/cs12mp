@@ -112,21 +112,40 @@ function tickAdjustWorldCenter(model: Model): Model {
   };
 }
 
+function isColliding(
+  x: number,
+  y: number,
+  enemy: Eggnemy | Boss,
+  others: (Eggnemy | Boss)[],
+): boolean {
+  return others.some((other) => {
+    if (other === enemy) return false; 
+    return isTouching({...enemy, x, y }, other);
+  })
+}
+
 function moveEnemyTowardsEgg(
-  eggnemy: Eggnemy | Boss,
+  enemy: Eggnemy | Boss,
   egg: Egg,
+  others: (Eggnemy | Boss)[]
 ): Eggnemy | Boss {
-  const dx = egg.x - eggnemy.x;
-  const dy = egg.y - eggnemy.y;
+  const dx = egg.x - enemy.x;
+  const dy = egg.y - enemy.y;
   const dist = Math.sqrt(dx * dx + dy * dy);
 
-  if (dist === 0) return eggnemy;
+  if (dist === 0) return enemy;
+
+  const moveX = Math.ceil(enemy.x + (dx / dist) * enemy.speed)
+  const moveY = Math.ceil(enemy.y + (dy / dist) * enemy.speed)
+
+  const tryMoveX = !isColliding(moveX, enemy.y, enemy, others);
+  const tryMoveY = !isColliding(enemy.x, moveY, enemy, others);
 
   return {
-    ...eggnemy,
+    ...enemy,
     // Round up so that eggnemies will always move
-    x: Math.ceil(eggnemy.x + (dx / dist) * eggnemy.speed),
-    y: Math.ceil(eggnemy.y + (dy / dist) * eggnemy.speed),
+    x: tryMoveX ? moveX : enemy.x,
+    y: tryMoveY ? moveY : enemy.y
   };
 }
 
@@ -138,11 +157,12 @@ function tickMoveEnemiesTowardsEgg(model: Model): Model {
     ...model,
     eggnemies: pipe(
       model.eggnemies,
-      Array.map((en) => moveEnemyTowardsEgg(en, egg)),
+      Array.map((en) => moveEnemyTowardsEgg(en, egg, 
+        [...model.eggnemies, ...(model.boss ? [model.boss] : [])])),
     ),
     boss:
       model.boss != undefined
-        ? moveEnemyTowardsEgg(model.boss, egg)
+        ? moveEnemyTowardsEgg(model.boss, egg, [...model.eggnemies])
         : undefined,
   });
 }
