@@ -29,20 +29,20 @@ beforeEach(() => {
   model = initModel;
 });
 
-// describe("#view", () => {
-//   const screenWidth = settings.game.screen.width;
-//   const screenHeight = settings.game.screen.height;
+describe("#view", () => {
+  const screenWidth = settings.game.screen.width;
+  const screenHeight = settings.game.screen.height;
 
-//   it("returns a canvas node with correct dimensions and id", () => {
-//     const vnode = view(model);
+  it("returns a canvas node with correct dimensions and id", () => {
+    const vnode = view(model);
 
-//     expect(vnode.sel).toBe("canvas");
-//     expect(vnode.data?.props?.width).toBe(screenWidth);
-//     expect(vnode.data?.props?.height).toBe(screenHeight);
-//     expect(vnode.data?.props?.id).toBe("mpScreen");
-//     expect(typeof vnode.data?.hook?.create).toBe("function");
-//   });
-// });
+    expect(vnode.sel).toBe("canvas");
+    expect(vnode.data?.props?.width).toBe(screenWidth);
+    expect(vnode.data?.props?.height).toBe(screenHeight);
+    expect(vnode.data?.props?.id).toBe("mpScreen");
+    expect(typeof vnode.data?.hook?.create).toBe("function");
+  });
+});
 
 
 describe("#renderEgg", () => {
