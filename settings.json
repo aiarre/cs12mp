@@ -19,7 +19,7 @@
     "width": 15,
     "height": 30,
     "initialHp": 20,
-    "attackRange": 75,
+    "attackRange": 50,
     "speed": 10
   },
   "eggnemies": {
