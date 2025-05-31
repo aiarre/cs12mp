@@ -6,7 +6,9 @@ import {
   Eggnemy,
   Model,
   createBoss,
+  createNewModel,
   createRandomEggnemy,
+  initModel,
 } from "./model";
 import { Msg } from "./msg";
 import { getCenterXY, isTouching, isWithinRange } from "./utils";
@@ -266,34 +268,43 @@ function tickSpawnBossIfNeeded(model: Model): Model {
   // Spawn a boss eggnemy if eggnemies count killed is reached.
 }
 
+function restartGame(model: Model): Model {
+  return createNewModel();
+}
+
 export const update = (msg: Msg, model: Model) =>
   Match.value(msg).pipe(
     Match.tag("Canvas.MsgKeyDown", ({ key }): Model => {
-      if (model.egg == undefined) return model;
-      const egg = model.egg;
-      const newDirection = getDirectionFromKey(key);
-      // Change direction, but keep current direction if other keys are
-      // pressed.
-      if (newDirection !== null) {
-        return Model.make({
-          ...model,
-          egg: {
-            ...egg,
-            direction: newDirection,
-          },
-        });
-      }
-      // Set attacking.
-      else if (key.toLowerCase() === "l") {
-        return Model.make({
-          ...model,
-          egg: {
-            ...egg,
-            isAttacking: true,
-          },
-        });
+      if (key.toUpperCase() == "R" && model.state.isGameOver) {
+        return restartGame(model);
       }
 
+      // Things that need the egg to run
+      if (model.egg != undefined) {
+        const egg = model.egg;
+        const newDirection = getDirectionFromKey(key);
+        // Change direction, but keep current direction if other keys are
+        // pressed.
+        if (newDirection !== null) {
+          return Model.make({
+            ...model,
+            egg: {
+              ...egg,
+              direction: newDirection,
+            },
+          });
+        }
+        // Set attacking.
+        else if (key.toLowerCase() === "l") {
+          return Model.make({
+            ...model,
+            egg: {
+              ...egg,
+              isAttacking: true,
+            },
+          });
+        }
+      }
       return model;
     }),
 
@@ -328,7 +339,10 @@ export const update = (msg: Msg, model: Model) =>
 
     Match.tag("Canvas.MsgTick", (): Model => {
       // Only stop everything when boss is defeated
-      if (model.state.isGameOver && model.egg != undefined) return model;
+      if (model.state.isGameOver) {
+        if (model.egg != undefined) return model;
+        else return tickUpdateElapsedTime(model);
+      }
       // Note: The order in which we do things is important.
       return pipe(
         model,

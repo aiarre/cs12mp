@@ -150,6 +150,8 @@ function renderUIElements(
         textAlign: "right",
       }),
     ],
+
+    // Game over text
     Array.appendAll(
       model.state.isGameOver
         ? [
