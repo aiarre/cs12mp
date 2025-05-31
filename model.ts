@@ -7,6 +7,7 @@ export type Direction = typeof Direction.Type;
 // Alternative to `export type Struct = typeof Struct.Type` as per
 // Effect.ts documentation:
 // https://effect.website/docs/schema/getting-started/
+/* eslint-disable @typescript-eslint/no-empty-object-type */
 export interface GameObject extends S.Schema.Type<typeof GameObject> {}
 export interface Egg extends S.Schema.Type<typeof Egg> {}
 export interface Eggnemy extends S.Schema.Type<typeof Eggnemy> {}
@@ -15,6 +16,7 @@ export interface World extends S.Schema.Type<typeof World> {}
 export interface GameSettings extends S.Schema.Type<typeof GameSettings> {}
 export interface GameState extends S.Schema.Type<typeof GameState> {}
 export interface Model extends S.Schema.Type<typeof Model> {}
+/* eslint-enable @typescript-eslint/no-empty-object-type */
 
 // Basically HasXYWidthHeight
 export const GameObject = S.Struct({

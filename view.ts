@@ -5,18 +5,11 @@ import {
   SolidRectangle,
   Text,
 } from "cs12242-mvu/src/canvas";
-import { Array, pipe, Schema as S, Struct } from "effect";
+import { Array, pipe, Struct } from "effect";
 import { Model } from "./model";
 import type { Msg } from "./msg";
 import * as settings from "./settings.json";
 import { formatTime, getCenterX } from "./utils";
-
-const TextStyle = S.Struct({
-  font: S.optional(S.String),
-  fontSize: S.Int,
-  color: S.optionalWith(S.String, { default: () => "white" }),
-  textAlign: S.optional(S.Literal("left", "center", "right")),
-});
 
 function renderEgg(model: Model): CanvasElement[] {
   return model.egg != undefined

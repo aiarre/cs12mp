@@ -13,8 +13,8 @@
     "vitest": "^3.1.4"
   },
   "scripts": {
-    "fmt": "prettier --check *.ts *.html",
-    "fmt:fix": "prettier --write *.ts *.html",
+    "fmt": "prettier --check *.ts *.html settings.json",
+    "fmt:fix": "prettier --write *.ts *.html settings.json",
     "lint": "eslint *.ts",
     "serve": "vite",
     "test": "vitest"
