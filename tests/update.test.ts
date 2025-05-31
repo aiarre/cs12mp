@@ -10,7 +10,7 @@ beforeEach(() => {
 });
 
 describe("#update", () => {
-    it("doesn't move egg by not pressing any key", () => {
+  it("doesn't move egg by not pressing any key", () => {
     const msg1: Msg = { _tag: "Canvas.MsgKeyUp", key: "w" };
     const updatedModel = update(msg1, model);
     expect(updatedModel.egg?.direction).toStrictEqual("NONE");
@@ -56,10 +56,54 @@ describe("#update", () => {
     expect(updatedModel.egg?.direction).toStrictEqual("NONE");
   });
 
+  it("moves the egg north on KeyDown ArrowUp then egg stops after KeyUp ArrowUp", () => {
+    const msg1: Msg = { _tag: "Canvas.MsgKeyDown", key: "ArrowUp" };
+    let updatedModel = update(msg1, model);
+    expect(updatedModel.egg?.direction).toStrictEqual("NORTH");
+
+    const msg2: Msg = { _tag: "Canvas.MsgKeyUp", key: "ArrowUp" };
+    updatedModel = update(msg2, model);
+    expect(updatedModel.egg?.direction).toStrictEqual("NONE");
+  });
+
+  it("moves the egg south on KeyDown ArrowDown then egg stops after KeyUp ArrowDown", () => {
+    const msg1: Msg = { _tag: "Canvas.MsgKeyDown", key: "ArrowDown" };
+    let updatedModel = update(msg1, model);
+    expect(updatedModel.egg?.direction).toStrictEqual("SOUTH");
+
+    const msg2: Msg = { _tag: "Canvas.MsgKeyUp", key: "ArrowDown" };
+    updatedModel = update(msg2, model);
+    expect(updatedModel.egg?.direction).toStrictEqual("NONE");
+  });
+
+  it("moves the egg east on KeyDown ArrowRight then egg stops after KeyUp ArrowRight", () => {  
+    const msg1: Msg = { _tag: "Canvas.MsgKeyDown", key: "ArrowRight" };
+    let updatedModel = update(msg1, model);
+    expect(updatedModel.egg?.direction).toStrictEqual("EAST");
+
+    const msg2: Msg = { _tag: "Canvas.MsgKeyUp", key: "ArrowRight" };
+    updatedModel = update(msg2, model);
+    expect(updatedModel.egg?.direction).toStrictEqual("NONE");
+  });
+
+  it("moves the egg west on KeyDown ArrowLeft then egg stops after KeyUp ArrowLeft", () => {
+    const msg1: Msg = { _tag: "Canvas.MsgKeyDown", key: "ArrowLeft" };
+    let updatedModel = update(msg1, model);
+    expect(updatedModel.egg?.direction).toStrictEqual("WEST");
+
+    const msg2: Msg = { _tag: "Canvas.MsgKeyUp", key: "ArrowLeft" };
+    updatedModel = update(msg2, model);
+    expect(updatedModel.egg?.direction).toStrictEqual("NONE");
+  });
+
   it("should set egg to attacking when 'l' is pressed", () => {
-    const msg: Msg = { _tag: "Canvas.MsgKeyDown", key: "l" };
-    let updatedModel = update(msg, model);
+    const msg1: Msg = { _tag: "Canvas.MsgKeyDown", key: "l" };
+    let updatedModel = update(msg1, model);
     expect(updatedModel.egg?.isAttacking).toStrictEqual(true);
+    
+    const msg2: Msg = { _tag: "Canvas.MsgKeyUp", key: "l" };
+    updatedModel = update(msg2, model);
+    expect(updatedModel.egg?.isAttacking).toStrictEqual(false);
   });
 
   it("resets game when 'r' is pressed and game is over", () => {
@@ -74,6 +118,9 @@ describe("#update", () => {
     expect(updatedModel.egg?.isAttacking).toStrictEqual(false);
     expect(updatedModel.eggnemies.length).toBe(5);
     expect(updatedModel.boss).toStrictEqual(null);
+    expect(updatedModel.state.elapsedTime).toStrictEqual(0);
+    expect(updatedModel.state.defeatedEggnemiesCount).toStrictEqual(0);
+    expect(updatedModel.state.hasBossAlreadySpawned).toStrictEqual(false);
   });
 
   it("does not reset game when 'r' is pressed and game is not over", () => {
