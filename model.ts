@@ -15,7 +15,14 @@ export interface Boss extends S.Schema.Type<typeof Boss> {}
 export interface World extends S.Schema.Type<typeof World> {}
 export interface GameSettings extends S.Schema.Type<typeof GameSettings> {}
 export interface GameState extends S.Schema.Type<typeof GameState> {}
-export interface Model extends S.Schema.Type<typeof Model> {}
+export interface Model extends S.Schema.Type<typeof Model> {
+  world: World;
+  egg: Egg;
+  eggnemies: Eggnemy[];
+  boss: Boss;
+  state: GameState;
+  settings: GameSettings;
+}
 /* eslint-enable @typescript-eslint/no-empty-object-type */
 
 // Basically HasXYWidthHeight
@@ -103,6 +110,8 @@ const initWorld: World = World.make({
   },
 });
 
+export const Leaderboard = S.Array(S.String).pipe(S.maxItems(3));
+
 // Configurable parameters for the game, should be adjustable via
 // settings.json
 export const GameSettings = S.Struct({
@@ -134,6 +143,7 @@ export const GameState = S.Struct({
   hasBossAlreadySpawned: S.Boolean,
   // Game statistics
   defeatedEggnemiesCount: S.NonNegativeInt,
+  leaderboard: Leaderboard,
 });
 const initGameState: GameState = GameState.make({
   startTime: Date.now(),
@@ -142,6 +152,7 @@ const initGameState: GameState = GameState.make({
   isGameOver: false,
   hasBossAlreadySpawned: false,
   defeatedEggnemiesCount: 0,
+  leaderboard: [],
 });
 
 export const Model = S.Struct({
