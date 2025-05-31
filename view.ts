@@ -129,25 +129,25 @@ function renderUIElements(
     [
       // Eggnemies defeated count
       Text.make({
-        x: 12,
-        y: 25,
-        text: `Defeated eggnemies: ${model.state.defeatedEggnemiesCount}`,
+        x: 15,
+        y: 30,
+        text: `${model.state.defeatedEggnemiesCount}`,
         fontSize: 16,
-        font: "sans-serif",
+        font: "monospace",
         color: "white",
         textAlign: "left",
       }),
 
-      // Timer
+      // Elapsed time
       Text.make({
-        x: screenWidth - 100,
-        y: 20,
+        x: screenWidth - 20,
+        y: 30,
         // TODO: Properly extract back into model.
         text: `${formatTime(Date.now() - model.state.startTime)}`,
         fontSize: 16,
-        font: "sans-serif",
+        font: "monospace",
         color: "white",
-        textAlign: "left",
+        textAlign: "right",
       }),
     ],
     Array.appendAll(
@@ -162,7 +162,7 @@ function renderUIElements(
                   ? model.settings.defeatText
                   : model.settings.victoryText,
               fontSize: 20,
-              font: "sans-serif",
+              font: "monospace",
               color: "white",
               textAlign: "center",
             }),
