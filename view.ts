@@ -120,6 +120,30 @@ function renderWorld(model: Model): CanvasElement[] {
   );
 }
 
+function renderLeaderboard(
+  model: Model,
+  x: number,
+  y: number,
+  gap: number = 20,
+): CanvasElement[] {
+  return pipe(
+    // Why do I need to type cast here? I don't get it.
+    model.state.leaderboard as string[],
+    Array.pad(3, "--:--"),
+    Array.map((time, i) =>
+      Text.make({
+        x: x,
+        y: y + gap * i,
+        text: `${i === 0 ? "Top " : "    "}${i + 1}  ${time}`, // note the double space!
+        fontSize: 16,
+        font: "monospace",
+        color: "white",
+        textAlign: "left",
+      }),
+    ),
+  );
+}
+
 function renderUIElements(
   model: Model,
   screenWidth: number,
@@ -150,8 +174,6 @@ function renderUIElements(
         textAlign: "right",
       }),
     ],
-
-    // Game over text
     Array.appendAll(
       model.state.isGameOver
         ? [
@@ -187,6 +209,7 @@ function renderUIElements(
           ]
         : [],
     ),
+    Array.appendAll(renderLeaderboard(model, 25, screenHeight - 75)),
   );
 }
 
