@@ -211,7 +211,7 @@ function tickEggAttacksEnemies(model: Model): Model {
       if (isWithinRange(egg, en)) {
         return {
           ...en,
-          hp: en.hp - 1,
+          hp: en.hp - egg.attackDamage,
         };
       }
       return en;
@@ -221,7 +221,7 @@ function tickEggAttacksEnemies(model: Model): Model {
 
   let boss = model.boss;
   if (boss && isWithinRange(egg, boss)) {
-    boss = { ...boss, hp: boss.hp - 1 };
+    boss = { ...boss, hp: boss.hp - egg.attackDamage };
     if (boss.hp <= 0) {
       boss = undefined; // Boss defeated, remove it
       if (boss == undefined) {

@@ -35,6 +35,7 @@ export const Egg = S.Struct({
   isAttacking: S.Boolean,
   attackRange: S.Number,
   speed: S.Number,
+  attackDamage: S.Number,
 });
 const initEgg: Egg = Egg.make({
   x: 100,
@@ -47,6 +48,7 @@ const initEgg: Egg = Egg.make({
   isAttacking: false,
   attackRange: settings.egg.attackRange,
   speed: settings.egg.speed,
+  attackDamage: settings.egg.attackDamage,
 });
 
 export const Eggnemy = S.Struct({
