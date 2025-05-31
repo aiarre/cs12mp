@@ -230,20 +230,24 @@ function tickEggAttacksEnemies(model: Model): Model {
 
 function tickOccasionallySpawnEggnemy(model: Model): Model {
   if (model.egg == undefined) return model;
-  return Model.make({
-    ...model,
-    eggnemies: pipe(
-      model.eggnemies,
-      Array.appendAll(
-        Math.random() < model.settings.eggnemySpawningRatePerTick
-          ? pipe(
-              Array.range(1, Math.floor(Math.random() * 3) + 1),
-              Array.map(() => createRandomEggnemy(model.world)),
-            )
-          : [],
+  const shouldSpawnEggnemies =
+    Math.random() < model.settings.eggnemySpawningRatePerTick;
+  if (!shouldSpawnEggnemies) {
+    return model;
+  } else {
+    return Model.make({
+      ...model,
+      eggnemies: pipe(
+        model.eggnemies,
+        Array.appendAll(
+          pipe(
+            Array.range(1, Math.floor(Math.random() * 3) + 1),
+            Array.map(() => createRandomEggnemy(model.world)),
+          ),
+        ),
       ),
-    ),
-  });
+    });
+  }
 }
 
 function tickSpawnBossIfNeeded(model: Model): Model {
