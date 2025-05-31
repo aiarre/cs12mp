@@ -160,11 +160,22 @@ const initGameState: GameState = GameState.make({
   defeatedEggnemiesCount: 0,
 });
 
-export const createNewModel = () =>
-  Model.make({
-    // initial state
-    world: initWorld,
-    egg: initEgg,
+export const createNewModel = () => {
+  const eggX = Math.floor(Math.random() * initWorld.width - initEgg.width);
+  const eggY = Math.floor(Math.random() * initWorld.height - initEgg.height);
+  return Model.make({
+    world: {
+      ...initWorld,
+      center: {
+        x: Math.floor(eggX + initEgg.width / 2),
+        y: Math.floor(eggY + initEgg.height / 2),
+      },
+    },
+    egg: {
+      ...initEgg,
+      x: eggX,
+      y: eggY,
+    },
     eggnemies: pipe(
       Array.range(1, settings.eggnemies.initialCount),
       Array.map(() => createRandomEggnemy(initWorld)),
@@ -173,5 +184,6 @@ export const createNewModel = () =>
     settings: initGameSettings,
     state: initGameState,
   });
+};
 
 export const initModel = createNewModel();

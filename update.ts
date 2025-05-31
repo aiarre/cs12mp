@@ -8,7 +8,6 @@ import {
   createBoss,
   createNewModel,
   createRandomEggnemy,
-  initModel,
 } from "./model";
 import { Msg } from "./msg";
 import { getCenterXY, isTouching, isWithinRange } from "./utils";
@@ -268,7 +267,7 @@ function tickSpawnBossIfNeeded(model: Model): Model {
   // Spawn a boss eggnemy if eggnemies count killed is reached.
 }
 
-function restartGame(model: Model): Model {
+function restartGame(): Model {
   return createNewModel();
 }
 
