@@ -142,8 +142,8 @@ export const createRandomEggnemy = (world: World, multiplier: number) =>
     y: Math.floor(Math.random() * (world.height - settings.eggnemies.height)),
     width: settings.eggnemies.width,
     height: settings.eggnemies.height,
-    hp: settings.eggnemies.initialHp,
-    maxHp: settings.eggnemies.initialHp,
+    hp: settings.eggnemies.initialHp + multiplier,
+    maxHp: settings.eggnemies.initialHp + multiplier,
     speed: settings.eggnemies.speed + multiplier,
     attackDamage: settings.eggnemies.attackDamage + multiplier,
   });
@@ -154,8 +154,8 @@ export const createBoss = (world: World, multiplier: number) =>
     y: Math.floor(Math.random() * world.height + 50),
     width: settings.boss.width,
     height: settings.boss.height,
-    hp: settings.boss.initialHp,
-    maxHp: settings.boss.initialHp,
+    hp: settings.boss.initialHp + multiplier,
+    maxHp: settings.boss.initialHp + multiplier,
     speed: settings.boss.speed + multiplier,
     attackDamage: settings.boss.attackDamage + multiplier,
   });
