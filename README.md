@@ -3,7 +3,6 @@ This is a TypeScript implementation of **Egg Rally**, inspired by the
 game Vampire Survivors, as part of our CS12 project (MP) submission.
 
 
-
 ## Getting Started
 First, install the dependencies needed for the project. You may opt to
 use other package managers such as pnpm or bun, but, in general, run:
@@ -33,7 +32,31 @@ Alternatively, you can also run:
 npx vite
 ```
 
-By default, this will expose a development server on http://localhost:5173/.
+By default, this will expose a development server on
+http://localhost:5173/. Open this page in your browser to play.
+
+# Code organization
+
+## General structure
+The main structure of the code can be found in the following files and
+folders:
++ [index.html](index.html): the main entry point of the app, a thin
+  wrapper around the MVU logic
++ [model.ts](model.ts): where the game model is defined and initialized 
+  with the correct parameters
++ [msg.ts](msg.ts): where the Msg types are defined
++ [view.ts](view.ts): defines how the game model is rendered using
+  `cs12242-mvu/src/canvas` onto an HTML Canvas element.
++ [update.ts](update.ts): defines how the game model is transformed
+  when dealing with keystrokes or game ticks (frames).
++ [index.ts](index.ts): combines the model, view, and update functions
+  together and actually outputs DOM elements
++ [settings.json](settings.json): where different game paramters are
+  stored and can be configured
++ [resources/](resources/): the folder where game sprites are stored
++ [tests/](tests/): the folder where the test suite is stored
++ [utils.ts](index.ts): miscellaneous functions imported by model.ts,
+  view.ts, update.ts, and others
 
 
 ## Test suite
