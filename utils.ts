@@ -40,15 +40,15 @@ export function isColliding(
   others: (Eggnemy | Boss)[],
 ): boolean {
   return others.some((other) => {
-    if (other === enemy) return false; 
-    return isTouching({...enemy, x, y }, other);
-  })
+    if (other === enemy) return false;
+    return isTouching({ ...enemy, x, y }, other);
+  });
 }
 
 export function moveEnemyTowardsEgg(
   enemy: Eggnemy | Boss,
   egg: Egg,
-  others: (Eggnemy | Boss)[]
+  others: (Eggnemy | Boss)[],
 ): Eggnemy | Boss {
   const dx = egg.x - enemy.x;
   const dy = egg.y - enemy.y;
@@ -56,8 +56,8 @@ export function moveEnemyTowardsEgg(
 
   if (dist === 0) return enemy;
 
-  const moveX = Math.ceil(enemy.x + (dx / dist) * enemy.speed)
-  const moveY = Math.ceil(enemy.y + (dy / dist) * enemy.speed)
+  const moveX = Math.ceil(enemy.x + (dx / dist) * enemy.speed);
+  const moveY = Math.ceil(enemy.y + (dy / dist) * enemy.speed);
 
   const tryMoveX = !isColliding(moveX, enemy.y, enemy, others);
   const tryMoveY = !isColliding(enemy.x, moveY, enemy, others);
@@ -66,10 +66,9 @@ export function moveEnemyTowardsEgg(
     ...enemy,
     // Round up so that eggnemies will always move
     x: tryMoveX ? moveX : enemy.x,
-    y: tryMoveY ? moveY : enemy.y
+    y: tryMoveY ? moveY : enemy.y,
   };
 }
-
 
 export function getDirectionFromKey(key: string): Direction | null {
   return Match.value(key).pipe(
@@ -105,7 +104,6 @@ export function getDxDyMultiplierFromDirection(
     Match.exhaustive,
   ) as [-1 | 0 | 1, -1 | 0 | 1];
 }
-
 
 export function keepEgghancementOpen(exp: number, cost: number): boolean {
   return exp - cost >= cost;

@@ -51,7 +51,6 @@ export function renderEggnemies(model: Model): CanvasElement[] {
   return pipe(
     model.eggnemies,
     Array.map((en) => [
-
       // Actual eggnemy
       CanvasImage.make({
         x: en.x - 2,
@@ -77,7 +76,6 @@ export function renderEggnemies(model: Model): CanvasElement[] {
 export function renderBoss(model: Model): CanvasElement[] {
   return model.boss != undefined
     ? [
-        
         //boss
         CanvasImage.make({
           x: model.boss.x - 4,

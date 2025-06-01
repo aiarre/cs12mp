@@ -381,8 +381,7 @@ export const update = (msg: Msg, model: Model) =>
               direction: newDirection,
             },
           });
-        }
-        else if (key.toLowerCase() === "l") {
+        } else if (key.toLowerCase() === "l") {
           return Model.make({
             ...model,
             egg: {
