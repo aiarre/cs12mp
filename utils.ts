@@ -72,7 +72,6 @@ export function moveEnemyTowardsEgg(
 
 
 export function getDirectionFromKey(key: string): Direction | null {
-  // Kinda hacky, but it works.
   return Match.value(key).pipe(
     Match.when(
       (key) => key.toLowerCase() === "w" || key === "ArrowUp",
