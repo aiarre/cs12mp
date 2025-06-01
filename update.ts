@@ -177,31 +177,18 @@ function tickEggAttacksEnemies(model: Model): Model {
   );
 
   let boss = model.boss;
-  if (boss !== undefined && boss !== null && isWithinRange(egg, boss)) {
-    const updatedBoss = {
-      width: boss.width,
-      height: boss.height,
-      x: boss.x,
-      y: boss.y,
-      hp: boss.hp - eggStats.attackDamage,
-      maxHp: boss.maxHp,
-      speed: boss.speed,
-      attackDamage: boss.attackDamage,
-    };
-    if (updatedBoss.hp <= 0) {
-      boss = undefined; // Boss defeated, remove it
-      return Model.make({
-        ...model,
-        boss: undefined,
-        state: {
-          ...model.state,
-          eggnemiesTillNextBoss: 0
-        },
-      });
-    } else {
-      boss = updatedBoss;
+  let bossDefeated = false
+
+  if (boss && isWithinRange(egg, boss)) {
+    boss = { ...boss, hp: boss.hp - eggStats.attackDamage };
+    if (boss.hp <= 0) {
+      boss = undefined;
+      bossDefeated = true;
     }
   }
+  
+
+  //boss is either defeated or still alive.
   return Model.make({
     ...model,
     eggnemies: alive,
@@ -210,8 +197,15 @@ function tickEggAttacksEnemies(model: Model): Model {
       ...model.state,
       defeatedEggnemiesCount:
         model.state.defeatedEggnemiesCount + defeated.length,
-      eggnemiesTillNextBoss:
-        model.state.eggnemiesTillNextBoss + defeated.length,
+      eggnemiesTillNextBoss: bossDefeated
+        ? 0 
+        : model.state.eggnemiesTillNextBoss + defeated.length,
+      hasBossAlreadySpawned: bossDefeated
+        ? false
+        : model.state.hasBossAlreadySpawned,
+      bossesDefeated: bossDefeated
+        ? model.state.bossesDefeated + 1
+        : model.state.bossesDefeated,
     },
     eggStats: {
       ...model.eggStats,
@@ -235,7 +229,7 @@ function tickOccasionallySpawnEggnemy(model: Model): Model {
         Array.appendAll(
           pipe(
             Array.range(1, Math.floor(Math.random() * 3) + 1),
-            Array.map(() => createRandomEggnemy(model.world)),
+            Array.map(() => createRandomEggnemy(model.world, model.state.bossesDefeated)),
           ),
         ),
       ),
@@ -252,7 +246,7 @@ function tickSpawnBossIfNeeded(model: Model): Model {
   ) {
     return Model.make({
       ...model,
-      boss: createBoss(model.world),
+      boss: createBoss(model.world, model.state.bossesDefeated),
       state: {
         ...model.state,
         hasBossAlreadySpawned: true,
@@ -288,7 +282,7 @@ function restartGame(model: Model): Model {
     state: {
       ...newModel.state,
       leaderboard:
-        model.egg != undefined
+        model.state.isGameOver
           ? updateLeaderboard(model).state.leaderboard
           : model.state.leaderboard,
     },
@@ -298,7 +292,6 @@ function restartGame(model: Model): Model {
 export const update = (msg: Msg, model: Model) =>
   Match.value(msg).pipe(
     Match.tag("Canvas.MsgKeyDown", ({ key }): Model => {
-      console.log(`key pressed: ${key}`);
       if (key.toUpperCase() == "R" && model.state.isGameOver) {
         return restartGame(model);
       } 

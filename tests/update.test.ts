@@ -133,36 +133,4 @@ describe("#update", () => {
     expect(updatedModel.state.isGameOver).toStrictEqual(false);
   });
 });
- 
 
-// describe("#tickMoveEgg", () => { 
-//   it("should not move egg when direction is NONE", () => {
-//     const updatedModel = update({ _tag: "Tick" }, model);
-//     expect(updatedModel.egg?.x).toBe(model.egg?.x);
-//     expect(updatedModel.egg?.y).toBe(model.egg?.y);
-//   });
-
-//   it("should move egg north when direction is NORTH", () => {
-//     model = { ...model, egg: { ...model.egg, direction: "NORTH" } };
-//     const updatedModel = update({ _tag: "Tick" }, model);
-//     expect(updatedModel.egg?.y).toBe(model.egg?.y - 1);
-//   });
-
-//   it("should move egg south when direction is SOUTH", () => {
-//     model = { ...model, egg: { ...model.egg, direction: "SOUTH" } };
-//     const updatedModel = update({ _tag: "Tick" }, model);
-//     expect(updatedModel.egg?.y).toBe(model.egg?.y + 1);
-//   });
-
-//   it("should move egg east when direction is EAST", () => {
-//     model = { ...model, egg: { ...model.egg, direction: "EAST" } };
-//     const updatedModel = update({ _tag: "Tick" }, model);
-//     expect(updatedModel.egg?.x).toBe(model.egg?.x + 1);
-//   });
-
-//   it("should move egg west when direction is WEST", () => {
-//     model = { ...model, egg: { ...model.egg, direction: "WEST" } };
-//     const updatedModel = update({ _tag: "Tick" }, model);
-//     expect(updatedModel.egg?.x).toBe(model.egg?.x - 1);
-//   });
-// })

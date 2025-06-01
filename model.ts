@@ -57,7 +57,7 @@ export const Eggnemy = S.Struct({
   speed: S.NonNegativeInt,
   attackDamage: S.NonNegativeInt,
 });
-export const createRandomEggnemy = (world: World) =>
+export const createRandomEggnemy = (world: World, multiplier: number) =>
   Eggnemy.make({
     x: Math.floor(Math.random() * (world.width - settings.eggnemies.width)),
     y: Math.floor(Math.random() * (world.height - settings.eggnemies.height)),
@@ -65,8 +65,8 @@ export const createRandomEggnemy = (world: World) =>
     height: settings.eggnemies.height,
     hp: settings.eggnemies.initialHp,
     maxHp: settings.eggnemies.initialHp,
-    speed: settings.eggnemies.speed,
-    attackDamage: settings.eggnemies.attackDamage,
+    speed: settings.eggnemies.speed + multiplier,
+    attackDamage: settings.eggnemies.attackDamage + multiplier,
   });
 
 export const Boss = S.Struct({
@@ -76,7 +76,7 @@ export const Boss = S.Struct({
   speed: S.NonNegativeInt,
   attackDamage: S.NonNegativeInt,
 });
-export const createBoss = (world: World) =>
+export const createBoss = (world: World, multiplier: number) =>
   Boss.make({
     x: Math.floor(Math.random() * world.width + 50),
     y: Math.floor(Math.random() * world.height + 50),
@@ -84,8 +84,8 @@ export const createBoss = (world: World) =>
     height: settings.boss.height,
     hp: settings.boss.initialHp,
     maxHp: settings.boss.initialHp,
-    speed: settings.boss.speed,
-    attackDamage: settings.boss.attackDamage,
+    speed: settings.boss.speed  + multiplier,
+    attackDamage: settings.boss.attackDamage + multiplier,
   });
 
 export const World = S.Struct({
@@ -143,7 +143,7 @@ export const GameState = S.Struct({
   // One-time event flags
   hasBossAlreadySpawned: S.Boolean,
   eggnemiesTillNextBoss: S.NonNegativeInt,
-  bossesKilled: S.NonNegativeInt,
+  bossesDefeated: S.NonNegativeInt,
   // Game statistics
   defeatedEggnemiesCount: S.NonNegativeInt,
   leaderboard: Leaderboard,
@@ -155,7 +155,7 @@ const initGameState: GameState = GameState.make({
   lastDamageTime: Date.now(),
   isGameOver: false,
   hasBossAlreadySpawned: false,
-  bossesKilled: 0,
+  bossesDefeated: 0,
 
   defeatedEggnemiesCount: 0,
   eggnemiesTillNextBoss: 0,
@@ -219,7 +219,7 @@ export const createNewModel = () => {
     },
     eggnemies: pipe(
       Array.range(1, settings.eggnemies.initialCount),
-      Array.map(() => createRandomEggnemy(initWorld)),
+      Array.map(() => createRandomEggnemy(initWorld, 0)),
     ),
     boss: null,
     settings: initGameSettings,
