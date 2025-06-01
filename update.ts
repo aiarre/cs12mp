@@ -17,14 +17,15 @@ import {
   isWithinRange, 
   moveEnemyTowardsEgg,
   getDirectionFromKey,
-  getDxDyMultiplierFromDirection
+  getDxDyMultiplierFromDirection,
+  keepEgghancementOpen
  } from "./utils";
 
 /*
   Convention: tick*(model: Model): Model functions are run on MsgTick
 */
 
-function tickUpdateElapsedTime(model: Model): Model {
+export function tickUpdateElapsedTime(model: Model): Model {
   if (model.state.isGameOver && model.egg != undefined) return model;
   return {
     ...model,
@@ -36,7 +37,7 @@ function tickUpdateElapsedTime(model: Model): Model {
 }
 
 
-function tickMoveEgg(model: Model): Model {
+export function tickMoveEgg(model: Model): Model {
   const egg = model.egg;
   const eggStats = model.eggStats;
   if (egg == undefined) {
@@ -69,7 +70,7 @@ function tickMoveEgg(model: Model): Model {
   });
 }
 
-function tickAdjustWorldCenter(model: Model): Model {
+export function tickAdjustWorldCenter(model: Model): Model {
   if (model.egg == undefined) return model;
   const egg = model.egg;
 
@@ -86,7 +87,7 @@ function tickAdjustWorldCenter(model: Model): Model {
   };
 }
 
-function tickMoveEnemiesTowardsEgg(model: Model): Model {
+export function tickMoveEnemiesTowardsEgg(model: Model): Model {
   if (model.egg == undefined) return model;
   const egg = model.egg;
 
@@ -104,7 +105,7 @@ function tickMoveEnemiesTowardsEgg(model: Model): Model {
   });
 }
 
-function tickEnemyDamagesEgg(model: Model): Model {
+export function tickEnemyDamagesEgg(model: Model): Model {
   if (model.egg == undefined) return model;
   const egg = model.egg;
 
@@ -145,7 +146,7 @@ function tickEnemyDamagesEgg(model: Model): Model {
   });
 }
 
-function tickEggAttacksEnemies(model: Model): Model {
+export function tickEggAttacksEnemies(model: Model): Model {
   if (model.egg == undefined) return model;
   const egg = model.egg;
   const eggStats = model.eggStats;
@@ -215,7 +216,7 @@ function tickEggAttacksEnemies(model: Model): Model {
   });
 }
 
-function tickOccasionallySpawnEggnemy(model: Model): Model {
+export function tickOccasionallySpawnEggnemy(model: Model): Model {
   if (model.egg == undefined) return model;
   const shouldSpawnEggnemies =
     Math.random() < model.settings.eggnemySpawningRatePerTick;
@@ -237,7 +238,7 @@ function tickOccasionallySpawnEggnemy(model: Model): Model {
   }
 }
 
-function tickSpawnBossIfNeeded(model: Model): Model {
+export function tickSpawnBossIfNeeded(model: Model): Model {
   if (
     model.egg != undefined &&
     !model.state.hasBossAlreadySpawned &&
@@ -258,7 +259,7 @@ function tickSpawnBossIfNeeded(model: Model): Model {
   // Spawn a boss eggnemy if eggnemies count killed is reached.
 }
 
-function updateLeaderboard(model: Model): Model {
+export function updateLeaderboard(model: Model): Model {
   return {
     ...model,
     state: {
@@ -275,7 +276,7 @@ function updateLeaderboard(model: Model): Model {
   };
 }
 
-function restartGame(model: Model): Model {
+export function restartGame(model: Model): Model {
   const newModel = createNewModel();
   return {
     ...newModel,
@@ -308,7 +309,7 @@ export const update = (msg: Msg, model: Model) =>
                 },
                 state: {
                   ...model.state,
-                  isChoosingEgghancement: false,
+                  isChoosingEgghancement: keepEgghancementOpen(model.eggStats.eggxperience, model.settings.egghancementCost),
                 }, 
                 eggStats: {
                   ...model.eggStats,
@@ -325,7 +326,7 @@ export const update = (msg: Msg, model: Model) =>
                 },
                 state: {
                   ...model.state,
-                  isChoosingEgghancement: false,
+                  isChoosingEgghancement: keepEgghancementOpen(model.eggStats.eggxperience, model.settings.egghancementCost),
                 }, 
               });
             case "3":
@@ -338,7 +339,7 @@ export const update = (msg: Msg, model: Model) =>
                   },
                   state: {
                     ...model.state,
-                    isChoosingEgghancement: false,
+                    isChoosingEgghancement: keepEgghancementOpen(model.eggStats.eggxperience, model.settings.egghancementCost),
                   }, 
               });
               default: return model

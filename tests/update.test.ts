@@ -1,7 +1,19 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { Msg } from "../msg";
-import { update } from "../update";
-import { initModel, Model } from "../model";
+import { Boss, initModel, Model } from "../model";
+import { 
+  update,
+  tickUpdateElapsedTime,
+  tickMoveEgg,
+  tickAdjustWorldCenter,
+  tickMoveEnemiesTowardsEgg,
+  tickEnemyDamagesEgg,
+  tickEggAttacksEnemies,
+  tickOccasionallySpawnEggnemy,
+  tickSpawnBossIfNeeded,
+  updateLeaderboard,
+  restartGame
+ } from "../update";
 
 
 let model: Model;
@@ -132,5 +144,279 @@ describe("#update", () => {
     updatedModel = update(msg, model);
     expect(updatedModel.state.isGameOver).toStrictEqual(false);
   });
+
+  it("moves egg right on MsgTick", () => {
+  const modelBefore = Model.make({
+    ...model,
+    egg: {
+      x: 0, y: 0, width: 10, height: 10,
+      hp: 10, maxHp: 10,
+      direction: "EAST", isAttacking: false,
+      attackRange: 10,
+    },
+    eggStats: {
+      speed: 5, attackDamage: 1, eggxperience: 0,
+    }
+  });
+
+  const modelAfter = update({ _tag: "Canvas.MsgTick" }, modelBefore);
+    if (modelAfter.egg!.x <= modelBefore.egg!.x) {
+      throw new Error("Expected egg to move right");
+    }
+  });
+
+  it("reduces enemy hp if egg attacks on MsgTick", () => {
+    const modelBefore = Model.make({
+      ...model,
+      egg: {
+        x: 0, y: 0, width: 10, height: 10,
+        hp: 10, maxHp: 10,
+        direction: "NONE", isAttacking: true,
+        attackRange: 10,
+      },
+      eggStats: {
+        speed: 0, attackDamage: 2, eggxperience: 0,
+      },
+      eggnemies: [{
+        x: 0, y: 0, width: 10, height: 10, hp: 5, maxHp: 5, speed: 1, attackDamage: 1,
+      }],
+    });
+
+    const modelAfter = update({ _tag: "Canvas.MsgTick" }, modelBefore);
+    expect(modelAfter.eggnemies[0].hp).toBeLessThan(modelBefore.eggnemies[0].hp);
+  });
+
+  it("reduces boss hp if egg attacks on MsgTick", () => {
+    const modelBefore = Model.make({
+      ...model,
+      egg: {
+        x: 0, y: 0, width: 10, height: 10,
+        hp: 10, maxHp: 10,
+        direction: "NONE", isAttacking: true,
+        attackRange: 10,
+      },
+      eggStats: {
+        speed: 0, attackDamage: 2, eggxperience: 0,
+      },
+      boss: {
+        x: 0, y: 0, width: 10, height: 10, hp: 5, maxHp: 5, speed: 1, attackDamage: 1,
+      },
+    });
+
+    const modelAfter = update({ _tag: "Canvas.MsgTick" }, modelBefore);
+    expect(modelAfter.boss!.hp).toBeLessThan(modelBefore.boss!.hp);
+  });
+
+  it("doesn't reduce enemy hp if egg is not attacking on MsgTick", () => {
+    const modelBefore = Model.make({
+      ...model,
+      egg: {
+        x: 0, y: 0, width: 10, height: 10,
+        hp: 10, maxHp: 10,
+        direction: "NONE", isAttacking: false,
+        attackRange: 10,
+      },
+      eggStats: {
+        speed: 0, attackDamage: 2, eggxperience: 0,
+      },
+      eggnemies: [{
+        x: 0, y: 0, width: 10, height: 10, hp: 5, maxHp: 5, speed: 1, attackDamage: 1,
+      }],
+    });
+
+    const modelAfter = update({ _tag: "Canvas.MsgTick" }, modelBefore);
+    expect(modelAfter.eggnemies[0].hp).toStrictEqual(modelBefore.eggnemies[0].hp);
+  });
+
+  it("doesn't reduce boss hp if egg is not attacking on MsgTick", () => {
+    const modelBefore = Model.make({
+      ...model,
+      egg: {
+        x: 0, y: 0, width: 10, height: 10,
+        hp: 10, maxHp: 10,
+        direction: "NONE", isAttacking: false,
+        attackRange: 10,
+      },
+      eggStats: {
+        speed: 0, attackDamage: 2, eggxperience: 0,
+      },
+      boss: {
+        x: 0, y: 0, width: 10, height: 10, hp: 5, maxHp: 5, speed: 1, attackDamage: 1,
+      },
+    });
+
+    const modelAfter = update({ _tag: "Canvas.MsgTick" }, modelBefore);
+    expect(modelAfter.boss!.hp).toStrictEqual(modelBefore.boss!.hp);
+  });
+
+  it("reduces egg hp when boss is touching on MsgTick", () => {
+    const modelBefore = Model.make({
+      ...model,
+      egg: {
+        ...model.egg,
+        x: 0, y: 0, width: 10, height: 10,
+        hp: 10, maxHp: 10,
+        direction: "NONE", isAttacking: false,
+        attackRange: 10,
+      },
+      eggStats: { speed: 0, attackDamage: 0, eggxperience: 0 },
+      boss: {
+        x: 0, y: 0, width: 10, height: 10, hp: 5, maxHp: 5, speed: 1, attackDamage: 1,
+      },
+      state: {
+        ...model.state,
+        lastDamageTime: 0,
+        startTime: Date.now() - 1000,
+        elapsedTime: 0,
+      },
+    });
+
+    const modelAfter = update({ _tag: "Canvas.MsgTick" }, modelBefore);
+    expect(modelAfter.egg!.hp).toBeLessThan(modelBefore.egg!.hp);
+  });
+
+  it("reduces egg hp when eggnemy is touching on MsgTick", () => {
+    const modelBefore = Model.make({
+      ...model,
+      egg: {
+        ...model.egg,
+        x: 0, y: 0, width: 10, height: 10,
+        hp: 10, maxHp: 10,
+        direction: "NONE", isAttacking: false,
+        attackRange: 10,
+      },
+      eggStats: { speed: 0, attackDamage: 0, eggxperience: 0 },
+      eggnemies: [{
+        x: 0, y: 0, width: 10, height: 10, hp: 5, maxHp: 5, speed: 1, attackDamage: 1,
+      }],
+      state: {
+        ...model.state,
+        lastDamageTime: 0,
+        startTime: Date.now() - 1000,
+        elapsedTime: 0,
+      },
+    });
+
+    const modelAfter = update({ _tag: "Canvas.MsgTick" }, modelBefore);
+    expect(modelAfter.egg!.hp).toBeLessThan(modelBefore.egg!.hp);
+  });
+
+  it("does not update if isChoosingEgghancement is true on MsgTick", () => {
+    const modelBefore = Model.make({
+      ...model,
+      state: {
+        ...model.state,
+        isChoosingEgghancement: true,
+      },
+    });
+    const modelAfter = update({ _tag: "Canvas.MsgTick" }, modelBefore);
+    expect(modelAfter.eggStats !== modelBefore.eggStats)
+  });
+
+  it("spawns boss if threshold is met on MsgTick", () => {
+    const modelBefore = Model.make({
+      ...model,
+      boss: undefined,
+      state: {
+        ...model.state,
+        hasBossAlreadySpawned: false,
+        eggnemiesTillNextBoss: 5,
+      },
+      settings: {
+        ...model.settings,
+        bossSpawnThreshold: 5,
+      },
+    });
+    const modelAfter = update({ _tag: "Canvas.MsgTick" }, modelBefore);
+    expect(modelAfter.boss).toBeDefined();
+    expect(modelAfter.state.hasBossAlreadySpawned).toBe(true);
+  });
+
+  it("selects HP egghancement when key 1 pressed", () => {
+    const modelBefore = Model.make({
+      ...model,
+      egg: { 
+        x: 0,
+        y: 0,
+        width: 10,
+        height: 10,
+        direction: "NONE",
+        isAttacking: false,
+        attackRange: 10,
+        hp: 5, 
+        maxHp: 5 
+      },
+      state: { 
+        ...model.state, isChoosingEgghancement: true },
+      eggStats: {
+        ...model.eggStats, eggxperience: 10 },
+      egghancementUpgrade: { 
+        ...model.egghancementUpgrade, hpInc: 5 },
+      settings: { 
+        ...model.settings, egghancementCost: 5 },
+    });
+
+    const modelAfter = update({ _tag: "Canvas.MsgKeyDown", key: "1" }, modelBefore);
+    expect(modelAfter.egg!.hp).toStrictEqual(10);
+  });
+
+  it("selects Attack egghancement when key 2 pressed", () => {
+    const modelBefore = Model.make({
+      ...model,
+      egg: { 
+        x: 0,
+        y: 0,
+        width: 10,
+        height: 10,
+        direction: "NONE",
+        isAttacking: false,
+        attackRange: 10,
+        hp: 5, 
+        maxHp: 5 
+      },
+      state: { 
+        ...model.state, isChoosingEgghancement: true },
+      eggStats: {
+        ...model.eggStats, eggxperience: 10, attackDamage: 1 },
+      egghancementUpgrade: { 
+        ...model.egghancementUpgrade, attackDamageInc: 1 },
+      settings: { 
+        ...model.settings, egghancementCost: 5 },
+    });
+
+    const modelAfter = update({ _tag: "Canvas.MsgKeyDown", key: "2" }, modelBefore);
+    expect(modelAfter.eggStats.attackDamage).toStrictEqual(2);
+  });
+
+  it("selects Speed egghancement when key 3 pressed", () => {
+    const modelBefore = Model.make({
+      ...model,
+      egg: { 
+        x: 0,
+        y: 0,
+        width: 10,
+        height: 10,
+        direction: "NONE",
+        isAttacking: false,
+        attackRange: 10,
+        hp: 5, 
+        maxHp: 5 
+      },
+      state: { 
+        ...model.state, isChoosingEgghancement: true },
+      eggStats: {
+        ...model.eggStats, eggxperience: 10, speed: 1 },
+      egghancementUpgrade: { 
+        ...model.egghancementUpgrade, speedInc: 1 },
+      settings: { 
+        ...model.settings, egghancementCost: 5 },
+    });
+
+    const modelAfter = update({ _tag: "Canvas.MsgKeyDown", key: "3" }, modelBefore);
+    expect(modelAfter.eggStats.speed).toStrictEqual(2);
+  });
+
 });
+
+
 

@@ -106,3 +106,8 @@ export function getDxDyMultiplierFromDirection(
     Match.exhaustive,
   ) as [-1 | 0 | 1, -1 | 0 | 1];
 }
+
+
+export function keepEgghancementOpen(exp: number, cost: number): boolean {
+  return exp - cost >= cost;
+}
