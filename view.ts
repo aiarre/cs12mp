@@ -6,7 +6,7 @@ import {
   Text,
   CanvasImage,
 } from "./cs12242-mvu/src/canvas";
-import { Array, pipe, Struct } from "effect";
+import { Array, HashMap, pipe, Struct } from "effect";
 import { Model } from "./model";
 import type { Msg } from "./msg";
 import * as settings from "./settings.json";
@@ -24,8 +24,18 @@ resources.sprites.egg.src = "resources/sprites/egg.png";
 resources.sprites.eggnemy.src = "resources/sprites/eggnemy.png";
 resources.sprites.boss.src = "resources/sprites/boss.png";
 
+const sounds = pipe(
+  [
+    "resources/sounds/bossDefeated.mp3",
+    "resources/sounds/newEgghancement.mp3",
+    "resources/sounds/eggDefeated.mp3",
+  ],
+  Array.map((url): [string, HTMLAudioElement] => [url, new Audio(url)]),
+  HashMap.fromIterable,
+);
+
 export function renderEgg(model: Model): CanvasElement[] {
-  return model.egg != null
+  return model.egg != undefined
     ? [
         CanvasImage.make({
           x: model.egg.x - 8,
@@ -74,7 +84,7 @@ export function renderEggnemies(model: Model): CanvasElement[] {
 }
 
 export function renderBoss(model: Model): CanvasElement[] {
-  return model.boss != null
+  return model.boss != undefined
     ? [
         //boss
         CanvasImage.make({
@@ -317,8 +327,7 @@ export function renderScreenAndPlayAudio(
   screenHeight: number,
 ): CanvasElement[] {
   if (model.state.soundToPlay != undefined) {
-    console.log("Playing sound!");
-    new Audio(model.state.soundToPlay).play();
+    HashMap.unsafeGet(sounds, model.state.soundToPlay).play();
   }
 
   const offsetX = screenWidth / 2 - model.world.center.x;
