@@ -219,9 +219,16 @@ export function renderEgghancementMenu(
           x: x - gap,
           y: y - gap,
           color: "white",
-          width: gap + 230,
+          width: gap + 300,
           height: gap + 90,
           lineWidth: 2.5,
+        }),
+        SolidRectangle.make({
+          x: x - gap,
+          y: y - gap,
+          color: "black",
+          width: gap + 300,
+          height: gap + 90,
         }),
         Text.make({
           x,
@@ -289,24 +296,24 @@ export function renderUIElements(
         ? [
             // Text background to ensure readability
             SolidRectangle.make({
-              x: screenWidth / 2 - 75,
+              x: screenWidth / 2 - 150,
               y: screenHeight / 2 - 25 - 75,
               color: "black",
               height: 50,
-              width: 150,
+              width: 300,
             }),
             OutlinedRectangle.make({
-              x: screenWidth / 2 - 75,
+              x: screenWidth / 2 - 150,
               y: screenHeight / 2 - 25 - 75,
               color: "white",
               height: 50,
-              width: 150,
+              width: 300,
               lineWidth: 2.5,
             }),
             // Victory text
             Text.make({
               x: screenWidth / 2,
-              y: screenHeight / 2 + 7 - 75,
+              y: screenHeight / 2 - 75 + 7,
               text: model.egg == undefined ? model.settings.victoryText : "",
               fontSize: 20,
               font: "monospace",
