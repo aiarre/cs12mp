@@ -310,11 +310,11 @@ export function renderUIElements(
               width: 300,
               lineWidth: 2.5,
             }),
-            // Victory text
+            // Game over text
             Text.make({
               x: screenWidth / 2,
               y: screenHeight / 2 - 75 + 7,
-              text: model.egg == undefined ? model.settings.victoryText : "",
+              text: model.egg == undefined ? model.settings.gameOverText : "",
               fontSize: 20,
               font: "monospace",
               color: "white",

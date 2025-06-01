@@ -118,7 +118,7 @@ export const GameSettings = S.Struct({
   eggnemySpawningRatePerTick: S.Number,
   egghancementCost: S.Number,
   // Text to show once game is over
-  victoryText: S.String,
+  gameOverText: S.String,
   // Error handling
   errorText: S.String,
 });
@@ -126,7 +126,7 @@ const initGameSettings: GameSettings = GameSettings.make({
   bossSpawnThreshold: settings.game.bossSpawnThreshold,
   eggnemySpawningRatePerTick: settings.game.eggnemySpawningRatePerTick,
   egghancementCost: settings.game.egghancementCost,
-  victoryText: settings.game.victoryText,
+  gameOverText: settings.game.gameOverText,
   errorText: settings.game.errorText,
 });
 
