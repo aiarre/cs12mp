@@ -5,7 +5,7 @@ import {
   SolidRectangle,
   Text,
   CanvasImage,
-} from "cs12242-mvu/src/canvas";
+} from "./cs12242-mvu/src/canvas";
 import { Array, pipe, Struct } from "effect";
 import { Model } from "./model";
 import type { Msg } from "./msg";

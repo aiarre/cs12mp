@@ -1,4 +1,4 @@
-import { startModelCmd } from "cs12242-mvu/src";
+import { startModelCmd } from "./cs12242-mvu/src";
 import { initModel } from "./model";
 import { update } from "./update";
 import { view } from "./view";

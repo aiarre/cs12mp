@@ -1,6 +1,5 @@
 import { Array, pipe, Schema as S } from "effect";
 import * as settings from "./settings.json";
-import { init } from "effect/Array";
 
 export const Direction = S.Literal("NORTH", "SOUTH", "EAST", "WEST", "NONE");
 export type Direction = typeof Direction.Type;
