@@ -152,9 +152,9 @@ export function renderEggStats(
 ): CanvasElement[] {
 
   const stats: [string, string][] = [
-    ["Atk", `${model.egg?.attackDamage}`],
-    ["Spd", `${model.egg?.speed}`],
-    ["Exp", `${model.state.eggxperience}`],
+    ["Atk", `${model.eggStats.attackDamage}`],
+    ["Spd", `${model.eggStats.speed}`],
+    ["Exp", `${model.eggStats.eggxperience}`],
   ]
   return pipe(
     stats,
@@ -180,6 +180,53 @@ export function renderEggStats(
     ])
   );
 }
+
+export function renderEgghancementMenu(
+  model: Model,
+  x: number,
+  y: number,
+  gap: number = 20,
+): CanvasElement[] {
+  return model.state.isChoosingEgghancement ? pipe(
+    [
+      OutlinedRectangle.make({
+        x: x - gap,
+        y: y - gap,
+        color: "white",
+        width: gap + 230,
+        height: gap + 90,
+        lineWidth: 2.5,
+      }),
+      Text.make({
+        x,
+        y: y + gap,
+        text: `[1] Increase max HP by ${model.egghancementUpgrade.hpInc}`,
+        fontSize: 16,
+        font: "monospace",
+        color: "white",
+        textAlign: "left",
+      }),
+      Text.make({
+        x,
+        y: y + gap * 2,
+        text: `[2] Increase attack by ${model.egghancementUpgrade.speedInc}`,
+        fontSize: 16,
+        font: "monospace",
+        color: "white",
+        textAlign: "left",
+      }),
+      Text.make({
+        x,
+        y: y + gap * 3,
+        text: `[3] Increase speed by ${model.egghancementUpgrade.attackDamageInc}`,
+        fontSize: 16,
+        font: "monospace",
+        color: "white",
+        textAlign: "left",
+      }),
+    ]) : []
+}
+
 
 export function renderUIElements(
   model: Model,
@@ -247,7 +294,8 @@ export function renderUIElements(
         : [],
     ),
     Array.appendAll(renderLeaderboard(model, 25, screenHeight - 75)),
-    Array.appendAll(renderEggStats(model, screenWidth - 60, screenHeight - 75))
+    Array.appendAll(renderEggStats(model, screenWidth - 60, screenHeight - 75)),
+    Array.appendAll(renderEgghancementMenu(model, screenWidth / 2 - 115, 70)),
   );
 }
 

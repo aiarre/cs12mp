@@ -37,6 +37,7 @@ function tickUpdateElapsedTime(model: Model): Model {
 
 function tickMoveEgg(model: Model): Model {
   const egg = model.egg;
+  const eggStats = model.eggStats;
   if (egg == undefined) {
     return Model.make({
       ...model,
@@ -54,8 +55,8 @@ function tickMoveEgg(model: Model): Model {
   const [dxMultiplier, dyMultiplier] = getDxDyMultiplierFromDirection(
     egg.direction,
   );
-  const newEggX = Math.round(egg.x + egg.speed * dxMultiplier);
-  const newEggY = Math.round(egg.y + egg.speed * dyMultiplier);
+  const newEggX = Math.round(egg.x + eggStats.speed * dxMultiplier);
+  const newEggY = Math.round(egg.y + eggStats.speed * dyMultiplier);
 
   return Model.make({
     ...model,
@@ -137,8 +138,19 @@ function tickEnemyDamagesEgg(model: Model): Model {
 function tickEggAttacksEnemies(model: Model): Model {
   if (model.egg == undefined) return model;
   const egg = model.egg;
+  const eggStats = model.eggStats;
 
   if (!egg.isAttacking) return model;
+
+  if (model.eggStats.eggxperience >= model.settings.egghancementCost) {
+  return Model.make({
+    ...model,
+    state: {
+      ...model.state,
+      isChoosingEgghancement: true, 
+    }
+    });
+  }
 
   const [alive, defeated] = pipe(
     model.eggnemies,
@@ -146,7 +158,7 @@ function tickEggAttacksEnemies(model: Model): Model {
       if (isWithinRange(egg, en)) {
         return {
           ...en,
-          hp: en.hp - egg.attackDamage,
+          hp: en.hp - eggStats.attackDamage,
         };
       }
       return en;
@@ -155,20 +167,28 @@ function tickEggAttacksEnemies(model: Model): Model {
   );
 
   let boss = model.boss;
-  if (boss && isWithinRange(egg, boss)) {
-    boss = { ...boss, hp: boss.hp - egg.attackDamage };
-    if (boss.hp <= 0) {
+  if (boss !== undefined && boss !== null && isWithinRange(egg, boss)) {
+    const updatedBoss = {
+      width: boss.width,
+      height: boss.height,
+      x: boss.x,
+      y: boss.y,
+      hp: boss.hp - eggStats.attackDamage,
+      maxHp: boss.maxHp,
+      speed: boss.speed,
+    };
+    if (updatedBoss.hp <= 0) {
       boss = undefined; // Boss defeated, remove it
-      if (boss == undefined) {
-        return Model.make({
-          ...model,
-          boss: null,
-          state: {
-            ...model.state,
-            isGameOver: true,
-          },
-        });
-      }
+      return Model.make({
+        ...model,
+        boss: null,
+        state: {
+          ...model.state,
+          isGameOver: true,
+        },
+      });
+    } else {
+      boss = updatedBoss;
     }
   }
   return Model.make({
@@ -179,8 +199,11 @@ function tickEggAttacksEnemies(model: Model): Model {
       ...model.state,
       defeatedEggnemiesCount:
         model.state.defeatedEggnemiesCount + defeated.length,
+    },
+    eggStats: {
+      ...model.eggStats,
       eggxperience:
-        model.state.eggxperience + defeated.length
+        model.eggStats.eggxperience + defeated.length
     },
   });
 }
@@ -261,9 +284,59 @@ function restartGame(model: Model): Model {
 export const update = (msg: Msg, model: Model) =>
   Match.value(msg).pipe(
     Match.tag("Canvas.MsgKeyDown", ({ key }): Model => {
+      console.log(`key pressed: ${key}`);
       if (key.toUpperCase() == "R" && model.state.isGameOver) {
         return restartGame(model);
-      }
+      } 
+      
+      else if (model.egg && model.state.isChoosingEgghancement) {
+        switch (key) {
+            case "1":
+                return Model.make({
+                ...model,
+                egg: {
+                  ...model.egg,
+                  hp: model.egg.hp + model.egghancementUpgrade.hpInc,
+                  maxHp: model.egg.maxHp + model.egghancementUpgrade.hpInc,
+                },
+                state: {
+                  ...model.state,
+                  isChoosingEgghancement: false,
+                }, 
+                eggStats: {
+                  ...model.eggStats,
+                  eggxperience: model.eggStats.eggxperience - model.settings.egghancementCost,
+                }
+              });
+            case "2":
+              return Model.make({
+                ...model,
+                eggStats: {
+                  ...model.eggStats,
+                  attackDamage: model.eggStats.attackDamage + model.egghancementUpgrade.attackDamageInc,
+                  eggxperience: model.eggStats.eggxperience - model.settings.egghancementCost,
+                },
+                state: {
+                  ...model.state,
+                  isChoosingEgghancement: false,
+                }, 
+              });
+            case "3":
+                return Model.make({
+                  ...model,
+                  eggStats: {
+                    ...model.eggStats,
+                    speed: model.eggStats.speed + model.egghancementUpgrade.speedInc,
+                    eggxperience: model.eggStats.eggxperience - model.settings.egghancementCost,
+                  },
+                  state: {
+                    ...model.state,
+                    isChoosingEgghancement: false,
+                  }, 
+              });
+              default: return model
+          }
+        }
 
       // Things that need the egg to run
       if (model.egg != undefined) {
@@ -329,6 +402,9 @@ export const update = (msg: Msg, model: Model) =>
         if (model.egg != undefined) return model;
         else return tickUpdateElapsedTime(model);
       }
+
+      if (model.state.isChoosingEgghancement) return model;
+      
       // Note: The order in which we do things is important.
       return pipe(
         model,

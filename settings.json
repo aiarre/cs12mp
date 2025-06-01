@@ -9,9 +9,9 @@
       "width": 1000,
       "height": 800
     },
-    "bossSpawnThreshold": 5,
+    "bossSpawnThreshold": 100,
     "eggnemySpawningRatePerTick": 0.01,
-    "egghancementCost": 10,
+    "egghancementCost": 1,
     "victoryText": "You Win!",
     "defeatText": "You Lose!",
     "errorText": "An error occurred."
@@ -20,9 +20,7 @@
     "width": 15,
     "height": 30,
     "initialHp": 20,
-    "attackRange": 50,
-    "speed": 10,
-    "attackDamage": 1
+    "attackRange": 50
   },
   "eggnemies": {
     "initialCount": 5,
@@ -37,9 +35,13 @@
     "initialHp": 10,
     "speed": 8
   },
-  "egghancmeents": {
+  "egghancement": {
     "hpInc": 5,
     "speedInc": 1,
     "attackDamageInc": 1
+  },
+  "eggStats": {
+    "speed": 10,
+    "attackDamage": 1
   }
 }

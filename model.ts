@@ -1,5 +1,6 @@
 import { Array, pipe, Schema as S } from "effect";
 import * as settings from "./settings.json";
+import { init } from "effect/Array";
 
 export const Direction = S.Literal("NORTH", "SOUTH", "EAST", "WEST", "NONE");
 export type Direction = typeof Direction.Type;
@@ -15,6 +16,8 @@ export interface Boss extends S.Schema.Type<typeof Boss> {}
 export interface World extends S.Schema.Type<typeof World> {}
 export interface GameSettings extends S.Schema.Type<typeof GameSettings> {}
 export interface GameState extends S.Schema.Type<typeof GameState> {}
+export interface EgghancementUpgrade extends S.Schema.Type<typeof EgghancementUpgrade> {}
+export interface EggStats extends S.Schema.Type<typeof EggStats> {}
 export interface Model extends S.Schema.Type<typeof Model> {}
 /* eslint-enable @typescript-eslint/no-empty-object-type */
 
@@ -34,8 +37,6 @@ export const Egg = S.Struct({
   direction: Direction,
   isAttacking: S.Boolean,
   attackRange: S.Number,
-  speed: S.Number,
-  attackDamage: S.Number,
 });
 const initEgg: Egg = Egg.make({
   x: 100,
@@ -47,8 +48,6 @@ const initEgg: Egg = Egg.make({
   direction: "NONE",
   isAttacking: false,
   attackRange: settings.egg.attackRange,
-  speed: settings.egg.speed,
-  attackDamage: settings.egg.attackDamage,
 });
 
 export const Eggnemy = S.Struct({
@@ -144,7 +143,7 @@ export const GameState = S.Struct({
   // Game statistics
   defeatedEggnemiesCount: S.NonNegativeInt,
   leaderboard: Leaderboard,
-  eggxperience: S.Number
+  isChoosingEgghancement: S.Boolean
 });
 const initGameState: GameState = GameState.make({
   startTime: Date.now(),
@@ -154,8 +153,32 @@ const initGameState: GameState = GameState.make({
   hasBossAlreadySpawned: false,
   defeatedEggnemiesCount: 0,
   leaderboard: [],
-  eggxperience: 0
+  isChoosingEgghancement: false
 });
+
+const EgghancementUpgrade = S.Struct({
+  hpInc: S.NonNegativeInt,
+  speedInc: S.NonNegativeInt,
+  attackDamageInc: S.NonNegativeInt,
+})
+
+const EggStats = S.Struct({
+  speed: S.NonNegativeInt,
+  attackDamage: S.NonNegativeInt,
+  eggxperience: S.NonNegativeInt,
+});
+
+const initEggStats: EggStats = EggStats.make({
+  speed: settings.eggStats.speed,
+  attackDamage: settings.eggStats.attackDamage,
+  eggxperience: 0,
+});
+
+const initEgghancementUpgrade = EgghancementUpgrade.make({
+  hpInc: settings.egghancement.hpInc,
+  speedInc: settings.egghancement.speedInc,
+  attackDamageInc: settings.egghancement.attackDamageInc,
+})
 
 export const Model = S.Struct({
   // Model of the "game world"
@@ -167,6 +190,8 @@ export const Model = S.Struct({
   // Other game events / statistics to keep track of
   settings: GameSettings,
   state: GameState,
+  egghancementUpgrade: EgghancementUpgrade,
+  eggStats: EggStats
 });
 
 export const createNewModel = () => {
@@ -196,6 +221,8 @@ export const createNewModel = () => {
       startTime: Date.now(),
       lastDamageTime: Date.now(),
     },
+    egghancementUpgrade: initEgghancementUpgrade,
+    eggStats: initEggStats,
   });
 };
 
