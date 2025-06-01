@@ -96,6 +96,7 @@ export const GameState = S.Struct({
   defeatedEggnemiesCount: S.NonNegativeInt,
   leaderboard: Leaderboard,
   isChoosingEgghancement: S.Boolean,
+  soundToPlay: S.NullishOr(S.String),
 });
 
 const Egghancements = S.Struct({
@@ -202,6 +203,7 @@ const initGameState: GameState = GameState.make({
   eggnemiesTillNextBoss: 0,
   leaderboard: [],
   isChoosingEgghancement: false,
+  soundToPlay: null,
 });
 
 export const createNewModel = () => {

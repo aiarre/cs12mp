@@ -311,11 +311,16 @@ export function renderUIElements(
   );
 }
 
-export function renderScreen(
+export function renderScreenAndPlayAudio(
   model: Model,
   screenWidth: number,
   screenHeight: number,
 ): CanvasElement[] {
+  if (model.state.soundToPlay != undefined) {
+    console.log("Playing sound!");
+    new Audio(model.state.soundToPlay).play();
+  }
+
   const offsetX = screenWidth / 2 - model.world.center.x;
   const offsetY = screenHeight / 2 - model.world.center.y;
   return pipe(
@@ -344,7 +349,7 @@ export const view = canvasView<Model, Msg>(
   settings.game.fps,
   "mpScreen",
   (model) =>
-    renderScreen(
+    renderScreenAndPlayAudio(
       model,
       settings.game.screen.width,
       settings.game.screen.height,

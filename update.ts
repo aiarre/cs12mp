@@ -23,10 +23,20 @@ import {
 */
 
 const sounds = {
-  bossDefeated: new Audio("resources/sounds/bossDefeated.mp3"),
-  egghancementUnlocked: new Audio("resources/sounds/newEgghancement.mp3"),
-  eggDefeated: new Audio("resources/sounds/eggDefeated.mp3"),
+  bossDefeated: "resources/sounds/bossDefeated.mp3",
+  egghancementUnlocked: "resources/sounds/newEgghancement.mp3",
+  eggDefeated: "resources/sounds/eggDefeated.mp3",
 };
+
+export function tickRemoveSounds(model: Model): Model {
+  return Model.make({
+    ...model,
+    state: {
+      ...model.state,
+      soundToPlay: null,
+    },
+  });
+}
 
 export function tickUpdateElapsedTime(model: Model): Model {
   if (model.state.isGameOver && model.egg != null) return model;
@@ -43,12 +53,12 @@ export function tickMoveEgg(model: Model): Model {
   const egg = model.egg;
   const eggStats = model.eggStats;
   if (egg == null) {
-    sounds.eggDefeated.play();
     return Model.make({
       ...model,
       state: {
         ...model.state,
         isGameOver: true,
+        soundToPlay: sounds.eggDefeated,
       },
     });
   }
@@ -165,6 +175,7 @@ export function tickEggAttacksEnemies(model: Model): Model {
       state: {
         ...model.state,
         isChoosingEgghancement: true,
+        soundToPlay: sounds.egghancementUnlocked,
       },
     });
   }
@@ -185,11 +196,11 @@ export function tickEggAttacksEnemies(model: Model): Model {
 
   let boss = model.boss;
   let bossDefeated = false;
-
+  let sound = null;
   if (boss && isWithinRange(egg, boss)) {
     boss = { ...boss, hp: boss.hp - eggStats.attackDamage };
     if (boss.hp <= 0) {
-      sounds.bossDefeated.play();
+      sound = sounds.bossDefeated;
       boss = null;
       bossDefeated = true;
     }
@@ -213,6 +224,7 @@ export function tickEggAttacksEnemies(model: Model): Model {
       bossesDefeated: bossDefeated
         ? model.state.bossesDefeated + 1
         : model.state.bossesDefeated,
+      soundToPlay: sound,
     },
     eggStats: {
       ...model.eggStats,
@@ -301,7 +313,6 @@ export const update = (msg: Msg, model: Model) =>
       } else if (model.egg && model.state.isChoosingEgghancement) {
         switch (key) {
           case "1":
-            sounds.egghancementUnlocked.play();
             return Model.make({
               ...model,
               egg: {
@@ -323,7 +334,6 @@ export const update = (msg: Msg, model: Model) =>
               },
             });
           case "2":
-            sounds.egghancementUnlocked.play();
             return Model.make({
               ...model,
               eggStats: {
@@ -343,7 +353,6 @@ export const update = (msg: Msg, model: Model) =>
               },
             });
           case "3":
-            sounds.egghancementUnlocked.play();
             return Model.make({
               ...model,
               eggStats: {
@@ -420,10 +429,9 @@ export const update = (msg: Msg, model: Model) =>
     }),
 
     Match.tag("Canvas.MsgTick", (): Model => {
-      if (model.state.isGameOver) {
-        return model;
-      }
-
+      // Please don't play sounds over and over...
+      model = tickRemoveSounds(model);
+      if (model.state.isGameOver) return model;
       if (model.state.isChoosingEgghancement) return model;
 
       // Note: The order in which we do things is important.
