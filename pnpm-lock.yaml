@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      cs12242-mvu:
-        specifier: github:louie-github/cs12242-mvu
-        version: https://codeload.github.com/louie-github/cs12242-mvu/tar.gz/820a6409846443512b3d695bae8b9dc3418b1f6c
       effect:
         specifier: ^3.16.0
         version: 3.16.0
@@ -1012,10 +1009,6 @@ packages:
     resolution: {integrity: sha512-uV2QOWP2nWzsy2aMp8aRibhi9dlzF5Hgh5SHaB9OiTGEyDTiJJyx0uy51QXdyWbtAHNua4XJzUKca3OzKUd3vA==}
     engines: {node: '>= 8'}
 
-  cs12242-mvu@https://codeload.github.com/louie-github/cs12242-mvu/tar.gz/820a6409846443512b3d695bae8b9dc3418b1f6c:
-    resolution: {tarball: https://codeload.github.com/louie-github/cs12242-mvu/tar.gz/820a6409846443512b3d695bae8b9dc3418b1f6c}
-    version: 1.7.0
-
   cssstyle@4.3.1:
     resolution: {integrity: sha512-ZgW+Jgdd7i52AaLYCriF8Mxqft0gD/R9i9wi6RWBhs1pqdPEzPjym7rvRKi397WmQFf3SlyUsszhw+VVCbx79Q==}
     engines: {node: '>=18'}
@@ -1924,10 +1917,6 @@ packages:
   slash@3.0.0:
     resolution: {integrity: sha512-g9Q1haeby36OSStwb4ntCGGGaKsaVSjQ68fBxoQcutl5fS1vuY18H3wSt3jFyFtrkx+Kz0V1G85A4MyAdDMi2Q==}
     engines: {node: '>=8'}
-
-  snabbdom@3.6.2:
-    resolution: {integrity: sha512-ig5qOnCDbugFntKi6c7Xlib8bA6xiJVk8O+WdFrV3wxbMqeHO0hXFQC4nAhPVWfZfi8255lcZkNhtIBINCc4+Q==}
-    engines: {node: '>=12.17.0'}
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -3341,11 +3330,6 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  cs12242-mvu@https://codeload.github.com/louie-github/cs12242-mvu/tar.gz/820a6409846443512b3d695bae8b9dc3418b1f6c:
-    dependencies:
-      effect: 3.16.0
-      snabbdom: 3.6.2
-
   cssstyle@4.3.1:
     dependencies:
       '@asamuzakjp/css-color': 3.2.0
@@ -4431,8 +4415,6 @@ snapshots:
   sisteransi@1.0.5: {}
 
   slash@3.0.0: {}
-
-  snabbdom@3.6.2: {}
 
   source-map-js@1.2.1: {}
 
