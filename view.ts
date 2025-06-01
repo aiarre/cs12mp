@@ -144,33 +144,40 @@ export function renderLeaderboard(
   );
 }
 
-export function renderEgghancementStats(
+export function renderEggStats(
   model: Model,
   x: number,
   y: number,
   gap: number = 20,
 ): CanvasElement[] {
 
-  const stats = Array.make(
-      `Atk ${model.expstat?.attackDamage ?? "--"}`,
-      `Spd ${model.expstat?.speed ?? "--"}`,
-      `Exp ${model.egg?.exp ?? "--"}`,
-  )
+  const stats: [string, string][] = [
+    ["Atk", `${model.egg?.attackDamage}`],
+    ["Spd", `${model.egg?.speed}`],
+    ["Exp", `${model.state.eggxperience}`],
+  ]
   return pipe(
-    // Why do I need to type cast here? I don't get it.
-    model.state.leaderboard as string[],
-    Array.pad(3, "--:--"),
-    Array.map((time, i) =>
+    stats,
+    Array.flatMap(([label, value], i) => [
       Text.make({
-        x: x,
+        x,
         y: y + gap * i,
-        text: `${i === 0 ? "Top " : "    "}${i + 1}  ${time}`, // note the double space!
+        text: label,
         fontSize: 16,
         font: "monospace",
         color: "white",
         textAlign: "right",
       }),
-    ),
+      Text.make({
+        x: x + gap,
+        y: y + gap * i,
+        text: value,
+        fontSize: 16,
+        font: "monospace",
+        color: "white",
+        textAlign: "left",
+      }),
+    ])
   );
 }
 
@@ -240,6 +247,7 @@ export function renderUIElements(
         : [],
     ),
     Array.appendAll(renderLeaderboard(model, 25, screenHeight - 75)),
+    Array.appendAll(renderEggStats(model, screenWidth - 60, screenHeight - 75))
   );
 }
 

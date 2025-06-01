@@ -1,4 +1,5 @@
-import { Eggnemy, Egg, GameObject } from "./model";
+import { Eggnemy, Egg, Boss, GameObject, Direction } from "./model";
+import { Match } from "effect";
 
 export function getCenterX(obj: GameObject) {
   return Math.round(obj.x + obj.width / 2);
@@ -30,4 +31,78 @@ export function formatTime(ms: number): string {
   const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
   const seconds = String(totalSeconds % 60).padStart(2, "0");
   return `${minutes}:${seconds}`;
+}
+
+export function isColliding(
+  x: number,
+  y: number,
+  enemy: Eggnemy | Boss,
+  others: (Eggnemy | Boss)[],
+): boolean {
+  return others.some((other) => {
+    if (other === enemy) return false; 
+    return isTouching({...enemy, x, y }, other);
+  })
+}
+
+export function moveEnemyTowardsEgg(
+  enemy: Eggnemy | Boss,
+  egg: Egg,
+  others: (Eggnemy | Boss)[]
+): Eggnemy | Boss {
+  const dx = egg.x - enemy.x;
+  const dy = egg.y - enemy.y;
+  const dist = Math.sqrt(dx * dx + dy * dy);
+
+  if (dist === 0) return enemy;
+
+  const moveX = Math.ceil(enemy.x + (dx / dist) * enemy.speed)
+  const moveY = Math.ceil(enemy.y + (dy / dist) * enemy.speed)
+
+  const tryMoveX = !isColliding(moveX, enemy.y, enemy, others);
+  const tryMoveY = !isColliding(enemy.x, moveY, enemy, others);
+
+  return {
+    ...enemy,
+    // Round up so that eggnemies will always move
+    x: tryMoveX ? moveX : enemy.x,
+    y: tryMoveY ? moveY : enemy.y
+  };
+}
+
+
+export function getDirectionFromKey(key: string): Direction | null {
+  // Kinda hacky, but it works.
+  return Match.value(key).pipe(
+    Match.when(
+      (key) => key.toLowerCase() === "w" || key === "ArrowUp",
+      () => "NORTH",
+    ),
+    Match.when(
+      (key) => key.toLowerCase() === "s" || key === "ArrowDown",
+      () => "SOUTH",
+    ),
+    Match.when(
+      (key) => key.toLowerCase() === "a" || key === "ArrowLeft",
+      () => "WEST",
+    ),
+    Match.when(
+      (key) => key.toLowerCase() === "d" || key === "ArrowRight",
+      () => "EAST",
+    ),
+    Match.orElse(() => null),
+  ) as Direction | null;
+}
+
+export function getDxDyMultiplierFromDirection(
+  direction: Direction,
+): [-1 | 0 | 1, -1 | 0 | 1] {
+  return Match.value(direction).pipe(
+    Match.when("NORTH", () => [0, -1]),
+    Match.when("SOUTH", () => [0, 1]),
+    Match.when("WEST", () => [-1, 0]),
+    Match.when("EAST", () => [1, 0]),
+    Match.when("NONE", () => [0, 0]),
+    Match.exhaustive,
+  ) as [-1 | 0 | 1, -1 | 0 | 1];
 }

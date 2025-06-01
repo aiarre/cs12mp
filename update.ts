@@ -10,43 +10,15 @@ import {
   createRandomEggnemy,
 } from "./model";
 import { Msg } from "./msg";
-import { formatTime, getCenterXY, isTouching, isWithinRange } from "./utils";
-
-function getDirectionFromKey(key: string): Direction | null {
-  // Kinda hacky, but it works.
-  return Match.value(key).pipe(
-    Match.when(
-      (key) => key.toLowerCase() === "w" || key === "ArrowUp",
-      () => "NORTH",
-    ),
-    Match.when(
-      (key) => key.toLowerCase() === "s" || key === "ArrowDown",
-      () => "SOUTH",
-    ),
-    Match.when(
-      (key) => key.toLowerCase() === "a" || key === "ArrowLeft",
-      () => "WEST",
-    ),
-    Match.when(
-      (key) => key.toLowerCase() === "d" || key === "ArrowRight",
-      () => "EAST",
-    ),
-    Match.orElse(() => null),
-  ) as Direction | null;
-}
-
-function getDxDyMultiplierFromDirection(
-  direction: Direction,
-): [-1 | 0 | 1, -1 | 0 | 1] {
-  return Match.value(direction).pipe(
-    Match.when("NORTH", () => [0, -1]),
-    Match.when("SOUTH", () => [0, 1]),
-    Match.when("WEST", () => [-1, 0]),
-    Match.when("EAST", () => [1, 0]),
-    Match.when("NONE", () => [0, 0]),
-    Match.exhaustive,
-  ) as [-1 | 0 | 1, -1 | 0 | 1];
-}
+import { 
+  formatTime, 
+  getCenterXY, 
+  isTouching, 
+  isWithinRange, 
+  moveEnemyTowardsEgg,
+  getDirectionFromKey,
+  getDxDyMultiplierFromDirection
+ } from "./utils";
 
 /*
   Convention: tick*(model: Model): Model functions are run on MsgTick
@@ -109,43 +81,6 @@ function tickAdjustWorldCenter(model: Model): Model {
         y: centerY,
       },
     },
-  };
-}
-
-function isColliding(
-  x: number,
-  y: number,
-  enemy: Eggnemy | Boss,
-  others: (Eggnemy | Boss)[],
-): boolean {
-  return others.some((other) => {
-    if (other === enemy) return false; 
-    return isTouching({...enemy, x, y }, other);
-  })
-}
-
-function moveEnemyTowardsEgg(
-  enemy: Eggnemy | Boss,
-  egg: Egg,
-  others: (Eggnemy | Boss)[]
-): Eggnemy | Boss {
-  const dx = egg.x - enemy.x;
-  const dy = egg.y - enemy.y;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-
-  if (dist === 0) return enemy;
-
-  const moveX = Math.ceil(enemy.x + (dx / dist) * enemy.speed)
-  const moveY = Math.ceil(enemy.y + (dy / dist) * enemy.speed)
-
-  const tryMoveX = !isColliding(moveX, enemy.y, enemy, others);
-  const tryMoveY = !isColliding(enemy.x, moveY, enemy, others);
-
-  return {
-    ...enemy,
-    // Round up so that eggnemies will always move
-    x: tryMoveX ? moveX : enemy.x,
-    y: tryMoveY ? moveY : enemy.y
   };
 }
 
@@ -244,6 +179,8 @@ function tickEggAttacksEnemies(model: Model): Model {
       ...model.state,
       defeatedEggnemiesCount:
         model.state.defeatedEggnemiesCount + defeated.length,
+      eggxperience:
+        model.state.eggxperience + defeated.length
     },
   });
 }

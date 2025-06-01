@@ -114,6 +114,7 @@ export const GameSettings = S.Struct({
   bossSpawnThreshold: S.Int,
   // Probabiliy of spawning eggnemies per tick (frame)
   eggnemySpawningRatePerTick: S.Number,
+  egghancementCost: S.Number,
   // Text to show once game is over
   victoryText: S.String,
   defeatText: S.String,
@@ -123,6 +124,7 @@ export const GameSettings = S.Struct({
 const initGameSettings: GameSettings = GameSettings.make({
   bossSpawnThreshold: settings.game.bossSpawnThreshold,
   eggnemySpawningRatePerTick: settings.game.eggnemySpawningRatePerTick,
+  egghancementCost: settings.game.egghancementCost,
   victoryText: settings.game.victoryText,
   defeatText: settings.game.defeatText,
   errorText: settings.game.errorText,
@@ -142,6 +144,7 @@ export const GameState = S.Struct({
   // Game statistics
   defeatedEggnemiesCount: S.NonNegativeInt,
   leaderboard: Leaderboard,
+  eggxperience: S.Number
 });
 const initGameState: GameState = GameState.make({
   startTime: Date.now(),
@@ -151,6 +154,7 @@ const initGameState: GameState = GameState.make({
   hasBossAlreadySpawned: false,
   defeatedEggnemiesCount: 0,
   leaderboard: [],
+  eggxperience: 0
 });
 
 export const Model = S.Struct({

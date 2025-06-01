@@ -11,6 +11,7 @@
     },
     "bossSpawnThreshold": 5,
     "eggnemySpawningRatePerTick": 0.01,
+    "egghancementCost": 10,
     "victoryText": "You Win!",
     "defeatText": "You Lose!",
     "errorText": "An error occurred."
@@ -21,8 +22,7 @@
     "initialHp": 20,
     "attackRange": 50,
     "speed": 10,
-    "attackDamage": 1,
-    "exp": 0
+    "attackDamage": 1
   },
   "eggnemies": {
     "initialCount": 5,
@@ -37,7 +37,7 @@
     "initialHp": 10,
     "speed": 8
   },
-  "expStats": {
+  "egghancmeents": {
     "hpInc": 5,
     "speedInc": 1,
     "attackDamageInc": 1
