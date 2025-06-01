@@ -4,7 +4,7 @@ import {
   OutlinedRectangle,
   SolidRectangle,
   Text,
-  CanvasImage
+  CanvasImage,
 } from "cs12242-mvu/src/canvas";
 import { Array, pipe, Struct } from "effect";
 import { Model } from "./model";
@@ -27,13 +27,12 @@ resources.sprites.boss.src = "resources/sprites/boss.png";
 export function renderEgg(model: Model): CanvasElement[] {
   return model.egg != undefined
     ? [
-
         CanvasImage.make({
           x: model.egg.x - 8,
           y: model.egg.y - 5, //-8 and -5 due to offset of egg image
           src: resources.sprites.egg.src,
         }),
-        
+
         // HP text
         Text.make({
           x: getCenterX(model.egg),
@@ -63,11 +62,11 @@ export function renderEggnemies(model: Model): CanvasElement[] {
       // }),
 
       CanvasImage.make({
-          x: en.x -2,
-          y: en.y -2, //-8 and -5 due to offset of egg image
-          src: resources.sprites.eggnemy.src,
-        }),
-      
+        x: en.x - 2,
+        y: en.y - 2, //-8 and -5 due to offset of egg image
+        src: resources.sprites.eggnemy.src,
+      }),
+
       // HP text
       Text.make({
         x: getCenterX(en),
@@ -95,8 +94,8 @@ export function renderBoss(model: Model): CanvasElement[] {
         // }),
 
         CanvasImage.make({
-          x: model.boss.x -4,
-          y: model.boss.y -10, //-8 and -5 due to offset of egg image
+          x: model.boss.x - 4,
+          y: model.boss.y - 10, //-8 and -5 due to offset of egg image
           src: resources.sprites.boss.src,
         }),
         Text.make({
@@ -112,7 +111,11 @@ export function renderBoss(model: Model): CanvasElement[] {
     : [];
 }
 
-export function offsetElementBy(element: CanvasElement, dx: number, dy: number) {
+export function offsetElementBy(
+  element: CanvasElement,
+  dx: number,
+  dy: number,
+) {
   return Struct.evolve(element, {
     x: (x) => Math.round(x + dx),
     y: (y) => Math.round(y + dy),
@@ -174,12 +177,11 @@ export function renderEggStats(
   y: number,
   gap: number = 20,
 ): CanvasElement[] {
-
   const stats: [string, string][] = [
     ["Atk", `${model.eggStats.attackDamage}`],
     ["Spd", `${model.eggStats.speed}`],
     ["Exp", `${model.eggStats.eggxperience}`],
-  ]
+  ];
   return pipe(
     stats,
     Array.flatMap(([label, value], i) => [
@@ -201,7 +203,7 @@ export function renderEggStats(
         color: "white",
         textAlign: "left",
       }),
-    ])
+    ]),
   );
 }
 
@@ -211,46 +213,46 @@ export function renderEgghancementMenu(
   y: number,
   gap: number = 20,
 ): CanvasElement[] {
-  return model.state.isChoosingEgghancement ? pipe(
-    [
-      OutlinedRectangle.make({
-        x: x - gap,
-        y: y - gap,
-        color: "white",
-        width: gap + 230,
-        height: gap + 90,
-        lineWidth: 2.5,
-      }),
-      Text.make({
-        x,
-        y: y + gap,
-        text: `[1] Increase max HP by ${model.egghancementUpgrade.hpInc}`,
-        fontSize: 16,
-        font: "monospace",
-        color: "white",
-        textAlign: "left",
-      }),
-      Text.make({
-        x,
-        y: y + gap * 2,
-        text: `[2] Increase attack by ${model.egghancementUpgrade.speedInc}`,
-        fontSize: 16,
-        font: "monospace",
-        color: "white",
-        textAlign: "left",
-      }),
-      Text.make({
-        x,
-        y: y + gap * 3,
-        text: `[3] Increase speed by ${model.egghancementUpgrade.attackDamageInc}`,
-        fontSize: 16,
-        font: "monospace",
-        color: "white",
-        textAlign: "left",
-      }),
-    ]) : []
+  return model.state.isChoosingEgghancement
+    ? pipe([
+        OutlinedRectangle.make({
+          x: x - gap,
+          y: y - gap,
+          color: "white",
+          width: gap + 230,
+          height: gap + 90,
+          lineWidth: 2.5,
+        }),
+        Text.make({
+          x,
+          y: y + gap,
+          text: `[1] Increase max HP by ${model.egghancements.hpUp}`,
+          fontSize: 16,
+          font: "monospace",
+          color: "white",
+          textAlign: "left",
+        }),
+        Text.make({
+          x,
+          y: y + gap * 2,
+          text: `[2] Increase attack by ${model.egghancements.speedUp}`,
+          fontSize: 16,
+          font: "monospace",
+          color: "white",
+          textAlign: "left",
+        }),
+        Text.make({
+          x,
+          y: y + gap * 3,
+          text: `[3] Increase speed by ${model.egghancements.attackDamageUp}`,
+          fontSize: 16,
+          font: "monospace",
+          color: "white",
+          textAlign: "left",
+        }),
+      ])
+    : [];
 }
-
 
 export function renderUIElements(
   model: Model,
@@ -305,10 +307,7 @@ export function renderUIElements(
             Text.make({
               x: screenWidth / 2,
               y: screenHeight / 2 + 7 - 75,
-              text:
-                model.egg == undefined
-                  ? model.settings.victoryText
-                  : "",
+              text: model.egg == undefined ? model.settings.victoryText : "",
               fontSize: 20,
               font: "monospace",
               color: "white",

@@ -312,8 +312,8 @@ export const update = (msg: Msg, model: Model) =>
               ...model,
               egg: {
                 ...model.egg,
-                hp: model.egg.hp + model.egghancementUpgrade.hpInc,
-                maxHp: model.egg.maxHp + model.egghancementUpgrade.hpInc,
+                hp: model.egg.hp + model.egghancements.hpUp,
+                maxHp: model.egg.maxHp + model.egghancements.hpUp,
               },
               state: {
                 ...model.state,
@@ -336,7 +336,7 @@ export const update = (msg: Msg, model: Model) =>
                 ...model.eggStats,
                 attackDamage:
                   model.eggStats.attackDamage +
-                  model.egghancementUpgrade.attackDamageInc,
+                  model.egghancements.attackDamageUp,
                 eggxperience:
                   model.eggStats.eggxperience - model.settings.egghancementCost,
               },
@@ -354,8 +354,7 @@ export const update = (msg: Msg, model: Model) =>
               ...model,
               eggStats: {
                 ...model.eggStats,
-                speed:
-                  model.eggStats.speed + model.egghancementUpgrade.speedInc,
+                speed: model.eggStats.speed + model.egghancements.speedUp,
                 eggxperience:
                   model.eggStats.eggxperience - model.settings.egghancementCost,
               },

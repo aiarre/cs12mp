@@ -37,13 +37,12 @@
     "attackDamage": 3
   },
   "egghancement": {
-    "hpInc": 5,
-    "speedInc": 1,
-    "attackDamageInc": 1
+    "hpUp": 5,
+    "speedUp": 1,
+    "attackDamageUp": 1
   },
   "eggStats": {
     "speed": 10,
     "attackDamage": 1
   }
 }
-

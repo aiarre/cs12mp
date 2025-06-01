@@ -16,7 +16,7 @@ export interface Boss extends S.Schema.Type<typeof Boss> {}
 export interface World extends S.Schema.Type<typeof World> {}
 export interface GameSettings extends S.Schema.Type<typeof GameSettings> {}
 export interface GameState extends S.Schema.Type<typeof GameState> {}
-export interface EgghancementUpgrade extends S.Schema.Type<typeof EgghancementUpgrade> {}
+export interface Egghancements extends S.Schema.Type<typeof Egghancements> {}
 export interface EggStats extends S.Schema.Type<typeof EggStats> {}
 export interface Model extends S.Schema.Type<typeof Model> {}
 /* eslint-enable @typescript-eslint/no-empty-object-type */
@@ -84,7 +84,7 @@ export const createBoss = (world: World, multiplier: number) =>
     height: settings.boss.height,
     hp: settings.boss.initialHp,
     maxHp: settings.boss.initialHp,
-    speed: settings.boss.speed  + multiplier,
+    speed: settings.boss.speed + multiplier,
     attackDamage: settings.boss.attackDamage + multiplier,
   });
 
@@ -147,7 +147,7 @@ export const GameState = S.Struct({
   // Game statistics
   defeatedEggnemiesCount: S.NonNegativeInt,
   leaderboard: Leaderboard,
-  isChoosingEgghancement: S.Boolean
+  isChoosingEgghancement: S.Boolean,
 });
 const initGameState: GameState = GameState.make({
   startTime: Date.now(),
@@ -160,20 +160,20 @@ const initGameState: GameState = GameState.make({
   defeatedEggnemiesCount: 0,
   eggnemiesTillNextBoss: 0,
   leaderboard: [],
-  isChoosingEgghancement: false
+  isChoosingEgghancement: false,
 });
 
-const EgghancementUpgrade = S.Struct({
-  hpInc: S.NonNegativeInt,
-  speedInc: S.NonNegativeInt,
-  attackDamageInc: S.NonNegativeInt,
-})
+const Egghancements = S.Struct({
+  hpUp: S.NonNegativeInt,
+  speedUp: S.NonNegativeInt,
+  attackDamageUp: S.NonNegativeInt,
+});
 
-const initEgghancementUpgrade = EgghancementUpgrade.make({
-  hpInc: settings.egghancement.hpInc,
-  speedInc: settings.egghancement.speedInc,
-  attackDamageInc: settings.egghancement.attackDamageInc,
-})
+const initEgghancements = Egghancements.make({
+  hpUp: settings.egghancement.hpUp,
+  speedUp: settings.egghancement.speedUp,
+  attackDamageUp: settings.egghancement.attackDamageUp,
+});
 
 const EggStats = S.Struct({
   speed: S.NonNegativeInt,
@@ -197,7 +197,7 @@ export const Model = S.Struct({
   // Other game events / statistics to keep track of
   settings: GameSettings,
   state: GameState,
-  egghancementUpgrade: EgghancementUpgrade,
+  egghancements: Egghancements,
   eggStats: EggStats,
 });
 
@@ -228,7 +228,7 @@ export const createNewModel = () => {
       startTime: Date.now(),
       lastDamageTime: Date.now(),
     },
-    egghancementUpgrade: initEgghancementUpgrade,
+    egghancements: initEgghancements,
     eggStats: initEggStats,
   });
 };
