@@ -314,7 +314,7 @@ export function renderUIElements(
             Text.make({
               x: screenWidth / 2,
               y: screenHeight / 2 - 75 + 7,
-              text: model.egg == undefined ? model.settings.gameOverText : "",
+              text: model.settings.gameOverText,
               fontSize: 20,
               font: "monospace",
               color: "white",
