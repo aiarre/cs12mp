@@ -30,7 +30,7 @@ describe("#view", () => {
   const screenHeight = settings.game.screen.height;
 
   it("returns a canvas node with correct dimensions and id", () => {
-    const vnode = view(model);
+    const vnode = view(model, () => {});
 
     expect(vnode.sel).toBe("canvas");
     expect(vnode.data?.props?.width).toBe(screenWidth);
@@ -120,6 +120,7 @@ describe("#renderBoss", () => {
     const modelWithBoss = {
       ...model,
       boss: {
+        ...(model.boss ?? {}),
         x: model.world.width / 2,
         y: model.world.height / 2,
         width: 50,
@@ -127,6 +128,7 @@ describe("#renderBoss", () => {
         hp: 10,
         maxHp: 10,
         speed: 8,
+        attackDamage: 10,
       },
     };
 
