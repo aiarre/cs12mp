@@ -1,8 +1,5 @@
 import { Array, Match, Order, pipe } from "effect";
 import {
-  Boss,
-  Direction,
-  Egg,
   Eggnemy,
   Model,
   createBoss,
