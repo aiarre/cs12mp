@@ -54,7 +54,8 @@ export const Eggnemy = S.Struct({
   ...GameObject.fields,
   hp: S.Int,
   maxHp: S.Int,
-  speed: S.Number,
+  speed: S.NonNegativeInt,
+  attackDamage: S.NonNegativeInt,
 });
 export const createRandomEggnemy = (world: World) =>
   Eggnemy.make({
@@ -65,13 +66,15 @@ export const createRandomEggnemy = (world: World) =>
     hp: settings.eggnemies.initialHp,
     maxHp: settings.eggnemies.initialHp,
     speed: settings.eggnemies.speed,
+    attackDamage: settings.eggnemies.attackDamage,
   });
 
 export const Boss = S.Struct({
   ...GameObject.fields,
   hp: S.Int,
   maxHp: S.Int,
-  speed: S.Number,
+  speed: S.NonNegativeInt,
+  attackDamage: S.NonNegativeInt,
 });
 export const createBoss = (world: World) =>
   Boss.make({
@@ -82,6 +85,7 @@ export const createBoss = (world: World) =>
     hp: settings.boss.initialHp,
     maxHp: settings.boss.initialHp,
     speed: settings.boss.speed,
+    attackDamage: settings.boss.attackDamage,
   });
 
 export const World = S.Struct({
@@ -162,6 +166,12 @@ const EgghancementUpgrade = S.Struct({
   attackDamageInc: S.NonNegativeInt,
 })
 
+const initEgghancementUpgrade = EgghancementUpgrade.make({
+  hpInc: settings.egghancement.hpInc,
+  speedInc: settings.egghancement.speedInc,
+  attackDamageInc: settings.egghancement.attackDamageInc,
+})
+
 const EggStats = S.Struct({
   speed: S.NonNegativeInt,
   attackDamage: S.NonNegativeInt,
@@ -174,12 +184,6 @@ const initEggStats: EggStats = EggStats.make({
   eggxperience: 0,
 });
 
-const initEgghancementUpgrade = EgghancementUpgrade.make({
-  hpInc: settings.egghancement.hpInc,
-  speedInc: settings.egghancement.speedInc,
-  attackDamageInc: settings.egghancement.attackDamageInc,
-})
-
 export const Model = S.Struct({
   // Model of the "game world"
   world: World,
@@ -191,7 +195,7 @@ export const Model = S.Struct({
   settings: GameSettings,
   state: GameState,
   egghancementUpgrade: EgghancementUpgrade,
-  eggStats: EggStats
+  eggStats: EggStats,
 });
 
 export const createNewModel = () => {

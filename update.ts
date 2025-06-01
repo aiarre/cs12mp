@@ -117,7 +117,16 @@ function tickEnemyDamagesEgg(model: Model): Model {
   const isBossTouchingEgg = model.boss && isTouching(model.boss, egg);
   if (!isEggnemyTouchingEgg && !isBossTouchingEgg) return model;
 
-  const damage = (isEggnemyTouchingEgg ? 1 : 0) + (isBossTouchingEgg ? 3 : 0);
+  const eggnemyDamage: number = pipe(
+    model.eggnemies,
+    Array.filter((en: Eggnemy) => isTouching(en, egg)),
+    Array.map((en: Eggnemy) => en.attackDamage),
+    Array.reduce(0, (sum: number, dmg: number) => sum + dmg)
+  );
+
+
+  const bossDamage = (isBossTouchingEgg ? model.boss.attackDamage : 0);
+  const damage = eggnemyDamage + bossDamage;
   const newEggHp = egg.hp - damage;
   return Model.make({
     ...model,
@@ -176,6 +185,7 @@ function tickEggAttacksEnemies(model: Model): Model {
       hp: boss.hp - eggStats.attackDamage,
       maxHp: boss.maxHp,
       speed: boss.speed,
+      attackDamage: boss.attackDamage,
     };
     if (updatedBoss.hp <= 0) {
       boss = undefined; // Boss defeated, remove it

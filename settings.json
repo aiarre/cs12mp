@@ -27,13 +27,15 @@
     "width": 20,
     "height": 20,
     "initialHp": 2,
-    "speed": 4
+    "speed": 4,
+    "attackDamage": 1
   },
   "boss": {
     "width": 50,
     "height": 50,
     "initialHp": 10,
-    "speed": 8
+    "speed": 8,
+    "attackDamage": 3
   },
   "egghancement": {
     "hpInc": 5,
@@ -45,3 +47,4 @@
     "attackDamage": 1
   }
 }
+
