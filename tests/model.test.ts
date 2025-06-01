@@ -22,24 +22,24 @@ describe("#model", () => {
   it("egg is initialized with valid parameters", () => {
     expect(model.egg).toBeDefined();
 
-    expect(model.egg?.x).toBeGreaterThanOrEqual(0);
-    expect(model.egg?.x).toBeLessThanOrEqual(
-      model.world.width - (model.egg?.width ?? 0),
+    expect(model.egg!.x).toBeGreaterThanOrEqual(0);
+    expect(model.egg!.x).toBeLessThanOrEqual(
+      model.world.width - (model.egg!.width ?? 0),
     );
 
-    expect(model.egg?.y).toBeGreaterThanOrEqual(0);
-    expect(model.egg?.y).toBeLessThanOrEqual(
-      model.world.height - (model.egg?.height ?? 0),
+    expect(model.egg!.y).toBeGreaterThanOrEqual(0);
+    expect(model.egg!.y).toBeLessThanOrEqual(
+      model.world.height - (model.egg!.height ?? 0),
     );
 
-    expect(model.egg?.width).toBeGreaterThan(0);
-    expect(model.egg?.height).toBeGreaterThan(0);
+    expect(model.egg!.width).toBeGreaterThan(0);
+    expect(model.egg!.height).toBeGreaterThan(0);
 
-    expect(model.egg?.hp).toBeGreaterThan(0);
-    expect(model.egg?.maxHp).toBeGreaterThan(0);
-    expect(model.egg?.direction).toBe("NONE");
-    expect(model.egg?.isAttacking).toBe(false);
-    expect(model.egg?.attackRange).toBeGreaterThan(0);
+    expect(model.egg!.hp).toBeGreaterThan(0);
+    expect(model.egg!.maxHp).toBeGreaterThan(0);
+    expect(model.egg!.direction).toBe("NONE");
+    expect(model.egg!.isAttacking).toBe(false);
+    expect(model.egg!.attackRange).toBeGreaterThan(0);
   });
 
   it("eggnemies are initialized with valid parameters", () => {
@@ -93,11 +93,12 @@ describe("#model", () => {
     expect(model.world.width).toStrictEqual(settings.game.world.width);
     expect(model.world.height).toStrictEqual(settings.game.world.height);
 
-    expect(model.egg?.width).toStrictEqual(settings.egg.width);
-    expect(model.egg?.height).toStrictEqual(settings.egg.height);
-    expect(model.egg?.hp).toStrictEqual(settings.egg.initialHp);
-    expect(model.egg?.maxHp).toStrictEqual(settings.egg.initialHp);
-    expect(model.egg?.attackRange).toStrictEqual(settings.egg.attackRange);
+    expect(model.egg).toBeDefined();
+    expect(model.egg!.width).toStrictEqual(settings.egg.width);
+    expect(model.egg!.height).toStrictEqual(settings.egg.height);
+    expect(model.egg!.hp).toStrictEqual(settings.egg.initialHp);
+    expect(model.egg!.maxHp).toStrictEqual(settings.egg.initialHp);
+    expect(model.egg!.attackRange).toStrictEqual(settings.egg.attackRange);
 
     expect(model.eggnemies.length).toBe(settings.eggnemies.initialCount);
 
