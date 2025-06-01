@@ -1,4 +1,7 @@
 # cs12mp
+This is a TypeScript implementation of **Egg Rally**, inspired by the
+game Vampire Survivors, as part of our CS12 project (MP) submission.
+
 
 
 ## Getting Started
@@ -31,3 +34,30 @@ npx vite
 ```
 
 By default, this will expose a development server on http://localhost:5173/.
+
+
+## Test suite
+To run tests, run the command:
+```
+npm test
+```
+
+This will run the tests located in the [tests/](tests) subfolder. There 
+are a grand total of **53 tests** defined by `it(...)` functions.
+
+Specifically, `vitest` will run the following test suites:
+
+### model.test.ts
+This file tests that the game `Model` is initialized with sensible
+and correct parameters based on [settings.json](settings.json).
+
+Specifically, it tests the following:
++ World of model initializes with valid parameters
++ Egg is initialized with valid parameters
++ Eggnemies are initialized with valid parameters
++ Boss is null at start of game
++ State is initialized with valid parameters
++ Settings are initialized with valid parameters
++ Checks if all parameters from settings.json are present in the model
+
+TOTAL: 7 tests.
