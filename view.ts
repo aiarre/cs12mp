@@ -25,7 +25,7 @@ resources.sprites.eggnemy.src = "resources/sprites/eggnemy.png";
 resources.sprites.boss.src = "resources/sprites/boss.png";
 
 export function renderEgg(model: Model): CanvasElement[] {
-  return model.egg != undefined
+  return model.egg != null
     ? [
         CanvasImage.make({
           x: model.egg.x - 8,
@@ -74,7 +74,7 @@ export function renderEggnemies(model: Model): CanvasElement[] {
 }
 
 export function renderBoss(model: Model): CanvasElement[] {
-  return model.boss != undefined
+  return model.boss != null
     ? [
         //boss
         CanvasImage.make({

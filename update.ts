@@ -29,7 +29,7 @@ const sounds = {
 };
 
 export function tickUpdateElapsedTime(model: Model): Model {
-  if (model.state.isGameOver && model.egg != undefined) return model;
+  if (model.state.isGameOver && model.egg != null) return model;
   return {
     ...model,
     state: {
@@ -42,7 +42,7 @@ export function tickUpdateElapsedTime(model: Model): Model {
 export function tickMoveEgg(model: Model): Model {
   const egg = model.egg;
   const eggStats = model.eggStats;
-  if (egg == undefined) {
+  if (egg == null) {
     sounds.eggDefeated.play();
     return Model.make({
       ...model,
@@ -74,7 +74,7 @@ export function tickMoveEgg(model: Model): Model {
 }
 
 export function tickAdjustWorldCenter(model: Model): Model {
-  if (model.egg == undefined) return model;
+  if (model.egg == null) return model;
   const egg = model.egg;
 
   const [centerX, centerY] = getCenterXY(egg);
@@ -91,7 +91,7 @@ export function tickAdjustWorldCenter(model: Model): Model {
 }
 
 export function tickMoveEnemiesTowardsEgg(model: Model): Model {
-  if (model.egg == undefined) return model;
+  if (model.egg == null) return model;
   const egg = model.egg;
 
   return Model.make({
@@ -106,14 +106,14 @@ export function tickMoveEnemiesTowardsEgg(model: Model): Model {
       ),
     ),
     boss:
-      model.boss != undefined
+      model.boss != null
         ? moveEnemyTowardsEgg(model.boss, egg, [...model.eggnemies])
-        : undefined,
+        : null,
   });
 }
 
 export function tickEnemyDamagesEgg(model: Model): Model {
-  if (model.egg == undefined) return model;
+  if (model.egg == null) return model;
   const egg = model.egg;
 
   const now = Date.now();
@@ -153,7 +153,7 @@ export function tickEnemyDamagesEgg(model: Model): Model {
 }
 
 export function tickEggAttacksEnemies(model: Model): Model {
-  if (model.egg == undefined) return model;
+  if (model.egg == null) return model;
   const egg = model.egg;
   const eggStats = model.eggStats;
 
@@ -190,7 +190,7 @@ export function tickEggAttacksEnemies(model: Model): Model {
     boss = { ...boss, hp: boss.hp - eggStats.attackDamage };
     if (boss.hp <= 0) {
       sounds.bossDefeated.play();
-      boss = undefined;
+      boss = null;
       bossDefeated = true;
     }
   }
@@ -222,7 +222,7 @@ export function tickEggAttacksEnemies(model: Model): Model {
 }
 
 export function tickOccasionallySpawnEggnemy(model: Model): Model {
-  if (model.egg == undefined) return model;
+  if (model.egg == null) return model;
   const shouldSpawnEggnemies =
     Math.random() < model.settings.eggnemySpawningRatePerTick;
   if (!shouldSpawnEggnemies) {
@@ -247,9 +247,9 @@ export function tickOccasionallySpawnEggnemy(model: Model): Model {
 
 export function tickSpawnBossIfNeeded(model: Model): Model {
   if (
-    model.egg != undefined &&
+    model.egg != null &&
     !model.state.hasBossAlreadySpawned &&
-    model.boss == undefined &&
+    model.boss == null &&
     model.state.eggnemiesTillNextBoss >= model.settings.bossSpawnThreshold
   ) {
     return Model.make({
@@ -366,7 +366,7 @@ export const update = (msg: Msg, model: Model) =>
       }
 
       // Things that need the egg to run
-      if (model.egg != undefined) {
+      if (model.egg != null) {
         const egg = model.egg;
         const newDirection = getDirectionFromKey(key);
 
@@ -392,7 +392,7 @@ export const update = (msg: Msg, model: Model) =>
     }),
 
     Match.tag("Canvas.MsgKeyUp", ({ key }): Model => {
-      if (model.egg == undefined) return model;
+      if (model.egg == null) return model;
       const egg = model.egg;
       const pressedDirection = getDirectionFromKey(key);
       if (pressedDirection !== null) {
