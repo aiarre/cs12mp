@@ -20,7 +20,6 @@ export interface EggStats extends S.Schema.Type<typeof EggStats> {}
 export interface Model extends S.Schema.Type<typeof Model> {}
 /* eslint-enable @typescript-eslint/no-empty-object-type */
 
-// Basically HasXYWidthHeight
 export const GameObject = S.Struct({
   x: S.Int,
   y: S.Int,
@@ -28,64 +27,30 @@ export const GameObject = S.Struct({
   height: S.Int,
 });
 
-// I feel like this is getting to be too much...
 export const Egg = S.Struct({
   ...GameObject.fields,
   hp: S.Int,
   maxHp: S.Int,
   direction: Direction,
   isAttacking: S.Boolean,
-  attackRange: S.Number,
-});
-const initEgg: Egg = Egg.make({
-  x: 100,
-  y: 100,
-  width: settings.egg.width,
-  height: settings.egg.height,
-  hp: settings.egg.initialHp,
-  maxHp: settings.egg.initialHp,
-  direction: "NONE",
-  isAttacking: false,
-  attackRange: settings.egg.attackRange,
+  attackRange: S.Int,
 });
 
 export const Eggnemy = S.Struct({
   ...GameObject.fields,
   hp: S.Int,
   maxHp: S.Int,
-  speed: S.NonNegativeInt,
-  attackDamage: S.NonNegativeInt,
+  speed: S.Int,
+  attackDamage: S.Int,
 });
-export const createRandomEggnemy = (world: World, multiplier: number) =>
-  Eggnemy.make({
-    x: Math.floor(Math.random() * (world.width - settings.eggnemies.width)),
-    y: Math.floor(Math.random() * (world.height - settings.eggnemies.height)),
-    width: settings.eggnemies.width,
-    height: settings.eggnemies.height,
-    hp: settings.eggnemies.initialHp,
-    maxHp: settings.eggnemies.initialHp,
-    speed: settings.eggnemies.speed + multiplier,
-    attackDamage: settings.eggnemies.attackDamage + multiplier,
-  });
 
 export const Boss = S.Struct({
   ...GameObject.fields,
   hp: S.Int,
   maxHp: S.Int,
-  speed: S.NonNegativeInt,
-  attackDamage: S.NonNegativeInt,
+  speed: S.Int,
+  attackDamage: S.Int,
 });
-export const createBoss = (world: World, multiplier: number) =>
-  Boss.make({
-    x: Math.floor(Math.random() * world.width + 50),
-    y: Math.floor(Math.random() * world.height + 50),
-    width: settings.boss.width,
-    height: settings.boss.height,
-    hp: settings.boss.initialHp,
-    maxHp: settings.boss.initialHp,
-    speed: settings.boss.speed + multiplier,
-    attackDamage: settings.boss.attackDamage + multiplier,
-  });
 
 export const World = S.Struct({
   width: S.Int,
@@ -97,15 +62,6 @@ export const World = S.Struct({
     y: S.Int,
   }),
 });
-const initWorld: World = World.make({
-  width: settings.game.world.width,
-  height: settings.game.world.height,
-  center: {
-    // By default, sync this to the egg.
-    x: Math.floor(100 + settings.egg.width / 2),
-    y: Math.floor(100 + settings.egg.height / 2),
-  },
-});
 
 export const Leaderboard = S.Array(S.String).pipe(S.maxItems(3));
 
@@ -116,18 +72,11 @@ export const GameSettings = S.Struct({
   bossSpawnThreshold: S.Int,
   // Probabiliy of spawning eggnemies per tick (frame)
   eggnemySpawningRatePerTick: S.Number,
-  egghancementCost: S.Number,
+  egghancementCost: S.Int,
   // Text to show once game is over
   gameOverText: S.String,
   // Error handling
   errorText: S.String,
-});
-const initGameSettings: GameSettings = GameSettings.make({
-  bossSpawnThreshold: settings.game.bossSpawnThreshold,
-  eggnemySpawningRatePerTick: settings.game.eggnemySpawningRatePerTick,
-  egghancementCost: settings.game.egghancementCost,
-  gameOverText: settings.game.gameOverText,
-  errorText: settings.game.errorText,
 });
 
 // Encapsulates most "flags" or time-based events limits in the game,
@@ -141,25 +90,12 @@ export const GameState = S.Struct({
   isGameOver: S.Boolean,
   // One-time event flags
   hasBossAlreadySpawned: S.Boolean,
-  eggnemiesTillNextBoss: S.NonNegativeInt,
   bossesDefeated: S.NonNegativeInt,
   // Game statistics
+  eggnemiesTillNextBoss: S.NonNegativeInt,
   defeatedEggnemiesCount: S.NonNegativeInt,
   leaderboard: Leaderboard,
   isChoosingEgghancement: S.Boolean,
-});
-const initGameState: GameState = GameState.make({
-  startTime: Date.now(),
-  elapsedTime: 0,
-  lastDamageTime: Date.now(),
-  isGameOver: false,
-  hasBossAlreadySpawned: false,
-  bossesDefeated: 0,
-
-  defeatedEggnemiesCount: 0,
-  eggnemiesTillNextBoss: 0,
-  leaderboard: [],
-  isChoosingEgghancement: false,
 });
 
 const Egghancements = S.Struct({
@@ -168,22 +104,10 @@ const Egghancements = S.Struct({
   attackDamageUp: S.NonNegativeInt,
 });
 
-const initEgghancements = Egghancements.make({
-  hpUp: settings.egghancement.hpUp,
-  speedUp: settings.egghancement.speedUp,
-  attackDamageUp: settings.egghancement.attackDamageUp,
-});
-
 const EggStats = S.Struct({
   speed: S.NonNegativeInt,
   attackDamage: S.NonNegativeInt,
   eggxperience: S.NonNegativeInt,
-});
-
-const initEggStats: EggStats = EggStats.make({
-  speed: settings.eggStats.speed,
-  attackDamage: settings.eggStats.attackDamage,
-  eggxperience: 0,
 });
 
 export const Model = S.Struct({
@@ -198,6 +122,86 @@ export const Model = S.Struct({
   state: GameState,
   egghancements: Egghancements,
   eggStats: EggStats,
+});
+
+const initEgg: Egg = Egg.make({
+  x: 100,
+  y: 100,
+  width: settings.egg.width,
+  height: settings.egg.height,
+  hp: settings.egg.initialHp,
+  maxHp: settings.egg.initialHp,
+  direction: "NONE",
+  isAttacking: false,
+  attackRange: settings.egg.attackRange,
+});
+
+export const createRandomEggnemy = (world: World, multiplier: number) =>
+  Eggnemy.make({
+    x: Math.floor(Math.random() * (world.width - settings.eggnemies.width)),
+    y: Math.floor(Math.random() * (world.height - settings.eggnemies.height)),
+    width: settings.eggnemies.width,
+    height: settings.eggnemies.height,
+    hp: settings.eggnemies.initialHp,
+    maxHp: settings.eggnemies.initialHp,
+    speed: settings.eggnemies.speed + multiplier,
+    attackDamage: settings.eggnemies.attackDamage + multiplier,
+  });
+
+export const createBoss = (world: World, multiplier: number) =>
+  Boss.make({
+    x: Math.floor(Math.random() * world.width + 50),
+    y: Math.floor(Math.random() * world.height + 50),
+    width: settings.boss.width,
+    height: settings.boss.height,
+    hp: settings.boss.initialHp,
+    maxHp: settings.boss.initialHp,
+    speed: settings.boss.speed + multiplier,
+    attackDamage: settings.boss.attackDamage + multiplier,
+  });
+
+const initWorld: World = World.make({
+  width: settings.game.world.width,
+  height: settings.game.world.height,
+  center: {
+    // By default, sync this to the egg.
+    x: Math.floor(100 + settings.egg.width / 2),
+    y: Math.floor(100 + settings.egg.height / 2),
+  },
+});
+
+const initGameSettings: GameSettings = GameSettings.make({
+  bossSpawnThreshold: settings.game.bossSpawnThreshold,
+  eggnemySpawningRatePerTick: settings.game.eggnemySpawningRatePerTick,
+  egghancementCost: settings.game.egghancementCost,
+  gameOverText: settings.game.gameOverText,
+  errorText: settings.game.errorText,
+});
+
+const initEgghancements = Egghancements.make({
+  hpUp: settings.egghancement.hpUp,
+  speedUp: settings.egghancement.speedUp,
+  attackDamageUp: settings.egghancement.attackDamageUp,
+});
+
+const initEggStats: EggStats = EggStats.make({
+  speed: settings.eggStats.speed,
+  attackDamage: settings.eggStats.attackDamage,
+  eggxperience: 0,
+});
+
+const initGameState: GameState = GameState.make({
+  startTime: Date.now(),
+  elapsedTime: 0,
+  lastDamageTime: Date.now(),
+  isGameOver: false,
+  hasBossAlreadySpawned: false,
+  bossesDefeated: 0,
+
+  defeatedEggnemiesCount: 0,
+  eggnemiesTillNextBoss: 0,
+  leaderboard: [],
+  isChoosingEgghancement: false,
 });
 
 export const createNewModel = () => {

@@ -266,7 +266,6 @@ export function tickSpawnBossIfNeeded(model: Model): Model {
     });
   }
   return model;
-  // Spawn a boss eggnemy if eggnemies count killed is reached.
 }
 
 export function updateLeaderboard(model: Model): Model {
@@ -276,9 +275,7 @@ export function updateLeaderboard(model: Model): Model {
       ...model.state,
       leaderboard: pipe(
         model.state.leaderboard,
-        // Kind of inefficient, but it should work.
         Array.append(formatTime(model.state.elapsedTime)),
-        // Take advantage that lexicographical sorting works too
         Array.sort(Order.reverse(Order.string)),
         Array.take(3),
       ),
@@ -375,8 +372,7 @@ export const update = (msg: Msg, model: Model) =>
       if (model.egg != undefined) {
         const egg = model.egg;
         const newDirection = getDirectionFromKey(key);
-        // Change direction, but keep current direction if other keys are
-        // pressed.
+
         if (newDirection !== null) {
           return Model.make({
             ...model,
@@ -386,7 +382,6 @@ export const update = (msg: Msg, model: Model) =>
             },
           });
         }
-        // Set attacking.
         else if (key.toLowerCase() === "l") {
           return Model.make({
             ...model,
@@ -409,7 +404,6 @@ export const update = (msg: Msg, model: Model) =>
           ...model,
           egg: {
             ...egg,
-            // Only stop if lifted key is specifically current direction
             direction:
               pressedDirection === egg.direction ? "NONE" : egg.direction,
           },
@@ -430,7 +424,6 @@ export const update = (msg: Msg, model: Model) =>
     }),
 
     Match.tag("Canvas.MsgTick", (): Model => {
-      // Only stop everything when boss is defeated
       if (model.state.isGameOver) {
         return model;
       }
@@ -456,7 +449,6 @@ export const update = (msg: Msg, model: Model) =>
       );
     }),
 
-    // Do nothing otherwise
     Match.tag("Canvas.MsgMouseDown", () => model),
     Match.tag("Canvas.MsgMouseUp", () => model),
     Match.exhaustive,

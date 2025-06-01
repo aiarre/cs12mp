@@ -51,16 +51,8 @@ export function renderEggnemies(model: Model): CanvasElement[] {
   return pipe(
     model.eggnemies,
     Array.map((en) => [
-      // Actual eggnemy
-      // SolidRectangle.make({
-      //   x: en.x,
-      //   y: en.y,
-      //   width: en.width,
-      //   height: en.height,
-      //   // TODO: Extract out to setting.
-      //   color: "pink", // different from egg
-      // }),
 
+      // Actual eggnemy
       CanvasImage.make({
         x: en.x - 2,
         y: en.y - 2, //-8 and -5 due to offset of egg image
@@ -85,14 +77,8 @@ export function renderEggnemies(model: Model): CanvasElement[] {
 export function renderBoss(model: Model): CanvasElement[] {
   return model.boss != undefined
     ? [
-        // SolidRectangle.make({
-        //   x: model.boss.x,
-        //   y: model.boss.y,
-        //   width: model.boss.width,
-        //   height: model.boss.height,
-        //   color: "red",
-        // }),
-
+        
+        //boss
         CanvasImage.make({
           x: model.boss.x - 4,
           y: model.boss.y - 10, //-8 and -5 due to offset of egg image
@@ -154,14 +140,13 @@ export function renderLeaderboard(
   gap: number = 20,
 ): CanvasElement[] {
   return pipe(
-    // Why do I need to type cast here? I don't get it.
     model.state.leaderboard as string[],
     Array.pad(3, "--:--"),
     Array.map((time, i) =>
       Text.make({
         x: x,
         y: y + gap * i,
-        text: `${i === 0 ? "Top " : "    "}${i + 1}  ${time}`, // note the double space!
+        text: `${i === 0 ? "Top " : "    "}${i + 1}  ${time}`,
         fontSize: 16,
         font: "monospace",
         color: "white",
@@ -283,7 +268,6 @@ export function renderUIElements(
       Text.make({
         x: screenWidth - 20,
         y: 30,
-        // TODO: Properly extract back into model.
         text: `${formatTime(model.state.elapsedTime)}`,
         fontSize: 16,
         font: "monospace",
