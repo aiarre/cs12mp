@@ -15,7 +15,7 @@ describe("#update", () => {
     expect(updatedModel.egg?.direction).toStrictEqual("NONE");
   });
 
-  it("moves the egg north on KeyDown W then egg stops after KeyUp W", () => {
+  it("moves egg north when W is pressed then stops moving when released", () => {
     const msg1: Msg = { _tag: "Canvas.MsgKeyDown", key: "w" };
     let updatedModel = update(msg1, model);
     expect(updatedModel.egg?.direction).toStrictEqual("NORTH");
@@ -25,7 +25,7 @@ describe("#update", () => {
     expect(updatedModel.egg?.direction).toStrictEqual("NONE");
   });
 
-  it("moves the egg south on KeyDown S then egg stops after KeyUp S", () => {
+  it("moves egg south when S is pressed then stops moving when released", () => {
     const msg1: Msg = { _tag: "Canvas.MsgKeyDown", key: "s" };
     let updatedModel = update(msg1, model);
     expect(updatedModel.egg?.direction).toStrictEqual("SOUTH");
@@ -35,7 +35,7 @@ describe("#update", () => {
     expect(updatedModel.egg?.direction).toStrictEqual("NONE");
   });
 
-  it("moves the egg east on KeyDown D then egg stops after KeyUp D", () => {
+  it("moves egg east when E is pressed then stops moving when released", () => {
     const msg1: Msg = { _tag: "Canvas.MsgKeyDown", key: "d" };
     let updatedModel = update(msg1, model);
     expect(updatedModel.egg?.direction).toStrictEqual("EAST");
@@ -45,7 +45,7 @@ describe("#update", () => {
     expect(updatedModel.egg?.direction).toStrictEqual("NONE");
   });
 
-  it("moves the egg west on KeyDown A then egg stops after KeyUp A", () => {
+  it("moves egg west when A is pressed then stops moving when released", () => {
     const msg1: Msg = { _tag: "Canvas.MsgKeyDown", key: "a" };
     let updatedModel = update(msg1, model);
     expect(updatedModel.egg?.direction).toStrictEqual("WEST");
@@ -55,7 +55,7 @@ describe("#update", () => {
     expect(updatedModel.egg?.direction).toStrictEqual("NONE");
   });
 
-  it("moves the egg north on KeyDown ArrowUp then egg stops after KeyUp ArrowUp", () => {
+  it("moves egg north when ArrowUp is pressed then stops moving when released", () => {
     const msg1: Msg = { _tag: "Canvas.MsgKeyDown", key: "ArrowUp" };
     let updatedModel = update(msg1, model);
     expect(updatedModel.egg?.direction).toStrictEqual("NORTH");
@@ -65,7 +65,7 @@ describe("#update", () => {
     expect(updatedModel.egg?.direction).toStrictEqual("NONE");
   });
 
-  it("moves the egg south on KeyDown ArrowDown then egg stops after KeyUp ArrowDown", () => {
+  it("moves egg south when ArrowDown is pressed then stops moving when released", () => {
     const msg1: Msg = { _tag: "Canvas.MsgKeyDown", key: "ArrowDown" };
     let updatedModel = update(msg1, model);
     expect(updatedModel.egg?.direction).toStrictEqual("SOUTH");
@@ -75,7 +75,7 @@ describe("#update", () => {
     expect(updatedModel.egg?.direction).toStrictEqual("NONE");
   });
 
-  it("moves the egg east on KeyDown ArrowRight then egg stops after KeyUp ArrowRight", () => {
+  it("moves egg east when ArrowRight is pressed then stops moving when released", () => {
     const msg1: Msg = { _tag: "Canvas.MsgKeyDown", key: "ArrowRight" };
     let updatedModel = update(msg1, model);
     expect(updatedModel.egg?.direction).toStrictEqual("EAST");
@@ -85,7 +85,7 @@ describe("#update", () => {
     expect(updatedModel.egg?.direction).toStrictEqual("NONE");
   });
 
-  it("moves the egg west on KeyDown ArrowLeft then egg stops after KeyUp ArrowLeft", () => {
+  it("moves egg west when ArrowLeft is pressed then stops moving when released", () => {
     const msg1: Msg = { _tag: "Canvas.MsgKeyDown", key: "ArrowLeft" };
     let updatedModel = update(msg1, model);
     expect(updatedModel.egg?.direction).toStrictEqual("WEST");
@@ -134,7 +134,7 @@ describe("#update", () => {
     expect(updatedModel.state.isGameOver).toStrictEqual(false);
   });
 
-  it("moves egg right on MsgTick", () => {
+  it("moves egg right on MsgTick if it is facing east", () => {
     const modelBefore = Model.make({
       ...model,
       egg: {
@@ -235,7 +235,7 @@ describe("#update", () => {
     expect(modelAfter.boss!.hp).toBeLessThan(modelBefore.boss!.hp);
   });
 
-  it("doesn't reduct eggnemy hp and egg hp if egg is attacking but far from eggnemy on MsgTick", () => {
+  it("doesn't damage either eggnemy or egg if both outside attack range", () => {
     const modelBefore = Model.make({
       ...model,
       egg: {
@@ -275,7 +275,7 @@ describe("#update", () => {
     expect(modelAfter.egg!.hp).toStrictEqual(modelBefore.egg!.hp);
   });
 
-  it("doesn't reduct boss hp and egg hp if egg is attacking but far from boss on MsgTick", () => {
+  it("doesn't damage either boss or egg if both outside attack range", () => {
     const modelBefore = Model.make({
       ...model,
       egg: {
@@ -311,7 +311,7 @@ describe("#update", () => {
     expect(modelAfter.egg!.hp).toStrictEqual(modelBefore.egg!.hp);
   });
 
-  it("doesn't reduce enemy hp if egg is not attacking on MsgTick", () => {
+  it("doesn't damage eggnemy if egg is not attacking on MsgTick", () => {
     const modelBefore = Model.make({
       ...model,
       egg: {
@@ -350,7 +350,7 @@ describe("#update", () => {
     );
   });
 
-  it("doesn't reduce boss hp if egg is not attacking on MsgTick", () => {
+  it("doesn't damage boss if egg is not attacking on MsgTick", () => {
     const modelBefore = Model.make({
       ...model,
       egg: {
@@ -463,7 +463,7 @@ describe("#update", () => {
     expect(modelAfter.egg!.hp).toBeLessThan(modelBefore.egg!.hp);
   });
 
-  it("does not update if isChoosingEgghancement is true on MsgTick", () => {
+  it("freezes game when choosing an egghancement", () => {
     const modelBefore = Model.make({
       ...model,
       state: {
@@ -475,7 +475,7 @@ describe("#update", () => {
     expect(modelAfter.eggStats !== modelBefore.eggStats);
   });
 
-  it("spawns boss if threshold is met on MsgTick", () => {
+  it("spawns boss if threshold is met", () => {
     const modelBefore = Model.make({
       ...model,
       boss: undefined,
