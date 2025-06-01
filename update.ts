@@ -25,6 +25,13 @@ import {
   Convention: tick*(model: Model): Model functions are run on MsgTick
 */
 
+const sounds = {
+  bossDefeated: new Audio("resources/sounds/bossDefeated.mp3"),
+  egghancementUnlocked: new Audio("resources/sounds/newEgghancement.mp3"),
+  eggDefeated: new Audio("resources/sounds/eggDefeated.mp3"),
+};
+
+
 export function tickUpdateElapsedTime(model: Model): Model {
   if (model.state.isGameOver && model.egg != undefined) return model;
   return {
@@ -41,6 +48,7 @@ export function tickMoveEgg(model: Model): Model {
   const egg = model.egg;
   const eggStats = model.eggStats;
   if (egg == undefined) {
+    sounds.eggDefeated.play();
     return Model.make({
       ...model,
       state: {
@@ -183,6 +191,7 @@ export function tickEggAttacksEnemies(model: Model): Model {
   if (boss && isWithinRange(egg, boss)) {
     boss = { ...boss, hp: boss.hp - eggStats.attackDamage };
     if (boss.hp <= 0) {
+      sounds.bossDefeated.play();
       boss = undefined;
       bossDefeated = true;
     }
@@ -300,23 +309,25 @@ export const update = (msg: Msg, model: Model) =>
       else if (model.egg && model.state.isChoosingEgghancement) {
         switch (key) {
             case "1":
-                return Model.make({
-                ...model,
-                egg: {
-                  ...model.egg,
-                  hp: model.egg.hp + model.egghancementUpgrade.hpInc,
-                  maxHp: model.egg.maxHp + model.egghancementUpgrade.hpInc,
-                },
-                state: {
-                  ...model.state,
-                  isChoosingEgghancement: keepEgghancementOpen(model.eggStats.eggxperience, model.settings.egghancementCost),
-                }, 
-                eggStats: {
-                  ...model.eggStats,
-                  eggxperience: model.eggStats.eggxperience - model.settings.egghancementCost,
-                }
-              });
+              sounds.egghancementUnlocked.play();
+              return Model.make({
+              ...model,
+              egg: {
+                ...model.egg,
+                hp: model.egg.hp + model.egghancementUpgrade.hpInc,
+                maxHp: model.egg.maxHp + model.egghancementUpgrade.hpInc,
+              },
+              state: {
+                ...model.state,
+                isChoosingEgghancement: keepEgghancementOpen(model.eggStats.eggxperience, model.settings.egghancementCost),
+              }, 
+              eggStats: {
+                ...model.eggStats,
+                eggxperience: model.eggStats.eggxperience - model.settings.egghancementCost,
+              }
+            });
             case "2":
+              sounds.egghancementUnlocked.play();
               return Model.make({
                 ...model,
                 eggStats: {
@@ -330,18 +341,19 @@ export const update = (msg: Msg, model: Model) =>
                 }, 
               });
             case "3":
-                return Model.make({
-                  ...model,
-                  eggStats: {
-                    ...model.eggStats,
-                    speed: model.eggStats.speed + model.egghancementUpgrade.speedInc,
-                    eggxperience: model.eggStats.eggxperience - model.settings.egghancementCost,
-                  },
-                  state: {
-                    ...model.state,
-                    isChoosingEgghancement: keepEgghancementOpen(model.eggStats.eggxperience, model.settings.egghancementCost),
-                  }, 
-              });
+              sounds.egghancementUnlocked.play();
+              return Model.make({
+                ...model,
+                eggStats: {
+                  ...model.eggStats,
+                  speed: model.eggStats.speed + model.egghancementUpgrade.speedInc,
+                  eggxperience: model.eggStats.eggxperience - model.settings.egghancementCost,
+                },
+                state: {
+                  ...model.state,
+                  isChoosingEgghancement: keepEgghancementOpen(model.eggStats.eggxperience, model.settings.egghancementCost),
+                }, 
+            });
               default: return model
           }
         }
