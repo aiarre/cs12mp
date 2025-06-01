@@ -14,7 +14,7 @@ import {
   renderEgg,
   renderEggnemies,
   renderLeaderboard,
-  renderScreen,
+  renderScreenAndPlayAudio,
   renderUIElements,
   renderWorld,
   view,
@@ -372,7 +372,7 @@ describe("#renderScreen", () => {
         center: { x: 500, y: 400 },
       },
     });
-    const elements = renderScreen(
+    const elements = renderScreenAndPlayAudio(
       modelWithWorld,
       modelWithWorld.world.width,
       modelWithWorld.world.height,
@@ -404,7 +404,7 @@ describe("#renderScreen", () => {
       modelWithWorld.world.height / 2 - modelWithWorld.world.center.y;
 
     const worldElements = renderWorld(modelWithWorld);
-    const screenElements = renderScreen(
+    const screenElements = renderScreenAndPlayAudio(
       modelWithWorld,
       modelWithWorld.world.width,
       modelWithWorld.world.height,
@@ -441,7 +441,7 @@ describe("#renderScreen", () => {
         center: { x: 500, y: 400 },
       },
     });
-    const elements = renderScreen(
+    const elements = renderScreenAndPlayAudio(
       modelWithWorld,
       modelWithWorld.world.width,
       modelWithWorld.world.height,

@@ -1,5 +1,7 @@
 import { defineConfig } from "vite";
 
 export default defineConfig({
-  // Vite config options go here
+  test: {
+    environment: "jsdom",
+  },
 });
