@@ -283,8 +283,8 @@ export function renderUIElements(
               y: screenHeight / 2 + 7 - 75,
               text:
                 model.egg == undefined
-                  ? model.settings.defeatText
-                  : model.settings.victoryText,
+                  ? model.settings.victoryText
+                  : "",
               fontSize: 20,
               font: "monospace",
               color: "white",

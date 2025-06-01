@@ -9,11 +9,10 @@
       "width": 1000,
       "height": 800
     },
-    "bossSpawnThreshold": 100,
+    "bossSpawnThreshold": 5,
     "eggnemySpawningRatePerTick": 0.01,
-    "egghancementCost": 1,
-    "victoryText": "You Win!",
-    "defeatText": "You Lose!",
+    "egghancementCost": 10,
+    "victoryText": "Press [R] to Restart",
     "errorText": "An error occurred."
   },
   "egg": {

@@ -120,7 +120,6 @@ export const GameSettings = S.Struct({
   egghancementCost: S.Number,
   // Text to show once game is over
   victoryText: S.String,
-  defeatText: S.String,
   // Error handling
   errorText: S.String,
 });
@@ -129,7 +128,6 @@ const initGameSettings: GameSettings = GameSettings.make({
   eggnemySpawningRatePerTick: settings.game.eggnemySpawningRatePerTick,
   egghancementCost: settings.game.egghancementCost,
   victoryText: settings.game.victoryText,
-  defeatText: settings.game.defeatText,
   errorText: settings.game.errorText,
 });
 
@@ -144,6 +142,8 @@ export const GameState = S.Struct({
   isGameOver: S.Boolean,
   // One-time event flags
   hasBossAlreadySpawned: S.Boolean,
+  eggnemiesTillNextBoss: S.NonNegativeInt,
+  bossesKilled: S.NonNegativeInt,
   // Game statistics
   defeatedEggnemiesCount: S.NonNegativeInt,
   leaderboard: Leaderboard,
@@ -155,7 +155,10 @@ const initGameState: GameState = GameState.make({
   lastDamageTime: Date.now(),
   isGameOver: false,
   hasBossAlreadySpawned: false,
+  bossesKilled: 0,
+
   defeatedEggnemiesCount: 0,
+  eggnemiesTillNextBoss: 0,
   leaderboard: [],
   isChoosingEgghancement: false
 });

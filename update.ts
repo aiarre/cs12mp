@@ -35,6 +35,7 @@ function tickUpdateElapsedTime(model: Model): Model {
   };
 }
 
+
 function tickMoveEgg(model: Model): Model {
   const egg = model.egg;
   const eggStats = model.eggStats;
@@ -191,10 +192,10 @@ function tickEggAttacksEnemies(model: Model): Model {
       boss = undefined; // Boss defeated, remove it
       return Model.make({
         ...model,
-        boss: null,
+        boss: undefined,
         state: {
           ...model.state,
-          isGameOver: true,
+          eggnemiesTillNextBoss: 0
         },
       });
     } else {
@@ -209,6 +210,8 @@ function tickEggAttacksEnemies(model: Model): Model {
       ...model.state,
       defeatedEggnemiesCount:
         model.state.defeatedEggnemiesCount + defeated.length,
+      eggnemiesTillNextBoss:
+        model.state.eggnemiesTillNextBoss + defeated.length,
     },
     eggStats: {
       ...model.eggStats,
@@ -245,7 +248,7 @@ function tickSpawnBossIfNeeded(model: Model): Model {
     model.egg != undefined &&
     !model.state.hasBossAlreadySpawned &&
     model.boss == undefined &&
-    model.state.defeatedEggnemiesCount >= model.settings.bossSpawnThreshold
+    model.state.eggnemiesTillNextBoss >= model.settings.bossSpawnThreshold
   ) {
     return Model.make({
       ...model,
@@ -253,6 +256,7 @@ function tickSpawnBossIfNeeded(model: Model): Model {
       state: {
         ...model.state,
         hasBossAlreadySpawned: true,
+        eggnemiesTillNextBoss: 0,
       },
     });
   }
@@ -270,7 +274,7 @@ function updateLeaderboard(model: Model): Model {
         // Kind of inefficient, but it should work.
         Array.append(formatTime(model.state.elapsedTime)),
         // Take advantage that lexicographical sorting works too
-        Array.sort(Order.string),
+        Array.sort(Order.reverse(Order.string)),
         Array.take(3),
       ),
     },
