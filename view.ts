@@ -4,6 +4,7 @@ import {
   OutlinedRectangle,
   SolidRectangle,
   Text,
+  CanvasImage
 } from "cs12242-mvu/src/canvas";
 import { Array, pipe, Struct } from "effect";
 import { Model } from "./model";
@@ -11,18 +12,28 @@ import type { Msg } from "./msg";
 import * as settings from "./settings.json";
 import { formatTime, getCenterX } from "./utils";
 
+const resources = {
+  sprites: {
+    egg: new Image(),
+    eggnemy: new Image(),
+    boss: new Image(),
+  },
+};
+
+resources.sprites.egg.src = "resources/sprites/egg.png";
+resources.sprites.eggnemy.src = "resources/sprites/eggnemy.png";
+resources.sprites.boss.src = "resources/sprites/boss.png";
+
 export function renderEgg(model: Model): CanvasElement[] {
   return model.egg != undefined
     ? [
-        // Actual Egg
-        SolidRectangle.make({
-          x: model.egg.x,
-          y: model.egg.y,
-          width: model.egg.width,
-          height: model.egg.height,
-          // TODO: Extract out to setting.
-          color: "white",
+
+        CanvasImage.make({
+          x: model.egg.x - 8,
+          y: model.egg.y - 5, //-8 and -5 due to offset of egg image
+          src: resources.sprites.egg.src,
         }),
+        
         // HP text
         Text.make({
           x: getCenterX(model.egg),
@@ -42,22 +53,29 @@ export function renderEggnemies(model: Model): CanvasElement[] {
     model.eggnemies,
     Array.map((en) => [
       // Actual eggnemy
-      SolidRectangle.make({
-        x: en.x,
-        y: en.y,
-        width: en.width,
-        height: en.height,
-        // TODO: Extract out to setting.
-        color: "pink", // different from egg
-      }),
+      // SolidRectangle.make({
+      //   x: en.x,
+      //   y: en.y,
+      //   width: en.width,
+      //   height: en.height,
+      //   // TODO: Extract out to setting.
+      //   color: "pink", // different from egg
+      // }),
+
+      CanvasImage.make({
+          x: en.x -2,
+          y: en.y -2, //-8 and -5 due to offset of egg image
+          src: resources.sprites.eggnemy.src,
+        }),
+      
       // HP text
       Text.make({
         x: getCenterX(en),
         y: en.y - 6,
         text: `${en.hp}/${en.maxHp}`,
-        fontSize: 12,
+        fontSize: 14,
         font: "monospace",
-        color: "pink",
+        color: "yellow",
         textAlign: "center",
       }),
     ]),
@@ -68,12 +86,18 @@ export function renderEggnemies(model: Model): CanvasElement[] {
 export function renderBoss(model: Model): CanvasElement[] {
   return model.boss != undefined
     ? [
-        SolidRectangle.make({
-          x: model.boss.x,
-          y: model.boss.y,
-          width: model.boss.width,
-          height: model.boss.height,
-          color: "red",
+        // SolidRectangle.make({
+        //   x: model.boss.x,
+        //   y: model.boss.y,
+        //   width: model.boss.width,
+        //   height: model.boss.height,
+        //   color: "red",
+        // }),
+
+        CanvasImage.make({
+          x: model.boss.x -4,
+          y: model.boss.y -10, //-8 and -5 due to offset of egg image
+          src: resources.sprites.boss.src,
         }),
         Text.make({
           x: getCenterX(model.boss),

@@ -165,7 +165,7 @@ describe("#update", () => {
     }
   });
 
-  it("reduces enemy hp if egg attacks on MsgTick", () => {
+  it("reduces eggnemy hp if egg attacks on MsgTick", () => {
     const modelBefore = Model.make({
       ...model,
       egg: {
@@ -205,6 +205,50 @@ describe("#update", () => {
 
     const modelAfter = update({ _tag: "Canvas.MsgTick" }, modelBefore);
     expect(modelAfter.boss!.hp).toBeLessThan(modelBefore.boss!.hp);
+  });
+
+    it("doesn't reduct eggnemy hp and egg hp if egg is attacking but far from eggnemy on MsgTick", () => {
+    const modelBefore = Model.make({
+      ...model,
+      egg: {
+        x: 0, y: 0, width: 10, height: 10,
+        hp: 10, maxHp: 10,
+        direction: "NONE", isAttacking: true,
+        attackRange: 10,
+      },
+      eggStats: {
+        speed: 0, attackDamage: 2, eggxperience: 0,
+      },
+      eggnemies: [{
+        x: 100, y: 100, width: 10, height: 10, hp: 5, maxHp: 5, speed: 1, attackDamage: 1,
+      }],
+    });
+
+    const modelAfter = update({ _tag: "Canvas.MsgTick" }, modelBefore);
+    expect(modelAfter.eggnemies[0].hp).toStrictEqual(modelBefore.eggnemies[0].hp);
+    expect(modelAfter.egg!.hp).toStrictEqual(modelBefore.egg!.hp);
+  });
+
+  it("doesn't reduct boss hp and egg hp if egg is attacking but far from boss on MsgTick", () => {
+    const modelBefore = Model.make({
+      ...model,
+      egg: {
+        x: 0, y: 0, width: 10, height: 10,
+        hp: 10, maxHp: 10,
+        direction: "NONE", isAttacking: true,
+        attackRange: 10,
+      },
+      eggStats: {
+        speed: 0, attackDamage: 2, eggxperience: 0,
+      },
+      boss: {
+        x: 100, y: 100, width: 10, height: 10, hp: 5, maxHp: 5, speed: 1, attackDamage: 1,
+      },
+    });
+
+    const modelAfter = update({ _tag: "Canvas.MsgTick" }, modelBefore);
+    expect(modelAfter.boss!.hp).toStrictEqual(modelBefore.boss!.hp);
+    expect(modelAfter.egg!.hp).toStrictEqual(modelBefore.egg!.hp);
   });
 
   it("doesn't reduce enemy hp if egg is not attacking on MsgTick", () => {

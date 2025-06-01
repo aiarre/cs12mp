@@ -11,7 +11,7 @@
     },
     "bossSpawnThreshold": 5,
     "eggnemySpawningRatePerTick": 0.01,
-    "egghancementCost": 1,
+    "egghancementCost": 10,
     "victoryText": "Press [R] to Restart",
     "errorText": "An error occurred."
   },
