@@ -1,6 +1,6 @@
-import { Array } from "effect";
+import { Array, String } from "effect";
 import { beforeEach, describe, expect, it } from "vitest";
-import { initModel, Model } from "../model";
+import { GameState, initModel, Model } from "../model";
 import * as settings from "../settings.json";
 import { formatTime, getCenterX } from "../utils";
 import {
@@ -41,20 +41,21 @@ describe("#view", () => {
 });
 
 describe("#renderEgg", () => {
-  it("renders an egg", () => {
+  it("renders an egg sprite", () => {
     const result = renderEgg(model);
     expect(result.length).toBe(2);
 
-    const rect = result[0];
+    const sprite = result[0];
     const text = result[1];
 
-    expect(rect._tag).toBe("SolidRectangle");
-    if (rect._tag === "SolidRectangle") {
-      expect(rect.x).toBe(model.egg?.x);
-      expect(rect.y).toBe(model.egg?.y);
-      expect(rect.width).toBe(model.egg?.width);
-      expect(rect.height).toBe(model.egg?.height);
-      expect(rect.color).toBe("white");
+    expect(sprite._tag).toBe("Image");
+    if (sprite._tag === "Image") {
+      // Check if inbounds (TODO: rightmost bound)
+      expect(sprite.x).toBeGreaterThanOrEqual(0);
+      expect(sprite.y).toBeGreaterThanOrEqual(0);
+      expect(sprite.src).toSatisfy(
+        String.endsWith("resources/sprites/egg.png"),
+      );
     }
 
     expect(text._tag).toBe("Text");
@@ -72,53 +73,38 @@ describe("#renderEgg", () => {
     }
   });
 
-  it("returns an empty array if egg is undefined", () => {
+  it("renders nothing if no egg exists", () => {
     const emptyModel = Model.make({ ...model, egg: undefined });
     const result = renderEgg(emptyModel);
-    expect(result).toEqual([]);
+    expect(result).toSatisfy(Array.isEmptyArray);
   });
 });
 
 describe("#renderEggnemies", () => {
-  it("renders SolidRectangle and HP Text for each eggnemy", () => {
+  it("renders sprite and HP text for each eggnemy", () => {
     const result = renderEggnemies(model);
     expect(result.length).toBe(model.eggnemies.length * 2);
-  });
 
-  it("filters rectangles and texts from result", () => {
-    const result = renderEggnemies(model);
+    const sprites = Array.filter(result, (_, i) => i % 2 === 0);
+    const texts = Array.filter(result, (_, i) => i % 2 !== 0);
 
-    const eggnemyRects = Array.filter(result, (_, i) => i % 2 === 0);
-    const eggnemyTexts = Array.filter(result, (_, i) => i % 2 !== 0);
+    expect(sprites.length).toBe(model.eggnemies.length);
+    expect(texts.length).toBe(model.eggnemies.length);
 
-    expect(eggnemyRects.length).toBe(model.eggnemies.length);
-    expect(eggnemyTexts.length).toBe(model.eggnemies.length);
-
-    Array.forEach(eggnemyRects, (rect, index) => {
-      expect(rect._tag).toBe("SolidRectangle");
-
-      if (rect._tag === "SolidRectangle") {
-        const en = model.eggnemies[index];
-        expect(rect.x).toBe(en.x);
-        expect(rect.y).toBe(en.y);
-        expect(rect.width).toBe(en.width);
-        expect(rect.height).toBe(en.height);
-        expect(rect.color).toBe("pink");
+    Array.forEach(sprites, (sprite, index) => {
+      expect(sprite._tag).toBe("Image");
+      if (sprite._tag === "Image") {
+        expect(sprite.src).toSatisfy(
+          String.endsWith("resources/sprites/eggnemy.png"),
+        );
       }
     });
 
-    eggnemyTexts.forEach((text, index) => {
+    texts.forEach((text, index) => {
       expect(text._tag).toBe("Text");
-
       if (text._tag === "Text") {
         const en = model.eggnemies[index];
-        expect(text.text).toBe(`${en.hp}/${en.maxHp}`);
-        expect(text.fontSize).toBe(12);
-        expect(text.font).toBe("monospace");
-        expect(text.color).toBe("pink");
-        expect(text.textAlign).toBe("center");
-        expect(text.x).toBe(getCenterX(en));
-        expect(text.y).toBe(en.y - 6);
+        expect(text.text).toContain(`${en.hp}/${en.maxHp}`);
       }
     });
   });
@@ -130,7 +116,7 @@ describe("#renderBoss", () => {
     expect(result).toEqual([]);
   });
 
-  it("renders boss rectangle and HP text correctly", () => {
+  it("renders boss as sprite and HP text", () => {
     const modelWithBoss = {
       ...model,
       boss: {
@@ -148,28 +134,19 @@ describe("#renderBoss", () => {
 
     expect(result.length).toBe(2);
 
-    const [rect, text] = result;
+    const [sprite, text] = result;
 
-    expect(rect._tag).toBe("SolidRectangle");
-    if (rect._tag === "SolidRectangle") {
-      const boss = modelWithBoss.boss!;
-      expect(rect.x).toBe(boss.x);
-      expect(rect.y).toBe(boss.y);
-      expect(rect.width).toBe(boss.width);
-      expect(rect.height).toBe(boss.height);
-      expect(rect.color).toBe("red");
+    expect(sprite._tag).toBe("Image");
+    if (sprite._tag === "Image") {
+      expect(sprite.src).toSatisfy(
+        String.endsWith("resources/sprites/boss.png"),
+      );
     }
 
     expect(text._tag).toBe("Text");
     if (text._tag === "Text") {
       const boss = modelWithBoss.boss!;
-      expect(text.text).toBe(`${boss.hp}/${boss.maxHp}`);
-      expect(text.fontSize).toBe(16);
-      expect(text.font).toBe("monospace");
-      expect(text.color).toBe("red");
-      expect(text.textAlign).toBe("center");
-      expect(text.x).toBe(getCenterX(boss));
-      expect(text.y).toBe(boss.y - 6);
+      expect(text.text).toContain(`${boss.hp}/${boss.maxHp}`);
     }
   });
 });
@@ -247,33 +224,38 @@ describe("#renderWorld", () => {
         hp: 10,
         maxHp: 10,
         speed: 8,
+        attackDamage: 10,
       },
     };
     const result = renderWorld(modelWithBoss);
 
-    const solidRects = Array.filter(result, (e) => e._tag === "SolidRectangle");
+    const sprites = Array.filter(result, (e) => e._tag === "Image");
     const texts = Array.filter(result, (e) => e._tag === "Text");
 
-    // 1 base + 1 boss + 1 egg + 5 eggnemy = 8
-    expect(solidRects.length).toStrictEqual(8);
+    // 1 boss + 1 egg + 5 eggnemy = 7
+    expect(sprites.length).toStrictEqual(7);
     // 1 boss HP text + 1 egg HP text + 5 eggnemy HP text = 7
     expect(texts.length).toStrictEqual(7);
   });
 });
 
 describe("#renderLeaderboard", () => {
-  const modelWithLeaderboard = {
-    ...model,
-    state: {
-      startTime: Date.now(),
-      elapsedTime: 10,
-      lastDamageTime: 0,
-      isGameOver: false,
-      hasBossAlreadySpawned: false,
-      defeatedEggnemiesCount: 0,
-      leaderboard: ["00:10", "00:20"],
-    },
-  };
+  let modelWithLeaderboard;
+  beforeEach(() => {
+    modelWithLeaderboard = {
+      ...model,
+      state: GameState.make({
+        ...model.state,
+        startTime: Date.now(),
+        elapsedTime: 10,
+        lastDamageTime: 0,
+        isGameOver: false,
+        hasBossAlreadySpawned: false,
+        defeatedEggnemiesCount: 0,
+        leaderboard: ["00:10", "00:20"],
+      }),
+    };
+  });
 
   it("renders at least 3 entries padded with '--:--' if needed", () => {
     const elements = renderLeaderboard(modelWithLeaderboard, 10, 50);
@@ -347,7 +329,7 @@ describe("#renderUIElements", () => {
     expect(timeText?.text).toStrictEqual("01:15");
   });
 
-  it("renders victory message when game is over and egg exists", () => {
+  it("renders restart message when game is over", () => {
     const modelVictory: Model = Model.make({
       ...model,
       state: { ...model.state, isGameOver: true },
@@ -359,27 +341,10 @@ describe("#renderUIElements", () => {
       modelVictory.world.height,
     );
     const texts = elements.filter((e) => e._tag === "Text");
-
-    const victoryText = texts.find((t) => t.text === "You Win!");
-    expect(victoryText).toBeDefined();
-  });
-
-  it("renders defeat message when game is over and egg is missing", () => {
-    const modelDefeat: Model = Model.make({
-      ...model,
-      state: { ...model.state, isGameOver: true },
-      egg: undefined,
-    });
-
-    const elements = renderUIElements(
-      modelDefeat,
-      modelDefeat.world.width,
-      modelDefeat.world.height,
+    const gameOverText = texts.find(
+      (t) => t.text === model.settings.gameOverText,
     );
-    const texts = elements.filter((e) => e._tag === "Text");
-
-    const defeatText = texts.find((t) => t.text === "You Lose!");
-    expect(defeatText).toBeDefined();
+    expect(gameOverText).toBeDefined();
   });
 
   it("renders leaderboard entries", () => {

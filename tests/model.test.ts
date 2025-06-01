@@ -85,7 +85,7 @@ describe("#model", () => {
   it("settings are initialized with valid parameters", () => {
     expect(model.settings).toBeDefined();
     expect(model.settings.bossSpawnThreshold).toBeGreaterThan(0);
-    expect(model.settings.victoryText).toBeDefined();
+    expect(model.settings.gameOverText).toBeDefined();
     expect(model.settings.errorText).toBeDefined();
   });
 
@@ -115,7 +115,9 @@ describe("#model", () => {
     expect(model.settings.eggnemySpawningRatePerTick).toStrictEqual(
       settings.game.eggnemySpawningRatePerTick,
     );
-    expect(model.settings.victoryText).toStrictEqual(settings.game.victoryText);
+    expect(model.settings.gameOverText).toStrictEqual(
+      settings.game.gameOverText,
+    );
     expect(model.settings.errorText).toStrictEqual(settings.game.errorText);
   });
 });
