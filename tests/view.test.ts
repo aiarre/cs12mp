@@ -1,8 +1,13 @@
 import { Array, String } from "effect";
 import { beforeEach, describe, expect, it } from "vitest";
+import {
+  type CanvasElement,
+  SolidRectangle,
+  Text,
+} from "../cs12242-mvu/src/canvas";
 import { GameState, initModel, Model } from "../model";
 import * as settings from "../settings.json";
-import { formatTime, getCenterX } from "../utils";
+import { formatTime } from "../utils";
 import {
   offsetElementBy,
   renderBoss,
@@ -14,11 +19,6 @@ import {
   renderWorld,
   view,
 } from "../view";
-import {
-  type CanvasElement,
-  SolidRectangle,
-  Text,
-} from "../cs12242-mvu/src/canvas";
 
 let model: Model;
 beforeEach(() => {

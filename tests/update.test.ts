@@ -1,6 +1,6 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { Msg } from "../msg";
+import { beforeEach, describe, expect, it } from "vitest";
 import { initModel, Model } from "../model";
+import { Msg } from "../msg";
 import { update } from "../update";
 
 let model: Model;
